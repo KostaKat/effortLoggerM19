@@ -90,6 +90,7 @@ public class Main extends Application {
         fxmlLoader.setController(temp);
         Parent root = fxmlLoader.load();
         return root;
+
     }
     private static Parent loadViewLogFXML(ArrayList<Log> logArrayList) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/org/FXML/"+"ViewLog.fxml"));
