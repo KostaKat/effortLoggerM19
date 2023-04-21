@@ -20,7 +20,7 @@ import com.HTTPHandler.server.Server;
  * JavaFX App
  */
 public class Main extends Application {
-
+    private static String fxmlPath = "/org/FXML/";
     private static Scene scene;
     public static ArrayList<User> users = new ArrayList<>();
 
@@ -57,26 +57,26 @@ public class Main extends Application {
     }
 
     private static Parent loadCreateLogFXML(ArrayList<Log> logArrayList) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/org/FXML/"+ "CreateLog.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource(fxmlPath+ "CreateLog.fxml"));
         PrimaryController temp = new PrimaryController(logArrayList);
         fxmlLoader.setController(temp);
         Parent root = fxmlLoader.load();
         return root;
     }
     private static Parent loadLoginFXML() throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/org/FXML/"+"login.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource(fxmlPath+"login.fxml"));
         Parent root = fxmlLoader.load();
         return root;
     }
     private static Parent loadViewLogFXML(ArrayList<Log> logArrayList) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/org/FXML/"+"ViewLog.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource(fxmlPath+"ViewLog.fxml"));
         viewController temp = new viewController(logArrayList);
         fxmlLoader.setController(temp);
         Parent root = fxmlLoader.load();
         return root;
     }
     private static Parent loadSignUpFXML(String fxml) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/org/FXML/"+fxml+ ".fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource(fxmlPath+fxml+ ".fxml"));
         Parent root = fxmlLoader.load();
         return root;
     }

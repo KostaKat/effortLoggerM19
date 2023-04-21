@@ -11,4 +11,7 @@ module org.openjfx.hellofx {
 
     opens com.Frontend to javafx.fxml;
     exports com.Frontend;
+    opens com.Frontend.Controllers to javafx.fxml;
+    exports com.Frontend.Controllers;
+
 }
