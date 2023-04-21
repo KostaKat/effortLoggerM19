@@ -24,7 +24,7 @@ public class CreateLogController {
 
     @FXML private ChoiceBox<String> project, lifeCycleStep, effortCategory, effortDetail;
     @FXML private TextArea logDescription;
-    @FXML private Button start, stop, viewLog;
+    @FXML private Button start, stop, viewLog, editLog;
     @FXML private Label warnL, clock, timeStart;
     Alert alert = new Alert(AlertType.WARNING);
 
@@ -34,6 +34,13 @@ public class CreateLogController {
 
     @FXML
     private void initialize(){
+        editLog.setOnAction(event -> {
+            try {
+                Main.setRoot("EditLog", logs);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
         logDescription.setWrapText(true);
         project.getItems().addAll("Business Project", "Development Project");
         project.setValue("Business Project");

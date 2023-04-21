@@ -17,7 +17,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 public class ViewLogController {
     @FXML private TableView logTable;
     @FXML private TableColumn<Log, String> id, time,time1, project, effortCategory, lifeCycleStep, effortDetail;
-    @FXML private Button back;
+    @FXML private Button logConsole, editLog;
     ArrayList<Log> logArrayList = null;
 
     public ViewLogController(ArrayList<Log> logArrayList){
@@ -26,6 +26,21 @@ public class ViewLogController {
 
     @FXML
     private void initialize(){
+        editLog.setOnAction(event -> {
+            try {
+                Main.setRoot("EditLog", logArrayList);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+        logConsole.setOnAction(event -> {
+            try {
+                Main.setRoot("CreateLog", logArrayList);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+
         ObservableList<Log> logList = FXCollections.observableArrayList(logArrayList);
         id.setCellValueFactory(new PropertyValueFactory<>("employee"));
         time.setCellValueFactory(new PropertyValueFactory<>("startTime"));
@@ -37,10 +52,10 @@ public class ViewLogController {
         lifeCycleStep.setCellValueFactory(new PropertyValueFactory<>("lifeCycleStep"));
         effortDetail.setCellValueFactory(new PropertyValueFactory<>("effortDetail"));
         logTable.setItems(logList);
-    }
-    @FXML
-    private void changeBack() throws IOException {
-        Main.setRoot("CreateLog", logArrayList);
+        logTable.setOnMouseClicked(event -> {
+            Log current = (Log) logTable.getSelectionModel().getSelectedItem();
+            System.out.println(current);
+        });
     }
 
 }

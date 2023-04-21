@@ -4,6 +4,7 @@ Author : Yihui Wu
 package com.Frontend;
 
 import com.Frontend.Controllers.CreateLogController;
+import com.Frontend.Controllers.EditLogController;
 import com.Frontend.Controllers.ViewLogController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -38,8 +39,7 @@ public class Main extends Application {
 			e.printStackTrace();
 		}
         stage.setScene(scene);
-        stage.setMinHeight(400);
-        stage.setMinWidth(500);
+        stage.sizeToScene();
         stage.show();
     }
 
@@ -51,14 +51,12 @@ public class Main extends Application {
             case "signUp":
                 scene.setRoot(loadSignUpFXML());
                 stage.setScene(scene);
-                stage.setMinHeight(400);
-                stage.setMinWidth(500);
+                stage.sizeToScene();
                 break;
             case "login":
                 scene.setRoot(loadLoginFXML());
                 stage.setScene(scene);
-                stage.setMinHeight(400);
-                stage.setMinWidth(500);
+                stage.sizeToScene();
                 break;
         }
     }
@@ -71,14 +69,17 @@ public class Main extends Application {
             case "ViewLog":
                 scene.setRoot(loadViewLogFXML(logArrayList));
                 stage.setScene(scene);
-                stage.setMinHeight(400);
-                stage.setMinWidth(684);
+                stage.sizeToScene();
                 break;
             case "CreateLog":
                 scene.setRoot(loadCreateLogFXML(logArrayList));
                 stage.setScene(scene);
-                stage.setMinHeight(400);
-                stage.setMinWidth(684);
+                stage.sizeToScene();
+                break;
+            case "EditLog":
+                scene.setRoot(loadEditLogController(logArrayList));
+                stage.setScene(scene);
+                stage.sizeToScene();
                 break;
         }
     }
@@ -95,6 +96,13 @@ public class Main extends Application {
     private static Parent loadViewLogFXML(ArrayList<Log> logArrayList) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/org/FXML/"+"ViewLog.fxml"));
         ViewLogController temp = new ViewLogController(logArrayList);
+        fxmlLoader.setController(temp);
+        Parent root = fxmlLoader.load();
+        return root;
+    }
+    private static Parent loadEditLogController(ArrayList<Log> logArrayList) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/org/FXML/"+"editLog.fxml"));
+        EditLogController temp = new EditLogController(logArrayList);
         fxmlLoader.setController(temp);
         Parent root = fxmlLoader.load();
         return root;
