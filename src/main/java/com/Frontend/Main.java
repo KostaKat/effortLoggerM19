@@ -3,6 +3,8 @@ Author : Yihui Wu
  */
 package com.Frontend;
 
+import com.Frontend.Controllers.CreateLogController;
+import com.Frontend.Controllers.ViewLogController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -12,8 +14,6 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import com.Frontend.Controllers.PrimaryController;
-import com.Frontend.Controllers.viewController;
 import com.HTTPHandler.server.Server;
 
 /**
@@ -45,8 +45,6 @@ public class Main extends Application {
         scene.setRoot(loadSignUpFXML(fxml));
     }
 
-
-
     public static void setRoot(String fxml, ArrayList<Log> logArrayList) throws IOException {
         switch(fxml){
             case "ViewLog":
@@ -60,7 +58,7 @@ public class Main extends Application {
 
     private static Parent loadCreateLogFXML(ArrayList<Log> logArrayList) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/org/FXML/"+ "CreateLog.fxml"));
-        PrimaryController temp = new PrimaryController(logArrayList);
+        CreateLogController temp = new CreateLogController(logArrayList);
         fxmlLoader.setController(temp);
         Parent root = fxmlLoader.load();
         return root;
@@ -72,7 +70,7 @@ public class Main extends Application {
     }
     private static Parent loadViewLogFXML(ArrayList<Log> logArrayList) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/org/FXML/"+"ViewLog.fxml"));
-        viewController temp = new viewController(logArrayList);
+        ViewLogController temp = new ViewLogController(logArrayList);
         fxmlLoader.setController(temp);
         Parent root = fxmlLoader.load();
         return root;

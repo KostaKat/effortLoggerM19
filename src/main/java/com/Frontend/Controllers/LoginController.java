@@ -1,13 +1,15 @@
+/*
+Author : Yihui Wu
+ */
 package com.Frontend.Controllers;
 
+import com.Frontend.Log;
+import com.Frontend.Main;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
+import javafx.scene.control.PasswordField;
 import org.json.JSONObject;
-
-import com.Frontend.Main;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -15,41 +17,24 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-
-
-public class SignUpController{
-    public static String firstT;
-    public static String lastT;
-    @FXML
-    private TextField firstTextField;
-
-    @FXML
-    private TextField lastTextField;
+import java.util.ArrayList;
+import javafx.scene.control.TextField;
+public class LoginController {
+    ArrayList<Log> logArrayList = new ArrayList<Log>();
+    @FXML Button pass;
+    @FXML TextField username;
+    @FXML PasswordField password;
 
     @FXML
-    private TextField passTextField;
-
-    @FXML
-    private Button signupButton;
-
-    @FXML
-    private Button loginButton;
-
-    @FXML
-    private TextField userTextField;
-
-    @FXML
-    void change() throws IOException {
-        if (!userTextField.getText().trim().isEmpty() && !passTextField.getText().trim().isEmpty()) {
-            String url = "http://localhost:8086/register";
+    void loadPage() throws IOException {
+        if (!username.getText().trim().isEmpty() && !password.getText().trim().isEmpty()) {
+            String url = "http://localhost:8086/login";
 
             // Set the JSON data to send in the request body
             JSONObject requestBody = new JSONObject();
-            requestBody.put("Username", userTextField.getText());
-            requestBody.put("Password", passTextField.getText());
-            requestBody.put("First-Name", firstTextField.getText());
-            requestBody.put("Last-Name", lastTextField.getText());
-            requestBody.put("User-Type", "Employee");
+            requestBody.put("Username", username.getText());
+            requestBody.put("Password", password.getText());
+
 
             // Convert the JSON object to a string
             String requestBodyString = requestBody.toString();
@@ -81,6 +66,15 @@ public class SignUpController{
                 while ((line = in.readLine()) != null) {
                     responseBuilder.append(line);
                 }
+            } catch (Exception e) {
+                // If there is an exception, read the response from the error stream instead
+                try (BufferedReader in = new BufferedReader(
+                        new InputStreamReader(con.getErrorStream(), StandardCharsets.UTF_8))) {
+                    String line;
+                    while ((line = in.readLine()) != null) {
+                        responseBuilder.append(line);
+                    }
+                }
             }
             String response = responseBuilder.toString();
 
@@ -89,21 +83,26 @@ public class SignUpController{
             System.out.println("Response message: " + responseMessage);
             System.out.println("Response body: " + response);
             if(responseCode == 200){
-                firstT = firstTextField.getText();
-                lastT = lastTextField.getText();
-                Main.setRoot("login");
+                Main.setRoot("CreateLog", logArrayList);
             }else{
-                System.out.println("Register did not successful");
+                System.out.println("Username or Password is not correct, you need register one first");
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setContentText("Username or Password is not correct, you need register one");
+                alert.show();
             }
-        } else {
+        }else{
             System.out.println("Please fill in all information");
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setContentText("Please Fill in all information");
             alert.show();
         }
     }
+     @FXML
+     void loadCreatePage() throws IOException {
+         Main.setRoot("CreateLog", logArrayList);
+     }
     @FXML
-    void login() throws IOException {
-        Main.setRoot("login");
+    void register() throws IOException {
+        Main.setRoot("signUp");
     }
 }
