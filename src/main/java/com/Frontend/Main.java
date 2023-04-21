@@ -91,13 +91,13 @@ public class Main extends Application {
 
 
     private static Parent loadCreateLogFXML(ArrayList<Log> logArrayList) throws IOException {
-<<<<<<< HEAD
+
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource(fxmlPath+ "CreateLog.fxml"));
         PrimaryController temp = new PrimaryController(logArrayList);
-=======
+
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/org/FXML/"+ "CreateLog.fxml"));
         CreateLogController temp = new CreateLogController(logArrayList);
->>>>>>> 0c54bde8583cb045dacc306bc0e56bc4721da948
+
         fxmlLoader.setController(temp);
         Parent root = fxmlLoader.load();
         return root;
@@ -119,10 +119,10 @@ public class Main extends Application {
         Parent root = fxmlLoader.load();
         return root;
     }
-<<<<<<< HEAD
+
     private static Parent loadViewLogFXML(ArrayList<Log> logArrayList) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource(fxmlPath+"ViewLog.fxml"));
-        viewController temp = new viewController(logArrayList);
+        ViewLogController temp = new ViewLogController(logArrayList);
         fxmlLoader.setController(temp);
         Parent root = fxmlLoader.load();
         return root;
@@ -133,8 +133,7 @@ public class Main extends Application {
         return root;
     }
 
-=======
->>>>>>> 0c54bde8583cb045dacc306bc0e56bc4721da948
+
     public static void main(String[] args) {
         launch();
     }
