@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import com.HTTPHandler.server.Server;
+import javafx.stage.Window;
 
 /**
  * JavaFX App
@@ -37,34 +38,62 @@ public class Main extends Application {
 			e.printStackTrace();
 		}
         stage.setScene(scene);
-        
+        stage.setMinHeight(400);
+        stage.setMinWidth(500);
         stage.show();
     }
 
+    //switch scene
     public static void setRoot(String fxml) throws IOException {
-        scene.setRoot(loadSignUpFXML(fxml));
-    }
-
-    public static void setRoot(String fxml, ArrayList<Log> logArrayList) throws IOException {
+        Window window = scene.getWindow();
+        Stage stage = (Stage) window;
         switch(fxml){
-            case "ViewLog":
-                scene.setRoot(loadViewLogFXML(logArrayList));
+            case "signUp":
+                scene.setRoot(loadSignUpFXML());
+                stage.setScene(scene);
+                stage.setMinHeight(400);
+                stage.setMinWidth(500);
                 break;
-            case "CreateLog":
-                scene.setRoot(loadCreateLogFXML(logArrayList));
+            case "login":
+                scene.setRoot(loadLoginFXML());
+                stage.setScene(scene);
+                stage.setMinHeight(400);
+                stage.setMinWidth(500);
                 break;
         }
     }
+
+    //switch scene
+    public static void setRoot(String fxml, ArrayList<Log> logArrayList) throws IOException {
+        Window window = scene.getWindow();
+        Stage stage = (Stage) window;
+        switch(fxml){
+            case "ViewLog":
+                scene.setRoot(loadViewLogFXML(logArrayList));
+                stage.setScene(scene);
+                stage.setMinHeight(400);
+                stage.setMinWidth(684);
+                break;
+            case "CreateLog":
+                scene.setRoot(loadCreateLogFXML(logArrayList));
+                stage.setScene(scene);
+                stage.setMinHeight(400);
+                stage.setMinWidth(684);
+                break;
+        }
+    }
+
+
+
+
+
+
+
 
     private static Parent loadCreateLogFXML(ArrayList<Log> logArrayList) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/org/FXML/"+ "CreateLog.fxml"));
         CreateLogController temp = new CreateLogController(logArrayList);
         fxmlLoader.setController(temp);
-        Parent root = fxmlLoader.load();
-        return root;
-    }
-    private static Parent loadLoginFXML() throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/org/FXML/"+"login.fxml"));
         Parent root = fxmlLoader.load();
         return root;
     }
@@ -75,12 +104,16 @@ public class Main extends Application {
         Parent root = fxmlLoader.load();
         return root;
     }
-    private static Parent loadSignUpFXML(String fxml) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/org/FXML/"+fxml+ ".fxml"));
+    private static Parent loadSignUpFXML() throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/org/FXML/"+"signUp.fxml"));
         Parent root = fxmlLoader.load();
         return root;
     }
-
+    private static Parent loadLoginFXML() throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/org/FXML/"+"login.fxml"));
+        Parent root = fxmlLoader.load();
+        return root;
+    }
     public static void main(String[] args) {
         launch();
     }
