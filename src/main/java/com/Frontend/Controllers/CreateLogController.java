@@ -115,7 +115,7 @@ public class CreateLogController {
             warnL.setDisable(false);
         }else{
             LocalDateTime currentDateTime = LocalDateTime.now();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
             String formattedDateTime = currentDateTime.format(formatter);
             clock.setText("TIME START ON:");
             timeStart.setText(formattedDateTime);
@@ -145,7 +145,7 @@ public class CreateLogController {
             clock.setText("CLOCK IS STOPPED");
             timeStart.setText(null);
             LocalDateTime currentDateTime = LocalDateTime.now();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
             String formattedDateTime = currentDateTime.format(formatter);
             taskLog.setEndTime(formattedDateTime);
             taskLog.setProject(project.getValue());

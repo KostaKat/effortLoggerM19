@@ -9,9 +9,9 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="400.0" prefWidth="684.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" >
+<BorderPane prefHeight="400.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1">
    <center>
-      <AnchorPane maxHeight="-1.0" maxWidth="-1.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="360.0" prefWidth="684.0" style="-fx-background-color: aliceblue;" BorderPane.alignment="CENTER">
+      <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="360.0" prefWidth="684.0" style="-fx-background-color: aliceblue;" BorderPane.alignment="CENTER">
          <children>
             <Label layoutX="23.0" layoutY="14.0" style="-fx-font-size: 25;" text="Log Console" />
             <Button fx:id="start" layoutX="450.0" layoutY="205.0" mnemonicParsing="false" onAction="#start" prefHeight="25.0" prefWidth="128.0" text="Start Activity" />
@@ -47,7 +47,7 @@
          <items>
             <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="140.0" text="Current: Log Console" />
             <Button fx:id="viewLog" mnemonicParsing="false" onAction="#changeState" prefHeight="25.0" prefWidth="140.0" text="View Logs" />
-            <Button disable="true" mnemonicParsing="false" prefHeight="25.0" prefWidth="140.0" text="[unimplemented]" />
+            <Button fx:id="editLog" mnemonicParsing="false" prefHeight="25.0" prefWidth="140.0" text="Edit Task Logs" />
             <Button disable="true" mnemonicParsing="false" prefHeight="25.0" prefWidth="140.0" text="unimplemented" />
          </items>
       </ToolBar>
