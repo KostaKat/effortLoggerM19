@@ -11,20 +11,26 @@ import java.util.ArrayList;
 import com.Frontend.Log;
 import com.Frontend.Main;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 public class CreateLogController {
 
     private Log taskLog;
     private ArrayList<Log> logs = new ArrayList<>();
+
     int startFlag = 0;
 
 
     @FXML private ChoiceBox<String> project, lifeCycleStep, effortCategory, effortDetail;
     @FXML private TextArea logDescription;
-    @FXML private Button start, stop, viewLog, editLog;
+    @FXML private Button start, stop, viewLog, editLog, interruption;
     @FXML private Label warnL, clock, timeStart;
     Alert alert = new Alert(AlertType.WARNING);
 
@@ -34,6 +40,22 @@ public class CreateLogController {
 
     @FXML
     private void initialize(){
+        interruption.setOnAction(event -> {
+            try{
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/FXML/"+ "interruption.fxml"));
+                InterruptionController temp = new InterruptionController();
+                loader.setController(temp);
+                Parent root = loader.load();
+
+                Stage popupStage = new Stage();
+                popupStage.initModality(Modality.APPLICATION_MODAL);
+                popupStage.setScene(new Scene(root));
+                popupStage.setTitle("Pop-up Page");
+                popupStage.showAndWait();
+            }catch(IOException e){
+
+            }
+        });
         editLog.setOnAction(event -> {
             try {
                 Main.setRoot("EditLog", logs);
