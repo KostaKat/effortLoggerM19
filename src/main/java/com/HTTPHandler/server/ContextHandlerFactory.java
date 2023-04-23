@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.util.Map;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import com.Database.DatabaseManager;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -218,6 +219,7 @@ class RegisterContextHandler implements HttpHandler {
 	public void handle(HttpExchange exchange) throws IOException {
 		 try {
 	            RegisterHandlerHelper helper = new RegisterHandlerHelper();
+                DatabaseManager databaseManager = new DatabaseManager();
 	            System.out.println("Register context handler started");
 	            String requestMethod = exchange.getRequestMethod();
 	            if ("POST".equals(requestMethod)) {
@@ -233,43 +235,44 @@ class RegisterContextHandler implements HttpHandler {
 	                ObjectMapper objectMapper = new ObjectMapper();
 	                if (registerSuccess) {
 	                    JsonNode jsonNode = objectMapper.readTree(requestBody);
+                        ObjectNode jsonResponse = objectMapper.createObjectNode();
 	                    // Retrieving values of each attribute 
 	                    String username = jsonNode.get("Username").asText();
 	                    String password = jsonNode.get("Password").asText();
 	                    String firstName = jsonNode.get("First-Name").asText();
 	                    String lastName = jsonNode.get("Last-Name").asText();
 	                    String userType = jsonNode.get("User-Type").asText();
+                        String employeeID = helper.generateEmployeeID();
+                        
+                        if(userType.equalsIgnoreCase("Employee")){
+                            String managerID = jsonNode.get("ManagerID").asText();
+
+                            System.out.println("Generating employee ID");
+                            
+
+                            databaseManager.insertNewEmployee(employeeID, firstName, lastName, 
+                                                                username, password, userType, 
+                                                                managerID, managerID);
+                            
+                        }else{
+                            System.out.println("Generating manager ID");
+                            databaseManager.insertNewManager(employeeID, firstName, lastName, username, password, userType);
+                            jsonResponse.put("ManagerID", employeeID);
+                        }
 	                    System.out.println("Registering user with username: " + username);
 
-	                    try {
-	                        Connection connection = DriverManager.getConnection("jdbc:sqlite:mydatabase.db");
-	                        String sql = "INSERT INTO Employee (Username, Password, FirstName, LastName, UserType) VALUES (?, ?, ?, ?, ?)";
-	                        PreparedStatement statement = connection.prepareStatement(sql);
-	                        statement.setString(1, username);
-	                        statement.setString(2, password);
-	                        statement.setString(3, firstName);
-	                        statement.setString(4, lastName);
-	                        statement.setString(5, userType);
-	                        int rowsInserted = statement.executeUpdate();
-	                        if (rowsInserted > 0) {
-	                            System.out.println("A new user was inserted successfully!");
-	                        }
-	                        statement.close();
-	                        connection.close();
-	                    } catch (SQLException e) {
-	                        System.out.println("Error: " + e.getMessage());
-	                    }
+	                   
 	                    // Generate the key pair using the createKeys() method
-	                    Map<String, String> keys = helper.createKeys();
+	                    // Map<String, String> keys = helper.createKeys();
 	                    // Add the keys to the JSON response
-	                    ObjectNode jsonResponse = objectMapper.createObjectNode();
+	                    
 	                    jsonResponse.put("status", "success");
 	                    jsonResponse.put("message", "Registration successful.");
-	                    //send server's public key
-	                    jsonResponse.put("public-key-server", keys.get("public-key"));
-	                    //send client's private key
-	                    jsonResponse.put("private-key-client", keys.get("private-key"));
-	                    System.out.println("Sending registration response to client");
+	                    // //send server's public key
+	                    // jsonResponse.put("public-key-server", keys.get("public-key"));
+	                    // //send client's private key
+	                    // jsonResponse.put("private-key-client", keys.get("private-key"));
+	                    // System.out.println("Sending registration response to client");
 
 	                    //save client public key in database
 	                    String response = objectMapper.writeValueAsString(jsonResponse);
@@ -310,6 +313,7 @@ class RegisterContextHandler implements HttpHandler {
     	//check if there username exists in db
         if(!helper.checkIfUserExists(requestBody))
         	return false;
+        
         return true;
     }
 }

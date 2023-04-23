@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.sql.*;
-
+import java.util.UUID;
 /**
  * <p>
  * A helper class for the RegisterHandler that provides methods for validating
@@ -46,25 +46,26 @@ public class RegisterHandlerHelper extends HandlerHelpers {
 	    // Assume requestBody is the JSON string received in the HTTP request
 	    ObjectMapper mapper = new ObjectMapper();
 	    JsonNode jsonNode = mapper.readTree(requestBody);
+		if (jsonNode.has("Username")
+        && jsonNode.has("Password")
+        && jsonNode.has("First-Name")
+        && jsonNode.has("Last-Name")
+        && jsonNode.has("User-Type")) {
+			
+    String userType = jsonNode.get("User-Type").asText();
+	System.out.println(userType);
+    if (userType.equals("Employee") && !jsonNode.has("ManagerID")) {
+		System.out.println("Incorrect attributes.");
+        return false;
+    }
+	System.out.println("Coorect attributes.");
+    return userType.equalsIgnoreCase("Employee") || userType.equalsIgnoreCase("Manager");
+} else {
+    System.out.println("Incorrect attributes.");
+    return false;
+}
 
-	    if (jsonNode.has("Username")
-	            && jsonNode.has("Password")
-	            && jsonNode.has("First-Name")
-	            && jsonNode.has("Last-Name")
-	            && jsonNode.has("User-Type")) {
-	    	System.out.println("correct attributes");
-	    	
-	        return true;
-
-	    } else {
-	    	System.out.println("u:"+jsonNode.has("Username")
-            +"p"+jsonNode.has("Password")
-            +"f"+jsonNode.has("First-Name")
-             +"L"+jsonNode.has("Last-Name")
-            +"t"+jsonNode.has("User-Type") );
-	    	System.out.println("incorrect attributes");
-	        return false;
-	    }
+		
 	}
 
 
@@ -163,5 +164,14 @@ public class RegisterHandlerHelper extends HandlerHelpers {
 	        return false;
 	    }
 	}
+
+
+    public String generateEmployeeID() {
+         // Generate a new UUID
+		 UUID uuid = UUID.randomUUID();
+        
+		 // Print the UUID
+		 return uuid.toString();
+    }
 
 }

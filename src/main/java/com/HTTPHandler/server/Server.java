@@ -46,8 +46,7 @@ public class Server {
             // Set the handler for the context using the factory
             context.setHandler(contextFactory.create(endpoint));
         }
-        DatabaseManager dbManager = new DatabaseManager();
-        dbManager.createDatabase();
+       
         // Start the server
         server.start();
         
