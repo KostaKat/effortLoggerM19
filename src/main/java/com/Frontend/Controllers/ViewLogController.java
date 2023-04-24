@@ -17,7 +17,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 public class ViewLogController {
     @FXML private TableView logTable;
     @FXML private TableColumn<Log, String> id, time,time1, project, effortCategory, lifeCycleStep, effortDetail;
-    @FXML private Button logConsole, editLog;
     private ArrayList<Log> logArrayList = null;
     private String authToken;
 
@@ -28,21 +27,6 @@ public class ViewLogController {
 
     @FXML
     private void initialize(){
-        editLog.setOnAction(event -> {
-            try {
-                Main.setRoot("EditLog", logArrayList, authToken);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
-        logConsole.setOnAction(event -> {
-            try {
-                Main.setRoot("CreateLog", logArrayList, authToken);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
-
         ObservableList<Log> logList = FXCollections.observableArrayList(logArrayList);
         id.setCellValueFactory(new PropertyValueFactory<>("employee"));
         time.setCellValueFactory(new PropertyValueFactory<>("startTime"));

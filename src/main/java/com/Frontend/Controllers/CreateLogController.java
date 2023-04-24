@@ -39,7 +39,8 @@ public class CreateLogController {
 
     @FXML private ChoiceBox<String> project, lifeCycleStep, effortCategory, effortDetail;
     @FXML private TextArea logDescription;
-    @FXML private Button start, stop, viewLog, editLog, interruption;
+    @FXML private Button start, stop, interruption;
+    @FXML private MenuItem viewLog, editLog;
     @FXML private Label warnL, clock, timeStart;
     Alert alert = new Alert(AlertType.WARNING);
 
@@ -69,6 +70,22 @@ public class CreateLogController {
         editLog.setOnAction(event -> {
             try {
                 Main.setRoot("EditLog", logs, authToken);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+        viewLog.setOnAction(event -> {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/FXML/"+ "ViewLog.fxml"));
+                ViewLogController temp = new ViewLogController(logs, authToken);
+                loader.setController(temp);
+                Parent root = loader.load();
+
+                Stage popupStage = new Stage();
+                popupStage.initModality(Modality.APPLICATION_MODAL);
+                popupStage.setScene(new Scene(root));
+                popupStage.setTitle("Pop-up Page");
+                popupStage.showAndWait();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -195,16 +212,6 @@ public class CreateLogController {
         }
     }
 
-    @FXML
-    void changeState() throws IOException {
-        if(startFlag == 1){
-            alert.setTitle("Warning Dialog");
-            alert.setContentText("The Activity is running! Cannot change page!");
-            alert.show();
-        }else{
-            Main.setRoot("ViewLog", logs, authToken);
-        }
-    }
 
     void addDatabase() throws IOException {
         String url = "http://localhost:8086/addLog";

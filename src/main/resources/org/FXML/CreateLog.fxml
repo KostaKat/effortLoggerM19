@@ -3,8 +3,10 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.TextArea?>
-<?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.text.Font?>
@@ -43,14 +45,26 @@
          </children>
       </AnchorPane>
    </center>
-   <bottom>
-      <ToolBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-         <items>
-            <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="140.0" text="Current: Log Console" />
-            <Button fx:id="viewLog" mnemonicParsing="false" onAction="#changeState" prefHeight="25.0" prefWidth="140.0" text="View Logs" />
-            <Button fx:id="editLog" mnemonicParsing="false" prefHeight="25.0" prefWidth="140.0" text="Edit Task Logs" />
-            <Button disable="true" mnemonicParsing="false" prefHeight="25.0" prefWidth="140.0" text="unimplemented" />
-         </items>
-      </ToolBar>
-   </bottom>
+   <top>
+      <MenuBar BorderPane.alignment="CENTER">
+        <menus>
+          <Menu mnemonicParsing="false" text="Start Task">
+               <items>
+                  <MenuItem mnemonicParsing="false" text="Create Log Console" />
+               </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Task Log">
+               <items>
+                  <MenuItem fx:id="viewLog" mnemonicParsing="false" text="View Task Logs" />
+                  <MenuItem fx:id="editLog" mnemonicParsing="false" text="Edit Task Logs" />
+               </items>
+          </Menu>
+            <Menu mnemonicParsing="false" text="Log out">
+              <items>
+                <MenuItem mnemonicParsing="false" text="Confirm" />
+              </items>
+            </Menu>
+        </menus>
+      </MenuBar>
+   </top>
 </BorderPane>
