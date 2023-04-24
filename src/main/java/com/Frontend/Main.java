@@ -21,10 +21,8 @@ import javafx.stage.Window;
 /**
  * JavaFX App
  */
-//git
-//test
 public class Main extends Application {
-    private static String fxmlPath = "/org/FXML/";
+    private static final String fxmlPath = "/org/FXML/";
     private static Scene scene;
     public static ArrayList<User> users = new ArrayList<>();
 

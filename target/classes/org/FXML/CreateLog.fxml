@@ -16,11 +16,11 @@
       <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="360.0" prefWidth="684.0" style="-fx-background-color: aliceblue;" BorderPane.alignment="CENTER">
          <children>
             <Label layoutX="23.0" layoutY="14.0" style="-fx-font-size: 25;" text="Log Console" />
-            <Button fx:id="start" layoutX="450.0" layoutY="205.0" mnemonicParsing="false" onAction="#start" prefHeight="25.0" prefWidth="128.0" text="Start Activity" />
-            <Button fx:id="stop" layoutX="450.0" layoutY="259.0" mnemonicParsing="false" onAction="#end" prefHeight="25.0" prefWidth="128.0" text="Stop Activity" />
+            <Button fx:id="start" layoutX="450.0" layoutY="205.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="128.0" text="Start Activity" />
+            <Button fx:id="stop" layoutX="450.0" layoutY="259.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="128.0" text="Stop Activity" />
             <ChoiceBox fx:id="lifeCycleStep" layoutX="204.0" layoutY="82.0" prefHeight="26.0" prefWidth="170.0" />
             <TextArea fx:id="logDescription" layoutX="14.0" layoutY="205.0" prefHeight="107.0" prefWidth="395.0" promptText="Dercription" />
-            <ChoiceBox fx:id="project" layoutX="17.0" layoutY="82.0" onDragDone="#lifeCycleChange" onInputMethodTextChanged="#lifeCycleChange" prefHeight="25.0" prefWidth="170.0" />
+            <ChoiceBox fx:id="project" layoutX="17.0" layoutY="82.0" prefHeight="25.0" prefWidth="170.0" />
             <Label layoutX="23.0" layoutY="63.0" text="Porject:" />
             <Label layoutX="204.0" layoutY="63.0" text="Life Cycle Step:" />
             <Label layoutX="17.0" layoutY="127.0" text="Effort Category" />
@@ -61,7 +61,7 @@
           </Menu>
             <Menu mnemonicParsing="false" text="Log out">
               <items>
-                <MenuItem mnemonicParsing="false" text="Confirm" />
+                <MenuItem fx:id="logOut" mnemonicParsing="false" text="Confirm" />
               </items>
             </Menu>
         </menus>

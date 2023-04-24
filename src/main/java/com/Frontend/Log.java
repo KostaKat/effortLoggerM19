@@ -4,20 +4,17 @@ Author : Yihui Wu
 package com.Frontend;
 
 public class Log {
-    private String firstName;
-    private String lastName;
     private String project;
+    private String date;
     private String startTime;
     private String endTime;
     private String lifeCycleStep;
     private String effortCategory;
     private String effortDetail;
     private String logDescription;
-    private int employee;
 
-    public Log(String firstName, String lastName, String project, String startTime, String endTime, String lifeCycleStep, String effortCategory, String effortDetail, String logDescription, int employee) {
-        this.firstName = firstName;
-        this.lastName = lastName;
+    public Log(String project, String date, String startTime, String endTime, String lifeCycleStep, String effortCategory, String effortDetail, String logDescription) {
+        this.date = date;
         this.project = project;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -25,7 +22,6 @@ public class Log {
         this.effortCategory = effortCategory;
         this.effortDetail = effortDetail;
         this.logDescription = logDescription;
-        this.employee = employee;
     }
 
     public Log() {
@@ -34,20 +30,13 @@ public class Log {
 
     // Getters and setters for all fields
 
-    public String getFirstName() {
-        return firstName;
+
+    public void setDate(String date) {
+        this.date = date;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+    public String getDate(){
+        return date;
     }
 
     public String getProject() {
@@ -106,13 +95,6 @@ public class Log {
         this.logDescription = logDescription;
     }
 
-    public int getEmployee() {
-        return employee;
-    }
-
-    public void setEmployee(int employee) {
-        this.employee = employee;
-    }
 
     @Override
     public String toString() {
