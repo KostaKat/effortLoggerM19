@@ -7,6 +7,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 public class DatabaseManager {
 
   private final String dbUrl;
@@ -174,6 +177,37 @@ public class DatabaseManager {
     disconnect();
     return employeeID;
   }
+
+  public String getLogs(String employeeID) throws SQLException{
+
+    connect();
+    String sql = "SELECT * FROM Logs WHERE EmployeeID = ?";
+    PreparedStatement statement = connection.prepareStatement(sql);
+    statement.setString(1, employeeID);
+    
+    ResultSet rs = statement.executeQuery();
+    // Create a JSON array to hold the logs data
+    JSONArray logsArray = new JSONArray();
+      
+    // Loop through the result set and add each log to the JSON array
+    while (rs.next()) {
+        JSONObject logObject = new JSONObject();
+        logObject.put("LogID", rs.getInt("LogID"));
+        logObject.put("Date", rs.getString("Date"));
+        logObject.put("StartTime", rs.getString("StartTime"));
+        logObject.put("EndTime", rs.getString("EndTime"));
+        logObject.put("Project", rs.getInt("Project"));
+        logObject.put("EffortCategory", rs.getString("EffortCategory"));
+        logObject.put("EffortDetail", rs.getString("EffortDetail"));
+        logObject.put("LifeCycleStep", rs.getString("LifeCycleStep"));
+        logsArray.put(logObject);
+    }
+    
+    // Convert the JSON array to a string and send it back to the client
+    
+    return logsArray.toString();
+    
+    }
   
 }
 class InvalidManagerException extends Exception {
