@@ -116,8 +116,8 @@ public class Log {
 
     @Override
     public String toString() {
-        return String.format("Log [\nemployee: %d \nfirstName: %s, \nlastName: %s, \nproject: %s, \nstartTime: %s, \nendTime: %s, \nlifeCycleStep: %s, \neffortCategory: %s, \neffortDetail: %s, \nlogDescription: %s \n]",
-                employee, firstName, lastName, project, startTime, endTime, lifeCycleStep, effortCategory, effortDetail, logDescription);
+        return String.format("PROJECT: %s,   startTime: %s,   endTime: %s,   lifeCycleStep: %s,   effortCategory: %s,   effortDetail: %s",
+                project, startTime, endTime, lifeCycleStep, effortCategory, effortDetail);
     }
 }
 

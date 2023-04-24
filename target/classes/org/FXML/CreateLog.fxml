@@ -39,6 +39,7 @@
                   <Font size="14.0" />
                </font>
             </Label>
+            <Button fx:id="interruption" layoutX="606.0" layoutY="321.0" mnemonicParsing="false" text="Interruption" />
          </children>
       </AnchorPane>
    </center>
