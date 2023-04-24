@@ -105,6 +105,24 @@ public class DatabaseManager {
         }
        
     }
+    public boolean isUserTokenValid(String token, String username, String userType) throws SQLException {
+      // Query database for matching user record with matching token
+      
+      connect();
+      String sql = "SELECT COUNT(*) FROM Employee WHERE Username = ? AND UserType = ? AND Token = ?";
+      PreparedStatement statement = connection.prepareStatement(sql);
+      statement.setString(1, username);
+      statement.setString(2, userType);
+      statement.setString(3, token);
+      ResultSet resultSet = statement.executeQuery();
+      int count = resultSet.getInt(1);
+      statement.close();
+      disconnect();
+  
+      return count > 0;
+  }
+  
+  
 }
 class InvalidManagerException extends Exception {
     public InvalidManagerException(String message) {

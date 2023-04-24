@@ -379,10 +379,20 @@ class AddLogContextHandler implements HttpHandler {
      * @return true if the log was added successfully, false otherwise
      * @author Kosta Katergaris
      * @version prototype
+     * @throws Exception
      */
-    private boolean proccessAddLogRequest(String requestBody) {
-        // Implement the logic to process the login request and check the credentials
-        return true; // or false depending on whether the login was successful
+    private boolean proccessAddLogRequest(String requestBody) throws Exception {
+        AddLogHandlerHelper helper = new AddLogHandlerHelper();
+        //check if requestBody is a JSON object
+    	if(!helper.isJSON(requestBody))
+    		return false;
+    	if(!helper.correctAttributes(requestBody))
+    		return false;
+    	//check if there username exists in db
+        if(!helper.verifyToken(helper.getToken(requestBody)))
+        	return false;
+        return true;      	        
+        
     }
 }
 /**

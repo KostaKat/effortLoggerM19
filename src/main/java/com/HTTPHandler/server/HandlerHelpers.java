@@ -1,6 +1,10 @@
 package com.HTTPHandler.server;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
@@ -15,7 +19,10 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
 import java.util.Base64;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.sun.net.httpserver.HttpExchange;
 import javax.crypto.BadPaddingException;
@@ -23,8 +30,14 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
+import com.Database.DatabaseManager;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.auth0.jwt.interfaces.JWTVerifier;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -212,32 +225,23 @@ public class HandlerHelpers {
     public String generateToken(String username, String userType) throws NoSuchAlgorithmException {
 
         RegisterHandlerHelper helper = new RegisterHandlerHelper();
-
-        // create public and private keys using helper method
-        Map<String, String> keys = helper.createKeys();
-
-        String publickey = keys.get("public-key");
-        String privatekey = keys.get("private-key");
-
+    
+        Map<String, Object> keys = new HashMap<>();
+        try (InputStream publicStream = HandlerHelpers.class.getResourceAsStream("/org/keys/token_public_key.der");
+             InputStream privateStream = HandlerHelpers.class.getResourceAsStream("/org/keys/token_private_key.der")) {
+            keys = loadKeys(publicStream, privateStream);
+        } catch (IOException | NoSuchAlgorithmException | InvalidKeySpecException e) {
+            e.printStackTrace();
+        }
+        
+        RSAPublicKey publicKey = (RSAPublicKey) keys.get("public-key");
+        RSAPrivateKey privateKey = (RSAPrivateKey) keys.get("private-key");
+        
+        Algorithm algorithm = Algorithm.RSA256(publicKey, privateKey);
+        
+    
         String token = null;
         try {
-            // convert public key string to bytes
-            byte[] publicKeyBytes = Base64.getDecoder().decode(publickey);
-            // create public key specification
-            X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(publicKeyBytes);
-            // generate public key from specification
-            PublicKey publicKey = KeyFactory.getInstance("RSA").generatePublic(publicKeySpec);
-
-            // convert private key string to bytes
-            byte[] privateKeyBytes = Base64.getDecoder().decode(privatekey);
-            // create private key specification
-            PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
-            // generate private key from specification
-            PrivateKey privateKey = KeyFactory.getInstance("RSA").generatePrivate(privateKeySpec);
-
-            // create algorithm for generating token using RSA256 encryption
-            Algorithm algorithm = Algorithm.RSA256((RSAPublicKey) publicKey, (RSAPrivateKey) privateKey);
-            // create JWT token with issuer, username and user type claims
             token = JWT.create()
                     .withIssuer("auth0")
                     .withClaim("Username", username)
@@ -248,6 +252,78 @@ public class HandlerHelpers {
         }
         return token;
     }
+    
+    
+    public Map<String, Object> loadKeys(InputStream publicStream, InputStream privateStream) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+        Map<String, Object> keys = new HashMap<>();
+    
+        // Load public key from stream
+        byte[] publicBytes = publicStream.readAllBytes();
+        X509EncodedKeySpec publicSpec = new X509EncodedKeySpec(publicBytes);
+        RSAPublicKey publicKey = (RSAPublicKey) KeyFactory.getInstance("RSA").generatePublic(publicSpec);
+        keys.put("public-key", publicKey);
+    
+        // Load private key from stream
+        byte[] privateBytes = privateStream.readAllBytes();
+        PKCS8EncodedKeySpec privateSpec = new PKCS8EncodedKeySpec(privateBytes);
+        RSAPrivateKey privateKey = (RSAPrivateKey) KeyFactory.getInstance("RSA").generatePrivate(privateSpec);
+        keys.put("private-key", privateKey);
+    
+        return keys;
+    }
+    public boolean verifyToken(String token) throws Exception {
+        DatabaseManager databaseManager = new DatabaseManager();
+        try (InputStream publicStream = HandlerHelpers.class.getResourceAsStream("/org/keys/token_public_key.der")) {
+            Map<String, Object> keys = loadKeys(publicStream, null);
+            RSAPublicKey publicKey = (RSAPublicKey) keys.get("public-key");
+    
+            JWTVerifier verifier = JWT.require(Algorithm.RSA256(publicKey, null))
+                    .withIssuer("auth0")
+                    .build();
+    
+            DecodedJWT decodedJWT = verifier.verify(token);
+            
+            // extract the claims
+            String username = decodedJWT.getClaim("Username").asString();
+            String userType = decodedJWT.getClaim("User-Type").asString();
+            
+            // check expiration
+            Date expiresAt = decodedJWT.getExpiresAt();
+            if (expiresAt != null && expiresAt.before(new Date())) {
+                throw new Exception("Token expired!");
+            }
+            
+            // check trusted issuer
+            String issuer = decodedJWT.getIssuer();
+            if (!"auth0".equals(issuer)) {
+                throw new Exception("Token issued by untrusted issuer!");
+            }
+            
+            // check valid user
+            // query the database to see if the username and userType match a record in the Employee table
+            if (!databaseManager.isUserTokenValid(token,username, userType)) {
+                throw new Exception("Invalid user!");
+            }
+            return true;
+        } catch (JWTVerificationException | IOException | NoSuchAlgorithmException | InvalidKeySpecException e) {
+            throw new Exception("Error verifying token: " + e.getMessage());
+        }
+    }
+    public String getToken(String requestBody) throws JsonMappingException, JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode jsonNode = mapper.readTree(requestBody);
+        if (jsonNode.has("token")) {
+            return jsonNode.get("token").asText();
+        } else {
+            return null;
+        }
+    }
+    
+
+    
+    
+    
+    
 
    
 }
