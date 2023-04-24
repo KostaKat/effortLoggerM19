@@ -15,8 +15,8 @@ public class LoginClientTest {
 
 		// Set the JSON data to send in the request body
 		JSONObject requestBody = new JSONObject();
-		requestBody.put("Username", "johndoe");
-		requestBody.put("Password", "password123");
+		requestBody.put("Username", "asdfsdaf7");
+		requestBody.put("Password", "asdffasdf7");
 		
 
 		// Convert the JSON object to a string

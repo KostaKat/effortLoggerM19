@@ -15,12 +15,12 @@ public class RegisterClientTest {
 
 		// Set the JSON data to send in the request body
 		JSONObject requestBody = new JSONObject();
-		requestBody.put("Username", "asdfsdaf");
-		requestBody.put("Password", "asdffasdf");
+		requestBody.put("Username", "asdfsdaf7");
+		requestBody.put("Password", "asdffasdf7");
 		requestBody.put("First-Name", "John");
 		requestBody.put("Last-Name", "Doe");
 		requestBody.put("User-Type", "Employee");
-		requestBody.put("ManagerID", "2da75e34-43bf-4836-a4a8-cb9042a95745");
+		requestBody.put("ManagerID", "5aec5abe-57cc-4049-9e95-5c122bc2b133");
 		
 
 		// Convert the JSON object to a string
