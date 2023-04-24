@@ -25,7 +25,7 @@
    <center>
       <AnchorPane prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: aliceblue;" BorderPane.alignment="CENTER">
          <children>
-            <ChoiceBox layoutX="32.0" layoutY="72.0" prefHeight="25.0" prefWidth="636.0" />
+            <ChoiceBox fx:id="select" layoutX="32.0" layoutY="72.0" prefHeight="25.0" prefWidth="636.0" />
             <Label layoutX="14.0" layoutY="14.0" text="Edit Logs">
                <font>
                   <Font name="System Bold" size="25.0" />
@@ -36,8 +36,8 @@
                   <Font name="Verdana" size="12.0" />
                </font>
             </Label>
-            <ChoiceBox layoutX="32.0" layoutY="148.0" prefHeight="25.0" prefWidth="148.0" />
-            <ChoiceBox layoutX="32.0" layoutY="227.0" prefHeight="25.0" prefWidth="110.0" />
+            <ChoiceBox fx:id="project_e" layoutX="32.0" layoutY="148.0" prefHeight="25.0" prefWidth="148.0" />
+            <ChoiceBox fx:id="effortCategory_e" layoutX="32.0" layoutY="227.0" prefHeight="25.0" prefWidth="110.0" />
             <Label layoutX="32.0" layoutY="133.0" text="Project:">
                <font>
                   <Font name="Verdana" size="12.0" />
@@ -48,15 +48,15 @@
                   <Font name="Verdana" size="12.0" />
                </font>
             </Label>
-            <ChoiceBox layoutX="155.0" layoutY="227.0" prefHeight="25.0" prefWidth="226.0" />
-            <ChoiceBox layoutX="193.0" layoutY="148.0" prefHeight="25.0" prefWidth="184.0" />
+            <ChoiceBox fx:id="effortDetail_e" layoutX="155.0" layoutY="227.0" prefHeight="25.0" prefWidth="226.0" />
+            <ChoiceBox fx:id="lifeCycleStep_e" layoutX="193.0" layoutY="148.0" prefHeight="25.0" prefWidth="184.0" />
             <Label layoutX="193.0" layoutY="133.0" text="Life Cycle Step:">
                <font>
                   <Font name="Verdana" size="12.0" />
                </font>
             </Label>
-            <Button layoutX="276.0" layoutY="304.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="100.0" text="Update Change" />
-            <TextArea layoutX="453.0" layoutY="148.0" prefHeight="200.0" prefWidth="200.0" />
+            <Button fx:id="update" layoutX="276.0" layoutY="304.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="100.0" text="Update Change" />
+            <TextArea fx:id="logDescription_e" layoutX="453.0" layoutY="148.0" prefHeight="200.0" prefWidth="200.0" />
             <Label layoutX="453.0" layoutY="133.0" text="Description">
                <font>
                   <Font name="Verdana" size="12.0" />
