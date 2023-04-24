@@ -50,6 +50,7 @@ public class SignUpController{
             requestBody.put("First-Name", firstTextField.getText());
             requestBody.put("Last-Name", lastTextField.getText());
             requestBody.put("User-Type", "Employee");
+            requestBody.put("ManagerID", "5aec5abe-57cc-4049-9e95-5c122bc2b133");
 
             // Convert the JSON object to a string
             String requestBodyString = requestBody.toString();

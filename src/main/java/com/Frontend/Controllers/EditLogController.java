@@ -15,6 +15,7 @@ import java.util.ArrayList;
 
 public class EditLogController {
     private ArrayList<Log> logArrayList = null;
+    private String authToken;
     private Log selectedLog;
     private int index;
     @FXML private ChoiceBox<String> project_e, lifeCycleStep_e, effortCategory_e, effortDetail_e, select;
@@ -23,8 +24,6 @@ public class EditLogController {
 
     @FXML
     private void initialize(){
-
-
 
         for (Log log : logArrayList) {
             select.getItems().add(log.toString());
@@ -71,7 +70,7 @@ public class EditLogController {
 
         viewLog.setOnAction(event -> {
             try {
-                Main.setRoot("ViewLog", logArrayList);
+                Main.setRoot("ViewLog", logArrayList, authToken);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -79,7 +78,7 @@ public class EditLogController {
 
         logConsole.setOnAction(event -> {
             try {
-                Main.setRoot("CreateLog", logArrayList);
+                Main.setRoot("CreateLog", logArrayList, authToken);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -144,7 +143,8 @@ public class EditLogController {
     }
 
 
-    public EditLogController(ArrayList<Log> logArrayList) {
+    public EditLogController(ArrayList<Log> logArrayList, String authToken) {
         this.logArrayList = logArrayList;
+        this.authToken = authToken;
     }
 }

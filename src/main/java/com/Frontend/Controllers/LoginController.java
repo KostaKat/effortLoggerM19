@@ -5,6 +5,8 @@ package com.Frontend.Controllers;
 
 import com.Frontend.Log;
 import com.Frontend.Main;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -21,6 +23,7 @@ import java.util.ArrayList;
 import javafx.scene.control.TextField;
 public class LoginController {
     ArrayList<Log> logArrayList = new ArrayList<Log>();
+    String authToken;
     @FXML Button pass;
     @FXML TextField username;
     @FXML PasswordField password;
@@ -83,7 +86,10 @@ public class LoginController {
             System.out.println("Response message: " + responseMessage);
             System.out.println("Response body: " + response);
             if(responseCode == 200){
-                Main.setRoot("CreateLog", logArrayList);
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode jsonNode = objectMapper.readTree(response);
+                authToken = jsonNode.get("Token").asText();
+                Main.setRoot("CreateLog", logArrayList, authToken);
             }else{
                 System.out.println("Username or Password is not correct, you need register one first");
                 Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -99,7 +105,7 @@ public class LoginController {
     }
      @FXML
      void loadCreatePage() throws IOException {
-         Main.setRoot("CreateLog", logArrayList);
+         Main.setRoot("CreateLog", logArrayList, authToken);
      }
     @FXML
     void register() throws IOException {

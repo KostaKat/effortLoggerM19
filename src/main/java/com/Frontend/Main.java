@@ -62,22 +62,22 @@ public class Main extends Application {
     }
 
     //switch scene
-    public static void setRoot(String fxml, ArrayList<Log> logArrayList) throws IOException {
+    public static void setRoot(String fxml, ArrayList<Log> logArrayList, String authToken) throws IOException {
         Window window = scene.getWindow();
         Stage stage = (Stage) window;
         switch(fxml){
             case "ViewLog":
-                scene.setRoot(loadViewLogFXML(logArrayList));
+                scene.setRoot(loadViewLogFXML(logArrayList, authToken));
                 stage.setScene(scene);
                 stage.sizeToScene();
                 break;
             case "CreateLog":
-                scene.setRoot(loadCreateLogFXML(logArrayList));
+                scene.setRoot(loadCreateLogFXML(logArrayList, authToken));
                 stage.setScene(scene);
                 stage.sizeToScene();
                 break;
             case "EditLog":
-                scene.setRoot(loadEditLogController(logArrayList));
+                scene.setRoot(loadEditLogController(logArrayList, authToken));
                 stage.setScene(scene);
                 stage.sizeToScene();
                 break;
@@ -85,24 +85,24 @@ public class Main extends Application {
     }
 
 
-    private static Parent loadCreateLogFXML(ArrayList<Log> logArrayList) throws IOException {
+    private static Parent loadCreateLogFXML(ArrayList<Log> logArrayList, String authToken) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/org/FXML/"+ "CreateLog.fxml"));
-        CreateLogController temp = new CreateLogController(logArrayList);
+        CreateLogController temp = new CreateLogController(logArrayList, authToken);
         fxmlLoader.setController(temp);
         Parent root = fxmlLoader.load();
         return root;
 
     }
-    private static Parent loadViewLogFXML(ArrayList<Log> logArrayList) throws IOException {
+    private static Parent loadViewLogFXML(ArrayList<Log> logArrayList, String authToken) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/org/FXML/"+"ViewLog.fxml"));
-        ViewLogController temp = new ViewLogController(logArrayList);
+        ViewLogController temp = new ViewLogController(logArrayList, authToken);
         fxmlLoader.setController(temp);
         Parent root = fxmlLoader.load();
         return root;
     }
-    private static Parent loadEditLogController(ArrayList<Log> logArrayList) throws IOException {
+    private static Parent loadEditLogController(ArrayList<Log> logArrayList, String authToken) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/org/FXML/"+"editLog.fxml"));
-        EditLogController temp = new EditLogController(logArrayList);
+        EditLogController temp = new EditLogController(logArrayList, authToken);
         fxmlLoader.setController(temp);
         Parent root = fxmlLoader.load();
         return root;

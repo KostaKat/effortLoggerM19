@@ -18,24 +18,26 @@ public class ViewLogController {
     @FXML private TableView logTable;
     @FXML private TableColumn<Log, String> id, time,time1, project, effortCategory, lifeCycleStep, effortDetail;
     @FXML private Button logConsole, editLog;
-    ArrayList<Log> logArrayList = null;
+    private ArrayList<Log> logArrayList = null;
+    private String authToken;
 
-    public ViewLogController(ArrayList<Log> logArrayList){
+    public ViewLogController(ArrayList<Log> logArrayList, String authToken){
         this.logArrayList = logArrayList;
+        this.authToken = authToken;
     }
 
     @FXML
     private void initialize(){
         editLog.setOnAction(event -> {
             try {
-                Main.setRoot("EditLog", logArrayList);
+                Main.setRoot("EditLog", logArrayList, authToken);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         });
         logConsole.setOnAction(event -> {
             try {
-                Main.setRoot("CreateLog", logArrayList);
+                Main.setRoot("CreateLog", logArrayList, authToken);
             } catch (IOException e) {
                 e.printStackTrace();
             }
