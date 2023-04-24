@@ -5,10 +5,12 @@ import com.Frontend.Main;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.TextArea;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,7 +22,9 @@ public class EditLogController {
     private int index;
     @FXML private ChoiceBox<String> project_e, lifeCycleStep_e, effortCategory_e, effortDetail_e, select;
     @FXML private TextArea logDescription_e;
-    @FXML private Button viewLog, logConsole, update;
+    @FXML private Button update;
+    @FXML private MenuItem createLog, viewLog;
+
 
     @FXML
     private void initialize(){
@@ -70,13 +74,22 @@ public class EditLogController {
 
         viewLog.setOnAction(event -> {
             try {
-                Main.setRoot("ViewLog", logArrayList, authToken);
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/FXML/"+ "ViewLog.fxml"));
+                ViewLogController temp = new ViewLogController(logArrayList, authToken);
+                loader.setController(temp);
+                Parent root = loader.load();
+
+                Stage popupStage = new Stage();
+                popupStage.initModality(Modality.APPLICATION_MODAL);
+                popupStage.setScene(new Scene(root));
+                popupStage.setTitle("Pop-up Page");
+                popupStage.showAndWait();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         });
 
-        logConsole.setOnAction(event -> {
+        createLog.setOnAction(event -> {
             try {
                 Main.setRoot("CreateLog", logArrayList, authToken);
             } catch (IOException e) {

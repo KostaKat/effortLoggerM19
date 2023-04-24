@@ -30,18 +30,20 @@ public class CreateLogController {
 
     private Log taskLog;
     private ArrayList<Log> logs = new ArrayList<>();
-    private String authToken;
-    private String start_formattedDateTime;
-    private String end_formattedDateTime;
+    private final Alert alert = new Alert(AlertType.WARNING);
+
+    private final String authToken;
+    private String startTime;
+    private String endTime;
+    private String date;
 
     int startFlag = 0;
 
-
     @FXML private ChoiceBox<String> project, lifeCycleStep, effortCategory, effortDetail;
     @FXML private TextArea logDescription;
-    @FXML private Button start, stop, viewLog, editLog, interruption;
+    @FXML private Button start, stop, interruption;
+    @FXML private MenuItem viewLog, editLog, logOut;
     @FXML private Label warnL, clock, timeStart;
-    Alert alert = new Alert(AlertType.WARNING);
 
     public CreateLogController(ArrayList<Log> logArrayList, String authToken){
         this.logs = logArrayList;
@@ -50,6 +52,81 @@ public class CreateLogController {
 
     @FXML
     private void initialize(){
+        start.setOnAction(event -> {
+            if(lifeCycleStep.getValue() == null || effortDetail.getValue() == null || logDescription.getText() == null){
+                alert.setTitle("Warning Dialog");
+                alert.setContentText("Please fill all the box in order to start!");
+                alert.show();
+                warnL.setText("Please fill all the box in order to start!");
+                warnL.setDisable(false);
+            }else{
+                //get the current date and time
+                LocalDateTime currentDateTime = LocalDateTime.now();
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+                startTime = currentDateTime.format(formatter);
+                date = currentDateTime.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+
+                //set the time
+                clock.setText("TIME START ON:");
+                timeStart.setText(startTime);
+                taskLog = new Log();
+                taskLog.setStartTime(startTime);
+                taskLog.setDate(date);
+
+                start.setDisable(true);
+                warnL.setDisable(true);
+                warnL.setText(null);
+                startFlag = 1;
+            }
+        });
+
+        stop.setOnAction(event -> {
+            if(startFlag != 1){
+                alert.setTitle("Warning Dialog");
+                alert.setContentText("Please press start first!");
+                alert.show();
+                warnL.setText("Please press start first!");
+                warnL.setDisable(false);
+            }else{
+                clock.setText("CLOCK IS STOPPED");
+                timeStart.setText(null);
+                LocalDateTime currentDateTime = LocalDateTime.now();
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+                endTime = currentDateTime.format(formatter);
+                taskLog.setEndTime(endTime);
+                taskLog.setProject(project.getValue());
+                taskLog.setLifeCycleStep(lifeCycleStep.getValue());
+                taskLog.setEffortCategory(effortCategory.getValue());
+                taskLog.setEffortDetail(effortDetail.getValue());
+                taskLog.setLogDescription(logDescription.getText());
+                logs.add(taskLog);
+                for (int i = 0; i < logs.size(); i++) {
+                    Log temp = logs.get(i);
+                }
+                try {
+                    addDatabase();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                start.setDisable(false);
+                startFlag = 0;
+            }
+        });
+
+        logOut.setOnAction(event -> {
+            if(startFlag == 1) {
+                alert.setTitle("Warning Dialog");
+                alert.setContentText("Please stop the Log first to log out!!!");
+                alert.show();
+            }else{
+                try {
+                    Main.setRoot("login");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
         interruption.setOnAction(event -> {
             try{
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/FXML/"+ "interruption.fxml"));
@@ -62,17 +139,44 @@ public class CreateLogController {
                 popupStage.setScene(new Scene(root));
                 popupStage.setTitle("Pop-up Page");
                 popupStage.showAndWait();
-            }catch(IOException e){
+            }catch(IOException e) {
 
             }
         });
+
         editLog.setOnAction(event -> {
+            if(startFlag == 1) {
+                alert.setTitle("Warning Dialog");
+                alert.setContentText("Please stop the Log to process to other page!!!");
+                alert.show();
+            }else{
+                try {
+                    Main.setRoot("EditLog", logs, authToken);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        viewLog.setOnAction(event -> {
             try {
-                Main.setRoot("EditLog", logs, authToken);
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/FXML/"+ "ViewLog.fxml"));
+                ViewLogController temp = new ViewLogController(logs, authToken);
+                loader.setController(temp);
+                Parent root = loader.load();
+
+                Stage popupStage = new Stage();
+                popupStage.initModality(Modality.APPLICATION_MODAL);
+                popupStage.setScene(new Scene(root));
+                popupStage.setTitle("Pop-up Page");
+                popupStage.showAndWait();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         });
+
+        //This block of code is used to initilize the choice box property.
+        //The choice box value may be dependent on other to change.
         logDescription.setWrapText(true);
         project.getItems().addAll("Business Project", "Development Project");
         project.setValue("Business Project");
@@ -80,7 +184,6 @@ public class CreateLogController {
         effortCategory.getItems().addAll("Plans","Deliverables","Interruptions","Defects","Others");
         effortCategory.setValue("Plans");
         effortDetail.getItems().addAll("Project Plan","Risk Management Plan","Conceptual Design Plan","Detailed Design Plan","Implementation Plan");
-
         project.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue.equals("Business Project")) {
                 lifeCycleStep.getItems().clear();
@@ -94,7 +197,6 @@ public class CreateLogController {
                         "Solution Specification","Solution Review","Solution Implementation","Unit/System Test","Reflection","Repository Update");
             }
         });
-
         effortCategory.valueProperty().addListener((observable, oldValue, newValue) -> {
             switch (newValue) {
                 case "Plans":
@@ -129,92 +231,18 @@ public class CreateLogController {
                     break;
             }
         });
-
     }
 
-    @FXML
-    void lifeCycleChange(){
-        System.out.println("111");
-    }
-
-    @FXML
-    void start(){
-        if(lifeCycleStep.getValue() == null || effortDetail.getValue() == null || logDescription.getText() == null){
-            alert.setTitle("Warning Dialog");
-            alert.setContentText("Please fill all the box in order to start!");
-            alert.show();
-            warnL.setText("Please fill all the box in order to start!");
-            warnL.setDisable(false);
-        }else{
-            LocalDateTime currentDateTime = LocalDateTime.now();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
-            start_formattedDateTime = currentDateTime.format(formatter);
-            clock.setText("TIME START ON:");
-            timeStart.setText(start_formattedDateTime);
-
-            taskLog = new Log();
-            taskLog.setStartTime(start_formattedDateTime);
-            taskLog.setFirstName(SignUpController.firstT);
-            taskLog.setLastName(SignUpController.lastT);
-
-            taskLog.setEmployee(1);
-            start.setDisable(true);
-            warnL.setDisable(true);
-            warnL.setText(null);
-            startFlag = 1;
-        }
-    }
-
-    @FXML
-    void end() throws IOException {
-        if(startFlag != 1){
-            alert.setTitle("Warning Dialog");
-            alert.setContentText("Please press start first!");
-            alert.show();
-            warnL.setText("Please press start first!");
-            warnL.setDisable(false);
-        }else{
-            clock.setText("CLOCK IS STOPPED");
-            timeStart.setText(null);
-            LocalDateTime currentDateTime = LocalDateTime.now();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
-            end_formattedDateTime = currentDateTime.format(formatter);
-            taskLog.setEndTime(end_formattedDateTime);
-            taskLog.setProject(project.getValue());
-            taskLog.setLifeCycleStep(lifeCycleStep.getValue());
-            taskLog.setEffortCategory(effortCategory.getValue());
-            taskLog.setEffortDetail(effortDetail.getValue());
-            taskLog.setLogDescription(logDescription.getText());
-            logs.add(taskLog);
-            for (int i = 0; i < logs.size(); i++) {
-                Log temp = logs.get(i);
-            }
-            addDatabase();
-            start.setDisable(false);
-            startFlag = 0;
-        }
-    }
-
-    @FXML
-    void changeState() throws IOException {
-        if(startFlag == 1){
-            alert.setTitle("Warning Dialog");
-            alert.setContentText("The Activity is running! Cannot change page!");
-            alert.show();
-        }else{
-            Main.setRoot("ViewLog", logs, authToken);
-        }
-    }
 
     void addDatabase() throws IOException {
         String url = "http://localhost:8086/addLog";
 
-// Set the JSON data for the log request
+        // Set the JSON data for the log request
         JSONObject logData = new JSONObject();
         logData.put("Token", authToken);
-        logData.put("Date", "2023-04-23");
-        logData.put("StartTime", start_formattedDateTime);
-        logData.put("EndTime", end_formattedDateTime);
+        logData.put("Date", date);
+        logData.put("StartTime", startTime);
+        logData.put("EndTime", endTime);
         logData.put("Project", project.getValue());
         logData.put("EffortCategory", effortCategory.getValue());
         logData.put("EffortDetail", effortDetail.getValue());
