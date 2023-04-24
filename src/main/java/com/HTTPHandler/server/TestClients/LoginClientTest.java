@@ -4,14 +4,28 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+
+
+
 import org.json.JSONObject;
 
+import com.WebSocket.WebSocketClient;
+
+import jakarta.websocket.ClientEndpoint;
+import jakarta.websocket.ContainerProvider;
+import jakarta.websocket.OnMessage;
+import jakarta.websocket.OnOpen;
+import jakarta.websocket.Session;
+import jakarta.websocket.WebSocketContainer;
+@ClientEndpoint
 public class LoginClientTest {
+    private static Session webSocketSession;
 	public static void main(String[] args) throws Exception {
 		// Set the URL of the server endpoint to send the request to
-		String url = "http://localhost:8086/login";
+		String url = "http://localhost:8080/login";
 
 		// Set the JSON data to send in the request body
 		JSONObject requestBody = new JSONObject();
@@ -72,9 +86,9 @@ String token = jsonResponse.getString("Token");
 System.out.println("Response code: " + responseCode);
 System.out.println("Response message: " + responseMessage);
 System.out.println("Token: " + token);
-
+connectWebSocket(token);
 // Set the URL of the server endpoint to add a log
-String logUrl = "http://localhost:8086/addLog";
+String logUrl = "http://localhost:8080/addLog";
 
 // Set the JSON data for the log request
 JSONObject logData = new JSONObject();
@@ -113,7 +127,26 @@ String logResponseMessage = logCon.getResponseMessage();
 // Print the response from the log request
 System.out.println("Log request code: " + logResponseCode);
 System.out.println("Log request message: " + logResponseMessage);
+// Connect to the WebSocket server
 
 
-	}
+
+
+
 }
+
+private static void connectWebSocket(String token) throws Exception {
+WebSocketContainer container = ContainerProvider.getWebSocketContainer();
+String wsUrl = "ws://localhost:8081/getLogs?Token="+ token;
+webSocketSession = container.connectToServer(WebSocketClient.class, new URI(wsUrl));
+
+}
+
+
+@OnMessage
+public void onMessage(String message) {
+	System.out.println("In o message");
+System.out.println("Received message from WebSocket server: " + message);
+}
+}
+

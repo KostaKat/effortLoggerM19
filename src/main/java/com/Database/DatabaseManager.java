@@ -18,7 +18,7 @@ public class DatabaseManager {
 
   public DatabaseManager() {
     this.dbUrl = "jdbc:sqlite:mydatabase.db";
-   
+
   }
 
   public void connect() throws SQLException {
@@ -45,94 +45,96 @@ public class DatabaseManager {
     return result;
   }
 
-  public void insertNewEmployee(String employeeID, String firstName, String lastName, String username, String password, 
-                                String userType, String managerID, String managerEmployeeID) throws SQLException, InvalidManagerException {
+  public void insertNewEmployee(String employeeID, String firstName, String lastName, String username, String password,
+      String userType, String managerID, String managerEmployeeID) throws SQLException, InvalidManagerException {
     connect();
     String sql = "INSERT INTO Employee (EmployeeID, FirstName, LastName, Username, Password, UserType, ManagerID) VALUES (?, ?, ?, ?, ?, ?, ?)";
     try (PreparedStatement statement = connection.prepareStatement(sql)) {
-        statement.setString(1, employeeID);
-        statement.setString(2, firstName);
-        statement.setString(3, lastName);
-        statement.setString(4, username);
-        statement.setString(5, password);
-        statement.setString(6, userType);
-        statement.setString(7, managerID);
-        int rowsInserted = statement.executeUpdate();
-        if (rowsInserted > 0) {
-          System.out.println("A new employee was inserted successfully!");
-        } else {
-          throw new InvalidManagerException("Invalid manager ID: " + managerID);
-        }
-        statement.close();
-    
-    // Add employee to manager's team
-    if (managerEmployeeID != null) {
-      String teamSql = "INSERT INTO Team (EmployeeID, ManagerID) VALUES (?, ?)";
-      PreparedStatement teamStatement = connection.prepareStatement(teamSql);
-      teamStatement.setString(1, employeeID);
-      teamStatement.setString(2, managerEmployeeID);
-      int teamRowsInserted = teamStatement.executeUpdate();
-      if (teamRowsInserted > 0) {
-        System.out.println("Employee added to manager's team successfully!");
+      statement.setString(1, employeeID);
+      statement.setString(2, firstName);
+      statement.setString(3, lastName);
+      statement.setString(4, username);
+      statement.setString(5, password);
+      statement.setString(6, userType);
+      statement.setString(7, managerID);
+      int rowsInserted = statement.executeUpdate();
+      if (rowsInserted > 0) {
+        System.out.println("A new employee was inserted successfully!");
+      } else {
+        throw new InvalidManagerException("Invalid manager ID: " + managerID);
       }
-      teamStatement.close();
+      statement.close();
+
+      // Add employee to manager's team
+      if (managerEmployeeID != null) {
+        String teamSql = "INSERT INTO Team (EmployeeID, ManagerID) VALUES (?, ?)";
+        PreparedStatement teamStatement = connection.prepareStatement(teamSql);
+        teamStatement.setString(1, employeeID);
+        teamStatement.setString(2, managerEmployeeID);
+        int teamRowsInserted = teamStatement.executeUpdate();
+        if (teamRowsInserted > 0) {
+          System.out.println("Employee added to manager's team successfully!");
+        }
+        teamStatement.close();
+      }
+
+      disconnect();
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
     }
 
-    disconnect();
-        }catch(Exception e ){
-            System.out.println(e.getMessage());
-        }
+  }
 
-    }
-    public void insertNewManager(String employeeID, String firstName, String lastName, 
-        String username, String password, String userType) throws SQLException, InvalidManagerException {
-        try { 
-            connect();
-            String sql = "INSERT INTO Employee (EmployeeID, FirstName, LastName, Username, Password, UserType) VALUES (?, ?, ?, ?, ?, ?)";
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setString(1, employeeID);
-            statement.setString(2, firstName);
-            statement.setString(3, lastName);
-            statement.setString(4, username);
-            statement.setString(5, password);
-            statement.setString(6, userType);
-            int rowsInserted = statement.executeUpdate();
-            if (rowsInserted > 0) {
-              System.out.println("A new manager was inserted successfully!");
-            }
-            statement.close();
-            disconnect();
-            
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-       
-    }
-    public boolean isUserTokenValid(String token, String username, String userType) throws SQLException {
-      // Query database for matching user record with matching token
-      
+  public void insertNewManager(String employeeID, String firstName, String lastName,
+      String username, String password, String userType) throws SQLException, InvalidManagerException {
+    try {
       connect();
-      String sql = "SELECT COUNT(*) FROM Employee WHERE Username = ? AND UserType = ? AND Token = ?";
+      String sql = "INSERT INTO Employee (EmployeeID, FirstName, LastName, Username, Password, UserType) VALUES (?, ?, ?, ?, ?, ?)";
       PreparedStatement statement = connection.prepareStatement(sql);
-      statement.setString(1, username);
-      statement.setString(2, userType);
-      statement.setString(3, token);
-      ResultSet resultSet = statement.executeQuery();
-      int count = resultSet.getInt(1);
+      statement.setString(1, employeeID);
+      statement.setString(2, firstName);
+      statement.setString(3, lastName);
+      statement.setString(4, username);
+      statement.setString(5, password);
+      statement.setString(6, userType);
+      int rowsInserted = statement.executeUpdate();
+      if (rowsInserted > 0) {
+        System.out.println("A new manager was inserted successfully!");
+      }
       statement.close();
       disconnect();
-  
-      return count > 0;
+
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+    }
+
   }
-  
-  public boolean addLog(String username, String userType, String employeeID, String date,
-                      String startTime, String endTime, String project, String effortCategory,
-                      String effortDetail, String lifeCycleStep) throws SQLException {
-   
-    System.out.println("In add Log");
-    
+
+  public boolean isUserTokenValid(String token, String username, String userType) throws SQLException {
+    // Query database for matching user record with matching token
+
     connect();
-    
+    String sql = "SELECT COUNT(*) FROM Employee WHERE Username = ? AND UserType = ? AND Token = ?";
+    PreparedStatement statement = connection.prepareStatement(sql);
+    statement.setString(1, username);
+    statement.setString(2, userType);
+    statement.setString(3, token);
+    ResultSet resultSet = statement.executeQuery();
+    int count = resultSet.getInt(1);
+    statement.close();
+    disconnect();
+
+    return count > 0;
+  }
+
+  public boolean addLog(String username, String userType, String employeeID, String date,
+      String startTime, String endTime, String project, String effortCategory,
+      String effortDetail, String lifeCycleStep) throws SQLException {
+
+    System.out.println("In add Log");
+
+    connect();
+
     // Check that the employee exists in the Employee table
     String checkEmployeeSql = "SELECT COUNT(*) FROM Employee WHERE EmployeeID = ?";
     PreparedStatement checkEmployeeStatement = connection.prepareStatement(checkEmployeeSql);
@@ -141,12 +143,12 @@ public class DatabaseManager {
     int employeeCount = checkEmployeeResultSet.getInt(1);
     checkEmployeeStatement.close();
     checkEmployeeResultSet.close();
-    
+
     if (employeeCount == 0) {
-        disconnect();
-        return false;
+      disconnect();
+      return false;
     }
-    
+
     // Add the log to the Logs table
     String addLogSql = "INSERT INTO Logs (EmployeeID, Date, StartTime, EndTime, Project, EffortCategory, EffortDetail, LifeCycleStep) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     PreparedStatement addLogStatement = connection.prepareStatement(addLogSql);
@@ -160,59 +162,72 @@ public class DatabaseManager {
     addLogStatement.setString(8, lifeCycleStep);
     int rowsInserted = addLogStatement.executeUpdate();
     addLogStatement.close();
-    
+
     disconnect();
-    
+
     return rowsInserted > 0;
-}
+  }
+
   public String getIDbyUsernameUserType(String username, String userType) throws SQLException {
     connect();
-    String sql = "SELECT EmployeeID FROM Employee WHERE Username = ? AND UserType = ?";
-    PreparedStatement statement = connection.prepareStatement(sql);
-    statement.setString(1, username);
-    statement.setString(2, userType);
-    ResultSet resultSet = statement.executeQuery();
-    String employeeID = resultSet.getString(1);
-    statement.close();
-    disconnect();
+    String employeeID = null;
+    try {
+    	   String sql = "SELECT EmployeeID FROM Employee WHERE Username = ? AND UserType = ?";
+    	    PreparedStatement statement = connection.prepareStatement(sql);
+    	    statement.setString(1, username);
+    	    statement.setString(2, userType);
+    	    ResultSet resultSet = statement.executeQuery();
+    	     employeeID = resultSet.getString(1);
+    	    statement.close();
+    	    disconnect();
+    }catch(Exception e) {
+    	System.out.println(e.getMessage());
+    }
+ 
     return employeeID;
   }
 
-  public String getLogs(String employeeID) throws SQLException{
+  public String getLogs(String employeeID) throws SQLException {
+	// Create a JSON array to hold the logs data
+	    JSONArray logsArray = new JSONArray();
+	  try {
+		  
+		  connect();
+		    String sql = "SELECT * FROM Logs WHERE EmployeeID = ?";
+		    PreparedStatement statement = connection.prepareStatement(sql);
+		    statement.setString(1, employeeID);
 
-    connect();
-    String sql = "SELECT * FROM Logs WHERE EmployeeID = ?";
-    PreparedStatement statement = connection.prepareStatement(sql);
-    statement.setString(1, employeeID);
-    
-    ResultSet rs = statement.executeQuery();
-    // Create a JSON array to hold the logs data
-    JSONArray logsArray = new JSONArray();
-      
-    // Loop through the result set and add each log to the JSON array
-    while (rs.next()) {
-        JSONObject logObject = new JSONObject();
-        logObject.put("LogID", rs.getInt("LogID"));
-        logObject.put("Date", rs.getString("Date"));
-        logObject.put("StartTime", rs.getString("StartTime"));
-        logObject.put("EndTime", rs.getString("EndTime"));
-        logObject.put("Project", rs.getInt("Project"));
-        logObject.put("EffortCategory", rs.getString("EffortCategory"));
-        logObject.put("EffortDetail", rs.getString("EffortDetail"));
-        logObject.put("LifeCycleStep", rs.getString("LifeCycleStep"));
-        logsArray.put(logObject);
-    }
-    
-    // Convert the JSON array to a string and send it back to the client
+		    ResultSet rs = statement.executeQuery();
+		    
+
+		    // Loop through the result set and add each log to the JSON array
+		    while (rs.next()) {
+		      JSONObject logObject = new JSONObject();
+		      logObject.put("LogID", rs.getInt("LogID"));
+		      logObject.put("Date", rs.getString("Date"));
+		      logObject.put("StartTime", rs.getString("StartTime"));
+		      logObject.put("EndTime", rs.getString("EndTime"));
+		      logObject.put("Project", rs.getInt("Project"));
+		      logObject.put("EffortCategory", rs.getString("EffortCategory"));
+		      logObject.put("EffortDetail", rs.getString("EffortDetail"));
+		      logObject.put("LifeCycleStep", rs.getString("LifeCycleStep"));
+		      logsArray.put(logObject);
+		    }
+
+		    // Convert the JSON array to a string and send it back to the client
+
+	  }catch(Exception e ) {
+		  System.out.println(e.getMessage());
+	  }
     
     return logsArray.toString();
-    
-    }
-  
-}
-class InvalidManagerException extends Exception {
-    public InvalidManagerException(String message) {
-        super(message);
-    }
+
+  }
+
 }
 
+class InvalidManagerException extends Exception {
+  public InvalidManagerException(String message) {
+    super(message);
+  }
+}

@@ -15,7 +15,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import com.HTTPHandler.server.Server;
+import com.HTTPHandler.server.EffortLoggerServer;
 import javafx.stage.Window;
 
 /**
@@ -31,9 +31,10 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         scene = new Scene(loadLoginFXML());
-        Server server = new Server(8086);
+        EffortLoggerServer server = new EffortLoggerServer(8080,8081);
         try {
-			server.startServer();
+			server.startHttpServer();
+			server.startWebSocketServer();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

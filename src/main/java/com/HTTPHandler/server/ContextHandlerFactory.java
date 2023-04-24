@@ -7,6 +7,8 @@ import java.util.Map;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.Database.DatabaseManager;
+import com.WebSocket.WebSocket;
+import com.WebSocket.WebSocketManager;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -40,8 +42,8 @@ public class ContextHandlerFactory {
                 return new EditLogContextHandler();
             case "/deleteLog":
                 return new DeleteLogContextHandler();
-            case "/getLog":
-            	return new GetLogContextHandler();
+            // case "/getLog":
+            // 	return new GetLogContextHandler();
             default:
                 return new NotFoundHandler();
         }
@@ -325,7 +327,8 @@ class RegisterContextHandler implements HttpHandler {
 class AddLogContextHandler implements HttpHandler {
 	//attributes
 	private HandlerHelpers helper = new HandlerHelpers();
-	
+	private static WebSocketManager manager = WebSocketManager.getInstance();
+
     /**
      * <p>Handles an HTTP exchange for adding a log to the database.
      * To be implemented in the future</p>
@@ -369,6 +372,9 @@ class AddLogContextHandler implements HttpHandler {
                     databaseManager.addLog(userName, userType, userID, date, startTime, endTime,
                                                     project, effortCategory, effortDetail, 
                                                     lifeCycleStep);
+                    System.out.println(databaseManager.getLogs(userID));
+                    WebSocket.sendUpdate(userID, databaseManager.getLogs(userID));
+
 	                response = "Added log successfully!";
 	                code = 200;
 	            } else {
@@ -573,66 +579,66 @@ class NotFoundHandler implements HttpHandler {
  * @author Kosta Katergaris
  * @version prototype
  */
-class GetLogContextHandler implements HttpHandler {
-	private HandlerHelpers helper = new HandlerHelpers();
-	/**
-     * <p>Handles an HTTP exchange for getting a log in the database.
-     * To be implemented in the future</p>
-     * 
-     * @param exchange - HTTP exchange to handle
-     * @throws IOException if an I/O error occurs while handling the exchange
-     * @author Kosta Katergaris
-     * @version prototype
-     */
-    @Override
-    public void handle(HttpExchange exchange) throws IOException {
-        try {
-            String requestMethod = exchange.getRequestMethod();
-            if ("GET".equals(requestMethod)) {
-                // Get the request body
-                InputStreamReader isr = new InputStreamReader(exchange.getRequestBody());
-                BufferedReader br = new BufferedReader(isr);
-                String requestBody = br.readLine();
+// class GetLogContextHandler implements HttpHandler {
+// 	private HandlerHelpers helper = new HandlerHelpers();
+// 	/**
+//      * <p>Handles an HTTP exchange for getting a log in the database.
+//      * To be implemented in the future</p>
+//      * 
+//      * @param exchange - HTTP exchange to handle
+//      * @throws IOException if an I/O error occurs while handling the exchange
+//      * @author Kosta Katergaris
+//      * @version prototype
+//      */
+//     @Override
+//     public void handle(HttpExchange exchange) throws IOException {
+//         try {
+//             String requestMethod = exchange.getRequestMethod();
+//             if ("GET".equals(requestMethod)) {
+//                 // Get the request body
+//                 InputStreamReader isr = new InputStreamReader(exchange.getRequestBody());
+//                 BufferedReader br = new BufferedReader(isr);
+//                 String requestBody = br.readLine();
 
-                // Process the get log request and check the credentials
-                boolean getLogSuccess = processGetLogRequest(requestBody);
+//                 // Process the get log request and check the credentials
+//                 boolean getLogSuccess = processGetLogRequest(requestBody);
 
-                if (getLogSuccess) {
-                    // Send the log response to the client
-                    String response = "Getting Log successful!";
-                    helper.sendJsonResponse(exchange, 200, response);
-                } else {
-                    // Send error response for unsuccessful log retrieval
-                    String response = "Get Log unsuccessful.";
-                    helper.sendErrorResponse(exchange, 404, response);
-                }
-            } else {
-                // Send error response for unsupported method
-                String response = "Unsupported request method: " + requestMethod;
-                helper.sendErrorResponse(exchange, 400, response);
-            }
-        } catch (Exception e) {
-            // Send error response for any exceptions that occur while processing the request
-            String response = "Error processing request: " + e.getMessage();
-            helper.sendErrorResponse(exchange, 500, response);
-        }
-    }
-    /**
-     * <p>Processes a request to getting a log in the database.
-     * 	To be implemented in the future</p>
-     * 
-     * @param requestBody - Request body containing the log information
-     * @return true if the getting the log was successful, false otherwise
-     * @author Kosta Katergaris
-     * @version prototype
-     */
-    private boolean processGetLogRequest(String requestBody) {
+//                 if (getLogSuccess) {
+//                     // Send the log response to the client
+//                     String response = "Getting Log successful!";
+//                     helper.sendJsonResponse(exchange, 200, response);
+//                 } else {
+//                     // Send error response for unsuccessful log retrieval
+//                     String response = "Get Log unsuccessful.";
+//                     helper.sendErrorResponse(exchange, 404, response);
+//                 }
+//             } else {
+//                 // Send error response for unsupported method
+//                 String response = "Unsupported request method: " + requestMethod;
+//                 helper.sendErrorResponse(exchange, 400, response);
+//             }
+//         } catch (Exception e) {
+//             // Send error response for any exceptions that occur while processing the request
+//             String response = "Error processing request: " + e.getMessage();
+//             helper.sendErrorResponse(exchange, 500, response);
+//         }
+//     }
+//     /**
+//      * <p>Processes a request to getting a log in the database.
+//      * 	To be implemented in the future</p>
+//      * 
+//      * @param requestBody - Request body containing the log information
+//      * @return true if the getting the log was successful, false otherwise
+//      * @author Kosta Katergaris
+//      * @version prototype
+//      */
+//     private boolean processGetLogRequest(String requestBody) {
         
-    	//decrypt token w/server priv key
-    	//decrypt token w/token priv key
-    	// check credentials of user of what information they could access
-    	//check if the body has the right information
-    	//check if content is json
-        return true; 
-    }
-}
+//     	//decrypt token w/server priv key
+//     	//decrypt token w/token priv key
+//     	// check credentials of user of what information they could access
+//     	//check if the body has the right information
+//     	//check if content is json
+//         return true; 
+//     }
+// }

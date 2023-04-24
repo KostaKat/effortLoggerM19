@@ -2,27 +2,27 @@ package com.HTTPHandler.server;
 
 import com.Database.*;
 import com.WebSocket.WebSocket;
-
 import java.util.List;
 import java.util.Arrays;
 import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.HttpContext;
 import java.net.InetSocketAddress;
 import com.HTTPHandler.server.ContextHandlerFactory;
+import org.glassfish.tyrus.server.Server;
 
-public class Server {
+public class EffortLoggerServer {
     private HttpServer httpServer;
     private Server webSocketServer;
     private int httpPort;
     private int wsPort;
 
-    public Server(int httpPort, int wsPort) {
+    public EffortLoggerServer(int httpPort, int wsPort) {
         this.httpPort = httpPort;
         this.wsPort = wsPort;
     }
 
     public static void main(String args[]) throws Exception {
-        Server server = new Server(8080, 8081);
+        EffortLoggerServer server = new EffortLoggerServer(8080, 8081);
         server.startHttpServer();
         server.startWebSocketServer();
     }
