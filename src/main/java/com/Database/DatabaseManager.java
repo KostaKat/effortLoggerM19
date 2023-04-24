@@ -122,6 +122,58 @@ public class DatabaseManager {
       return count > 0;
   }
   
+  public boolean addLog(String username, String userType, String employeeID, String date,
+                      String startTime, String endTime, String project, String effortCategory,
+                      String effortDetail, String lifeCycleStep) throws SQLException {
+   
+    System.out.println("In add Log");
+    
+    connect();
+    
+    // Check that the employee exists in the Employee table
+    String checkEmployeeSql = "SELECT COUNT(*) FROM Employee WHERE EmployeeID = ?";
+    PreparedStatement checkEmployeeStatement = connection.prepareStatement(checkEmployeeSql);
+    checkEmployeeStatement.setString(1, employeeID);
+    ResultSet checkEmployeeResultSet = checkEmployeeStatement.executeQuery();
+    int employeeCount = checkEmployeeResultSet.getInt(1);
+    checkEmployeeStatement.close();
+    checkEmployeeResultSet.close();
+    
+    if (employeeCount == 0) {
+        disconnect();
+        return false;
+    }
+    
+    // Add the log to the Logs table
+    String addLogSql = "INSERT INTO Logs (EmployeeID, Date, StartTime, EndTime, Project, EffortCategory, EffortDetail, LifeCycleStep) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    PreparedStatement addLogStatement = connection.prepareStatement(addLogSql);
+    addLogStatement.setString(1, employeeID);
+    addLogStatement.setString(2, date);
+    addLogStatement.setString(3, startTime);
+    addLogStatement.setString(4, endTime);
+    addLogStatement.setString(5, project);
+    addLogStatement.setString(6, effortCategory);
+    addLogStatement.setString(7, effortDetail);
+    addLogStatement.setString(8, lifeCycleStep);
+    int rowsInserted = addLogStatement.executeUpdate();
+    addLogStatement.close();
+    
+    disconnect();
+    
+    return rowsInserted > 0;
+}
+  public String getIDbyUsernameUserType(String username, String userType) throws SQLException {
+    connect();
+    String sql = "SELECT EmployeeID FROM Employee WHERE Username = ? AND UserType = ?";
+    PreparedStatement statement = connection.prepareStatement(sql);
+    statement.setString(1, username);
+    statement.setString(2, userType);
+    ResultSet resultSet = statement.executeQuery();
+    String employeeID = resultSet.getString(1);
+    statement.close();
+    disconnect();
+    return employeeID;
+  }
   
 }
 class InvalidManagerException extends Exception {

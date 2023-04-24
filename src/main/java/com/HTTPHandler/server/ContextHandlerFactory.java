@@ -121,7 +121,7 @@ class LoginContextHandler implements HttpHandler {
 					token = helper.generateToken(username, userType);
 						
 					// 
-                    jsonResponse.put("Auth-Token", token);
+                    jsonResponse.put("Token", token);
                     jsonResponse.put("status", "success");
                    
                     jsonResponse.put("message", "Login successful.");
@@ -343,16 +343,32 @@ class AddLogContextHandler implements HttpHandler {
 	            InputStreamReader isr = new InputStreamReader(exchange.getRequestBody());
 	            BufferedReader br = new BufferedReader(isr);
 	            String requestBody = br.readLine();
-
+                DatabaseManager databaseManager = new DatabaseManager();
+               
 	            // Process the addLog request and check the credentials
 	            boolean addLogSuccess = proccessAddLogRequest(requestBody);
-
+                
 	            // Send the response to the client & code
 	            String response;
 	            int code;
 	            if (addLogSuccess) {
-	            	//decrypt log attributes w/server private key
-	            	
+	            	ObjectMapper objectMapper = new ObjectMapper();
+                    JsonNode jsonNode = objectMapper.readTree(requestBody);
+                    String date = jsonNode.get("Date").asText();
+                    String startTime = jsonNode.get("StartTime").asText();
+                    String endTime = jsonNode.get("EndTime").asText();
+                    String project = jsonNode.get("Project").asText();
+                    String effortCategory = jsonNode.get("EffortCategory").asText();
+                    String effortDetail = jsonNode.get("EffortDetail").asText();
+                    String lifeCycleStep = jsonNode.get("LifeCycleStep").asText();
+	            	Map <String,String> claims = helper.getClaims(helper.getToken(requestBody));
+                    String userName = claims.get("Username");
+                    String userType = claims.get("User-Type");
+                    String userID = databaseManager.getIDbyUsernameUserType(userName, userType);
+                    
+                    databaseManager.addLog(userName, userType, userID, date, startTime, endTime,
+                                                    project, effortCategory, effortDetail, 
+                                                    lifeCycleStep);
 	                response = "Added log successfully!";
 	                code = 200;
 	            } else {

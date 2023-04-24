@@ -33,6 +33,7 @@ import javax.crypto.NoSuchPaddingException;
 import com.Database.DatabaseManager;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
@@ -255,29 +256,42 @@ public class HandlerHelpers {
     
     
     public Map<String, Object> loadKeys(InputStream publicStream, InputStream privateStream) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
-        Map<String, Object> keys = new HashMap<>();
+        try{
+            Map<String, Object> keys = new HashMap<>();
+            System.out.println("In load ");
     
-        // Load public key from stream
-        byte[] publicBytes = publicStream.readAllBytes();
-        X509EncodedKeySpec publicSpec = new X509EncodedKeySpec(publicBytes);
-        RSAPublicKey publicKey = (RSAPublicKey) KeyFactory.getInstance("RSA").generatePublic(publicSpec);
-        keys.put("public-key", publicKey);
+            // Load public key from stream
+            byte[] publicBytes = publicStream.readAllBytes();
+            X509EncodedKeySpec publicSpec = new X509EncodedKeySpec(publicBytes);
+            RSAPublicKey publicKey = (RSAPublicKey) KeyFactory.getInstance("RSA").generatePublic(publicSpec);
+            keys.put("public-key", publicKey);
+        
+            // Load private key from stream
+            byte[] privateBytes = privateStream.readAllBytes();
+            PKCS8EncodedKeySpec privateSpec = new PKCS8EncodedKeySpec(privateBytes);
+            RSAPrivateKey privateKey = (RSAPrivateKey) KeyFactory.getInstance("RSA").generatePrivate(privateSpec);
+            keys.put("private-key", privateKey);
+            return keys;
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return null;
     
-        // Load private key from stream
-        byte[] privateBytes = privateStream.readAllBytes();
-        PKCS8EncodedKeySpec privateSpec = new PKCS8EncodedKeySpec(privateBytes);
-        RSAPrivateKey privateKey = (RSAPrivateKey) KeyFactory.getInstance("RSA").generatePrivate(privateSpec);
-        keys.put("private-key", privateKey);
-    
-        return keys;
+        
     }
     public boolean verifyToken(String token) throws Exception {
+        System.out.println("In  verify");
+
         DatabaseManager databaseManager = new DatabaseManager();
-        try (InputStream publicStream = HandlerHelpers.class.getResourceAsStream("/org/keys/token_public_key.der")) {
-            Map<String, Object> keys = loadKeys(publicStream, null);
+        try (InputStream publicStream = HandlerHelpers.class.getResourceAsStream("/org/keys/token_public_key.der");
+             InputStream privateStream = HandlerHelpers.class.getResourceAsStream("/org/keys/token_private_key.der")) {
+
+           
+            Map<String, Object> keys = loadKeys(publicStream, privateStream);
             RSAPublicKey publicKey = (RSAPublicKey) keys.get("public-key");
+            RSAPrivateKey privateKey = (RSAPrivateKey) keys.get("private-key");
     
-            JWTVerifier verifier = JWT.require(Algorithm.RSA256(publicKey, null))
+            JWTVerifier verifier = JWT.require(Algorithm.RSA256(publicKey, privateKey))
                     .withIssuer("auth0")
                     .build();
     
@@ -311,12 +325,27 @@ public class HandlerHelpers {
     }
     public String getToken(String requestBody) throws JsonMappingException, JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
+        System.out.println("In get token");
+
         JsonNode jsonNode = mapper.readTree(requestBody);
-        if (jsonNode.has("token")) {
-            return jsonNode.get("token").asText();
+        if (jsonNode.has("Token")) {
+            return jsonNode.get("Token").asText();
         } else {
             return null;
         }
+    }
+    public Map<String,String> getClaims(String token){
+        System.out.println("In get cliamd");
+
+        Map<String,String> claims = new HashMap<>();
+        try {
+            DecodedJWT decodedJWT = JWT.decode(token);
+            claims.put("Username", decodedJWT.getClaim("Username").asString());
+            claims.put("User-Type", decodedJWT.getClaim("User-Type").asString());
+        } catch (JWTDecodeException e) {
+            e.printStackTrace();
+        }
+        return claims;
     }
 
    
