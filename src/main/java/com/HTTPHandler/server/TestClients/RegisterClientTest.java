@@ -11,16 +11,16 @@ import org.json.JSONObject;
 public class RegisterClientTest {
 	public static void main(String[] args) throws Exception {
 		// Set the URL of the server endpoint to send the request to
-		String url = "http://localhost:8086/register";
+		String url = "http://localhost:8080/register";
 
 		// Set the JSON data to send in the request body
 		JSONObject requestBody = new JSONObject();
-		requestBody.put("Username", "asdfsdaf7");
-		requestBody.put("Password", "asdffasdf7");
+		requestBody.put("Username", "c");
+		requestBody.put("Password", "c");
 		requestBody.put("First-Name", "John");
 		requestBody.put("Last-Name", "Doe");
 		requestBody.put("User-Type", "Employee");
-		requestBody.put("ManagerID", "5aec5abe-57cc-4049-9e95-5c122bc2b133");
+		requestBody.put("ManagerID", "78b86cbf-46b7-4e1a-9398-0daf401241f6");
 		
 
 		// Convert the JSON object to a string

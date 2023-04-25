@@ -6,6 +6,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -172,58 +174,114 @@ public class DatabaseManager {
     connect();
     String employeeID = null;
     try {
-    	   String sql = "SELECT EmployeeID FROM Employee WHERE Username = ? AND UserType = ?";
-    	    PreparedStatement statement = connection.prepareStatement(sql);
-    	    statement.setString(1, username);
-    	    statement.setString(2, userType);
-    	    ResultSet resultSet = statement.executeQuery();
-    	     employeeID = resultSet.getString(1);
-    	    statement.close();
-    	    disconnect();
-    }catch(Exception e) {
-    	System.out.println(e.getMessage());
+      String sql = "SELECT EmployeeID FROM Employee WHERE Username = ? AND UserType = ?";
+      PreparedStatement statement = connection.prepareStatement(sql);
+      statement.setString(1, username);
+      statement.setString(2, userType);
+      ResultSet resultSet = statement.executeQuery();
+      employeeID = resultSet.getString(1);
+      statement.close();
+      disconnect();
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
     }
- 
+
     return employeeID;
   }
 
-  public String getLogs(String employeeID) throws SQLException {
-	// Create a JSON array to hold the logs data
-	    JSONArray logsArray = new JSONArray();
-	  try {
-		  
-		  connect();
-		    String sql = "SELECT * FROM Logs WHERE EmployeeID = ?";
-		    PreparedStatement statement = connection.prepareStatement(sql);
-		    statement.setString(1, employeeID);
+  public String getLogsEmployee(String employeeID) throws SQLException {
+    // Create a JSON array to hold the logs data
+    JSONArray logsArray = new JSONArray();
+    try {
 
-		    ResultSet rs = statement.executeQuery();
-		    
+      connect();
+      String sql = "SELECT * FROM Logs WHERE EmployeeID = ?";
+      PreparedStatement statement = connection.prepareStatement(sql);
+      statement.setString(1, employeeID);
 
-		    // Loop through the result set and add each log to the JSON array
-		    while (rs.next()) {
-		      JSONObject logObject = new JSONObject();
-		      logObject.put("LogID", rs.getInt("LogID"));
-		      logObject.put("Date", rs.getString("Date"));
-		      logObject.put("StartTime", rs.getString("StartTime"));
-		      logObject.put("EndTime", rs.getString("EndTime"));
-		      logObject.put("Project", rs.getInt("Project"));
-		      logObject.put("EffortCategory", rs.getString("EffortCategory"));
-		      logObject.put("EffortDetail", rs.getString("EffortDetail"));
-		      logObject.put("LifeCycleStep", rs.getString("LifeCycleStep"));
-		      logsArray.put(logObject);
-		    }
+      ResultSet rs = statement.executeQuery();
 
-		    // Convert the JSON array to a string and send it back to the client
+      // Loop through the result set and add each log to the JSON array
+      while (rs.next()) {
+        JSONObject logObject = new JSONObject();
+        logObject.put("LogID", rs.getInt("LogID"));
+        logObject.put("Date", rs.getString("Date"));
+        logObject.put("StartTime", rs.getString("StartTime"));
+        logObject.put("EndTime", rs.getString("EndTime"));
+        logObject.put("Project", rs.getInt("Project"));
+        logObject.put("EffortCategory", rs.getString("EffortCategory"));
+        logObject.put("EffortDetail", rs.getString("EffortDetail"));
+        logObject.put("LifeCycleStep", rs.getString("LifeCycleStep"));
+        logsArray.put(logObject);
+      }
 
-	  }catch(Exception e ) {
-		  System.out.println(e.getMessage());
-	  }
-    
+      // Convert the JSON array to a string and send it back to the client
+
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+    }
+
     return logsArray.toString();
 
   }
 
+  public String getLogsManager(String managerID) throws SQLException {
+    // Create a JSON array to hold the logs data
+    JSONArray logsArray = new JSONArray();
+
+    try {
+      connect();
+
+      // Retrieve the employee IDs of all team members under the given manager
+      String teamMembersSql = "SELECT EmployeeID FROM Team WHERE ManagerID = ?";
+      PreparedStatement teamMembersStatement = connection.prepareStatement(teamMembersSql);
+      teamMembersStatement.setString(1, managerID);
+      ResultSet teamMembersResultSet = teamMembersStatement.executeQuery();
+      List<String> teamMemberIds = new ArrayList<>();
+
+      while (teamMembersResultSet.next()) {
+        teamMemberIds.add(teamMembersResultSet.getString("EmployeeID"));
+      }
+
+      // Include the manager's employee ID as well
+      teamMemberIds.add(managerID);
+
+      // Retrieve logs for each team member, including the manager
+      String logsSql = "SELECT * FROM Logs WHERE EmployeeID = ?";
+
+      for (String employeeID : teamMemberIds) {
+        PreparedStatement logsStatement = connection.prepareStatement(logsSql);
+        logsStatement.setString(1, employeeID);
+        ResultSet logsResultSet = logsStatement.executeQuery();
+
+        // Loop through the result set and add each log to the JSON array
+        while (logsResultSet.next()) {
+          JSONObject logObject = new JSONObject();
+          logObject.put("LogID", logsResultSet.getInt("LogID"));
+          logObject.put("EmployeeID", employeeID);
+          logObject.put("Date", logsResultSet.getString("Date"));
+          logObject.put("StartTime", logsResultSet.getString("StartTime"));
+          logObject.put("EndTime", logsResultSet.getString("EndTime"));
+          logObject.put("Project", logsResultSet.getInt("Project"));
+          logObject.put("EffortCategory", logsResultSet.getString("EffortCategory"));
+          logObject.put("EffortDetail", logsResultSet.getString("EffortDetail"));
+          logObject.put("LifeCycleStep", logsResultSet.getString("LifeCycleStep"));
+          logsArray.put(logObject);
+        }
+
+        logsStatement.close();
+      }
+
+      teamMembersStatement.close();
+      teamMembersResultSet.close();
+      disconnect();
+
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+    }
+
+    return logsArray.toString();
+  }
 }
 
 class InvalidManagerException extends Exception {

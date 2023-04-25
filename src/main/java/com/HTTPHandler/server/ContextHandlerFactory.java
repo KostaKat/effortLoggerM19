@@ -372,8 +372,13 @@ class AddLogContextHandler implements HttpHandler {
                     databaseManager.addLog(userName, userType, userID, date, startTime, endTime,
                                                     project, effortCategory, effortDetail, 
                                                     lifeCycleStep);
-                    System.out.println(databaseManager.getLogs(userID));
-                    WebSocket.sendUpdate(userID, databaseManager.getLogs(userID));
+                    
+                    if (userType.compareTo("Manager")==0) {
+                    	WebSocket.sendUpdate(userID, databaseManager.getLogsManager(userID));
+                    }else {
+                    	WebSocket.sendUpdate(userID, databaseManager.getLogsEmployee(userID));
+                    }
+                    
 
 	                response = "Added log successfully!";
 	                code = 200;
