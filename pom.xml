@@ -26,8 +26,13 @@
     <groupId>org.glassfish.tyrus.bundles</groupId>
     <artifactId>tyrus-standalone-client</artifactId>
     <version>1.17</version>
-</dependency>
-
+    <exclusions>
+      <exclusion>
+        <groupId>org.glassfish.grizzly</groupId>
+        <artifactId>grizzly-http-server</artifactId>
+      </exclusion>
+    </exclusions>
+  </dependency>
         <dependency>
             <groupId>org.glassfish.tyrus</groupId>
             <artifactId>tyrus-server</artifactId>
