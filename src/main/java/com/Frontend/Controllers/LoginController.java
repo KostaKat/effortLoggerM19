@@ -31,7 +31,7 @@ public class LoginController {
     @FXML
     void loadPage() throws IOException {
         if (!username.getText().trim().isEmpty() && !password.getText().trim().isEmpty()) {
-            String url = "http://localhost:8086/login";
+            String url = "http://localhost:8080/login";
 
             // Set the JSON data to send in the request body
             JSONObject requestBody = new JSONObject();

@@ -41,7 +41,7 @@ public class SignUpController{
     @FXML
     void change() throws IOException {
         if (!userTextField.getText().trim().isEmpty() && !passTextField.getText().trim().isEmpty()) {
-            String url = "http://localhost:8086/register";
+            String url = "http://localhost:8080/register";
 
             // Set the JSON data to send in the request body
             JSONObject requestBody = new JSONObject();
