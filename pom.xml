@@ -22,17 +22,17 @@
             <artifactId>tyrus-container-grizzly-server</artifactId>
             <version>2.1.3</version>
         </dependency>
-<dependency>
-    <groupId>org.glassfish.tyrus.bundles</groupId>
-    <artifactId>tyrus-standalone-client</artifactId>
-    <version>2.1.3</version>
-    <exclusions>
-      <exclusion>
-        <groupId>org.glassfish.grizzly</groupId>
-        <artifactId>grizzly-http-server</artifactId>
-      </exclusion>
-    </exclusions>
-  </dependency>
+        <dependency>
+            <groupId>org.glassfish.tyrus.bundles</groupId>
+            <artifactId>tyrus-standalone-client</artifactId>
+            <version>2.1.3</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.glassfish.grizzly</groupId>
+                    <artifactId>grizzly-http-server</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <dependency>
             <groupId>org.glassfish.tyrus</groupId>
             <artifactId>tyrus-server</artifactId>
@@ -140,4 +140,37 @@
 
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>effortLoggerServer</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>3.0.0</version>
+                        <configuration>
+                            <mainClass>com.HTTPHandler.server.EffortLoggerServer</mainClass>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>LoginTest</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>3.0.0</version>
+                        <configuration>
+                            <mainClass>com.HTTPHandler.server.TestClients.LoginClientTest</mainClass>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
 </project>

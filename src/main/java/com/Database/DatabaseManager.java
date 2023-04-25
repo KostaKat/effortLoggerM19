@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -152,16 +153,18 @@ public class DatabaseManager {
     }
 
     // Add the log to the Logs table
-    String addLogSql = "INSERT INTO Logs (EmployeeID, Date, StartTime, EndTime, Project, EffortCategory, EffortDetail, LifeCycleStep) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    String addLogSql = "INSERT INTO Logs (LogID,EmployeeID, Date, StartTime, EndTime, Project, EffortCategory, EffortDetail, LifeCycleStep) VALUES (?, ?, ?, ?, ?, ?, ?, ?,?)";
     PreparedStatement addLogStatement = connection.prepareStatement(addLogSql);
-    addLogStatement.setString(1, employeeID);
-    addLogStatement.setString(2, date);
-    addLogStatement.setString(3, startTime);
-    addLogStatement.setString(4, endTime);
-    addLogStatement.setString(5, project);
-    addLogStatement.setString(6, effortCategory);
-    addLogStatement.setString(7, effortDetail);
-    addLogStatement.setString(8, lifeCycleStep);
+    addLogStatement.setString(1, UUID.randomUUID().toString());
+    addLogStatement.setString(2, employeeID);
+    addLogStatement.setString(3, date);
+    addLogStatement.setString(4, startTime);
+    addLogStatement.setString(5, endTime);
+    addLogStatement.setString(6, project);
+    addLogStatement.setString(7, effortCategory);
+    addLogStatement.setString(8, effortDetail);
+    addLogStatement.setString(9, lifeCycleStep);
+
     int rowsInserted = addLogStatement.executeUpdate();
     addLogStatement.close();
 
@@ -204,7 +207,7 @@ public class DatabaseManager {
       // Loop through the result set and add each log to the JSON array
       while (rs.next()) {
         JSONObject logObject = new JSONObject();
-        logObject.put("LogID", rs.getInt("LogID"));
+        logObject.put("LogID", rs.getString("LogID"));
         logObject.put("Date", rs.getString("Date"));
         logObject.put("StartTime", rs.getString("StartTime"));
         logObject.put("EndTime", rs.getString("EndTime"));
@@ -257,8 +260,7 @@ public class DatabaseManager {
         // Loop through the result set and add each log to the JSON array
         while (logsResultSet.next()) {
           JSONObject logObject = new JSONObject();
-          logObject.put("LogID", logsResultSet.getInt("LogID"));
-          logObject.put("EmployeeID", employeeID);
+          logObject.put("LogID", logsResultSet.getString("LogID"));
           logObject.put("Date", logsResultSet.getString("Date"));
           logObject.put("StartTime", logsResultSet.getString("StartTime"));
           logObject.put("EndTime", logsResultSet.getString("EndTime"));
@@ -282,6 +284,76 @@ public class DatabaseManager {
 
     return logsArray.toString();
   }
+
+  public boolean editLog(String logID, String date, String startTime, String endTime, String project,
+      String effortCategory, String effortDetail, String lifeCycleStep) throws SQLException {
+
+    connect();
+
+    // Check if the log exists in the Logs table
+    String checkLogSql = "SELECT COUNT(*) FROM Logs WHERE LogID = ?";
+    PreparedStatement checkLogStatement = connection.prepareStatement(checkLogSql);
+    checkLogStatement.setString(1, logID);
+    ResultSet checkLogResultSet = checkLogStatement.executeQuery();
+    int logCount = checkLogResultSet.getInt(1);
+    checkLogStatement.close();
+    checkLogResultSet.close();
+
+    if (logCount == 0) {
+      disconnect();
+      return false;
+    }
+
+    // Update the log in the Logs table
+    String updateLogSql = "UPDATE Logs SET Date=?, StartTime=?, EndTime=?, Project=?, EffortCategory=?, EffortDetail=?, LifeCycleStep=? WHERE LogID=?";
+    PreparedStatement updateLogStatement = connection.prepareStatement(updateLogSql);
+    updateLogStatement.setString(1, date);
+    updateLogStatement.setString(2, startTime);
+    updateLogStatement.setString(3, endTime);
+    updateLogStatement.setString(4, project);
+    updateLogStatement.setString(5, effortCategory);
+    updateLogStatement.setString(6, effortDetail);
+    updateLogStatement.setString(7, lifeCycleStep);
+    updateLogStatement.setString(8, logID);
+
+    int rowsUpdated = updateLogStatement.executeUpdate();
+    updateLogStatement.close();
+
+    disconnect();
+
+    return rowsUpdated > 0;
+  }
+
+  public boolean deleteLog(String logID) throws SQLException {
+    connect();
+
+    // Check if the log exists in the Logs table
+    String checkLogSql = "SELECT COUNT(*) FROM Logs WHERE LogID = ?";
+    PreparedStatement checkLogStatement = connection.prepareStatement(checkLogSql);
+    checkLogStatement.setString(1, logID);
+    ResultSet checkLogResultSet = checkLogStatement.executeQuery();
+    int logCount = checkLogResultSet.getInt(1);
+    checkLogStatement.close();
+    checkLogResultSet.close();
+
+    if (logCount == 0) {
+      disconnect();
+      return false;
+    }
+
+    // Delete the log from the Logs table
+    String deleteLogSql = "DELETE FROM Logs WHERE LogID = ?";
+    PreparedStatement deleteLogStatement = connection.prepareStatement(deleteLogSql);
+    deleteLogStatement.setString(1, logID);
+
+    int rowsDeleted = deleteLogStatement.executeUpdate();
+    deleteLogStatement.close();
+
+    disconnect();
+
+    return rowsDeleted > 0;
+  }
+
 }
 
 class InvalidManagerException extends Exception {

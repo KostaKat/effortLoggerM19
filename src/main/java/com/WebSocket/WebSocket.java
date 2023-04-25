@@ -21,8 +21,8 @@ public class WebSocket {
     @OnOpen
     public void onOpen(Session session, EndpointConfig config) throws Exception {
         String token = (String) session.getRequestParameterMap().get("Token").get(0);
-        System.out.println(token);
-        System.out.println(token);
+       
+       
         if (token == null || !helper.verifyToken(token)) {
             try {
                 session.close(new CloseReason(CloseReason.CloseCodes.VIOLATED_POLICY, "Invalid token"));
@@ -31,7 +31,6 @@ public class WebSocket {
             }
          
         }
-        System.out.println(token);
         String logs = "";
         String employeeID = db.getIDbyUsernameUserType(helper.getClaims(token).get("Username"),helper.getClaims(token).get("User-Type")); // Implement this method to extract the employee ID from the token
         session.getUserProperties().put("employeeID", employeeID);
@@ -56,7 +55,7 @@ public class WebSocket {
     public void onClose(Session session) {
         String employeeID = (String) session.getUserProperties().get("employeeID");
         manager.removeSession(employeeID);
-        // ...
+        
     }
 
     public static void sendUpdate(String employeeID, String message) {
