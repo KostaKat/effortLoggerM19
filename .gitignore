@@ -2,3 +2,5 @@
 *.db
 bin/*
 /bin/
+/target/*
+/src/test/*
