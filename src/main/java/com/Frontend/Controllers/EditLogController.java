@@ -22,7 +22,7 @@ public class EditLogController {
     private int index;
     @FXML private ChoiceBox<String> project_e, lifeCycleStep_e, effortCategory_e, effortDetail_e, select;
     @FXML private TextArea logDescription_e;
-    @FXML private Button update;
+    @FXML private Button update, delete;
     @FXML private MenuItem createLog, viewLog;
 
 
@@ -45,6 +45,31 @@ public class EditLogController {
             }
         });
 
+        //This is where the delete button
+        delete.setOnAction(event -> {
+            if(!select.getSelectionModel().isEmpty()){
+                //confirmation page pop up
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Are you sure you want to delete the select Log? THIS ACTION CANNOT BE RESTORE!" ,ButtonType.YES, ButtonType.NO);
+                alert.showAndWait();
+                if (alert.getResult() == ButtonType.YES) {
+                    logArrayList.remove(index);
+                    /*
+                        TODO Here should be where the delete update happened
+                        TODO All changes are already save into the arraylist
+                     */
+                    lifeCycleStep_e.setValue(null);
+                    project_e.setValue(null);
+                    effortCategory_e.setValue(null);
+                    effortDetail_e.setValue(null);
+                    logDescription_e.setText(null);
+                }
+            }else{
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setContentText("You have to select on Log first!");
+                alert.showAndWait();
+            }
+        });
+
         update.setOnAction(event -> {
             if(!project_e.getSelectionModel().isEmpty() && !lifeCycleStep_e.getSelectionModel().isEmpty() && !effortDetail_e.getSelectionModel().isEmpty() && !effortCategory_e.getSelectionModel().isEmpty() && !select.getSelectionModel().isEmpty()){
                 selectedLog.setProject(project_e.getValue());
@@ -59,14 +84,16 @@ public class EditLogController {
                 for (Log log : logArrayList) {
                     select.getItems().add(log.toString());
                 }
+                /*
+                    TODO Here should be where the edit update happened
+                    TODO All changes are already save save into the arraylist
+                 */
+                //clear the boxes
                 lifeCycleStep_e.setValue(null);
                 project_e.setValue(null);
                 effortCategory_e.setValue(null);
                 effortDetail_e.setValue(null);
-                alert.showAndWait();
-            }else{
-                Alert alert = new Alert(Alert.AlertType.WARNING);
-                alert.setContentText("Please select all the box!");
+                logDescription_e.setText(null);
                 alert.showAndWait();
             }
         });
