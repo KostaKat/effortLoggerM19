@@ -15,13 +15,12 @@ public class RegisterClientTest {
 
 		// Set the JSON data to send in the request body
 		JSONObject requestBody = new JSONObject();
-		requestBody.put("Username", "c");
-		requestBody.put("Password", "c");
+		requestBody.put("Username", "d");
+		requestBody.put("Password", "d");
 		requestBody.put("First-Name", "John");
 		requestBody.put("Last-Name", "Doe");
-		requestBody.put("User-Type", "Employee");
+		requestBody.put("User-Type", "Manager");
 		requestBody.put("ManagerID", "78b86cbf-46b7-4e1a-9398-0daf401241f6");
-		
 
 		// Convert the JSON object to a string
 		String requestBodyString = requestBody.toString();
@@ -46,7 +45,7 @@ public class RegisterClientTest {
 		int responseCode = con.getResponseCode();
 		String responseMessage = con.getResponseMessage();
 		StringBuilder responseBuilder = new StringBuilder();
-		
+
 		try (BufferedReader in = new BufferedReader(
 				new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8))) {
 			String line;
