@@ -35,7 +35,6 @@ public class ViewLogController {
         effortCategory.setCellValueFactory(new PropertyValueFactory<>("effortCategory"));
         lifeCycleStep.setCellValueFactory(new PropertyValueFactory<>("lifeCycleStep"));
         effortDetail.setCellValueFactory(new PropertyValueFactory<>("effortDetail"));
-
         logTable.setItems(logList);
         logTable.setOnMouseClicked(event -> {
             Log current = (Log) logTable.getSelectionModel().getSelectedItem();

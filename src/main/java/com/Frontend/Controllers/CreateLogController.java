@@ -57,6 +57,10 @@ public class CreateLogController {
 
     @FXML
     private void initialize() {
+        /*
+         * TODO retrieve all the logs, What I need is initialize the stored logs to the
+         * arraylist name logs
+         */
         start.setOnAction(event -> {
             if (lifeCycleStep.getValue() == null || effortDetail.getValue() == null
                     || logDescription.getText() == null) {
@@ -109,6 +113,10 @@ public class CreateLogController {
                 for (int i = 0; i < logs.size(); i++) {
                     Log temp = logs.get(i);
                 }
+                /*
+                 * TODO This is where the add log feature happens to the database
+                 * TODO all logs should be saved into a arraylist of log named logs
+                 */
                 try {
                     addDatabase();
                 } catch (IOException e) {

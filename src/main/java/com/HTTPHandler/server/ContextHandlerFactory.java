@@ -67,6 +67,7 @@ public class ContextHandlerFactory {
 
 class LoginContextHandler implements HttpHandler {
     private LoginHandlerHelper helper = new LoginHandlerHelper();
+    private DatabaseManager dbManager = new DatabaseManager();
 
     /**
      * <p>
@@ -141,8 +142,11 @@ class LoginContextHandler implements HttpHandler {
 
                     jsonResponse.put("message", "Login successful.");
 
-                    // encrypt w/client's pub key
-
+                    if (userType.equals("Manager")) {
+                        jsonResponse.put("ManagerID", dbManager.getIDbyUsernameUserType(
+                                helper.getClaims(token).get("Username"), helper.getClaims(token).get("User-Type")));
+                        // encrypt w/client's pub key
+                    }
                     // save token in database
                     try {
                         Connection connection = DriverManager.getConnection("jdbc:sqlite:mydatabase.db");
