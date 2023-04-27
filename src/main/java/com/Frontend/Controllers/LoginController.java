@@ -5,8 +5,12 @@ package com.Frontend.Controllers;
 
 import com.Frontend.Log;
 import com.Frontend.Main;
+import com.WebSocket.WebSocketClient;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.websocket.ContainerProvider;
+import jakarta.websocket.Session;
+import jakarta.websocket.WebSocketContainer;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -17,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -27,9 +32,9 @@ public class LoginController {
     @FXML Button pass;
     @FXML TextField username;
     @FXML PasswordField password;
-
+    private static Session webSocketSession;
     @FXML
-    void loadPage() throws IOException {
+    void loadPage() throws Exception {
         if (!username.getText().trim().isEmpty() && !password.getText().trim().isEmpty()) {
             String url = "http://localhost:8080/login";
 
@@ -58,7 +63,6 @@ public class LoginController {
                 os.write(requestBodyBytes, 0, requestBodyBytes.length);
             }
 
-            // Read the response from the connection's input stream
             int responseCode = con.getResponseCode();
             String responseMessage = con.getResponseMessage();
             StringBuilder responseBuilder = new StringBuilder();
@@ -79,23 +83,56 @@ public class LoginController {
                     }
                 }
             }
-            String response = responseBuilder.toString();
+            String responseBody = responseBuilder.toString();
 
-            // Print the response from the server
-            System.out.println("Response code: " + responseCode);
-            System.out.println("Response message: " + responseMessage);
-            System.out.println("Response body: " + response);
-            if(responseCode == 200){
-                ObjectMapper objectMapper = new ObjectMapper();
-                JsonNode jsonNode = objectMapper.readTree(response);
-                authToken = jsonNode.get("Token").asText();
-                Main.setRoot("CreateLog", logArrayList, authToken);
+            // Parse the response body as a JSON object
+            JSONObject jsonResponse = new JSONObject(responseBody);
+
+            // Extract values from the JSON response
+            String token = jsonResponse.getString("Token");
+            String manager = jsonResponse.optString("ManagerID", "");
+            if (!manager.isEmpty()) {
+                System.out.println("Response code: " + responseCode);
+                System.out.println("Response message: " + responseMessage);
+                System.out.println("Token: " + token);
+                System.out.println("Manager ID: " + manager);
+                connectWebSocket(token);
+                if(responseCode == 200){
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    JsonNode jsonNode = objectMapper.readTree(responseBody);
+                    authToken = jsonNode.get("Token").asText();
+                    /*
+                    *  TODO; ROLE: Manager
+                     * TODO retrieve the employee logs, What I need is to retrieve the logs to the logArrayList
+                     *
+                     */
+                    Main.setManagerRoot(logArrayList, authToken, manager);
+                }else{
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setContentText("Username or Password is not correct, you need register one");
+                    alert.show();
+                }
             }else{
-                System.out.println("Username or Password is not correct, you need register one first");
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setContentText("Username or Password is not correct, you need register one");
-                alert.show();
+                System.out.println("Response code: " + responseCode);
+                System.out.println("Response message: " + responseMessage);
+                System.out.println("Token: " + token);
+                connectWebSocket(token);
+                if(responseCode == 200){
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    JsonNode jsonNode = objectMapper.readTree(responseBody);
+                    authToken = jsonNode.get("Token").asText();
+                   /*
+                   *    TODO; ROLE: Employee
+                     * TODO retrieve the employee logs, What I need is to retrieve the logs to the logArrayList
+                     */
+                    Main.setRoot("CreateLog", logArrayList, authToken);
+                }else{
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setContentText("Username or Password is not correct, you need register one");
+                    alert.show();
+                }
             }
+
         }else{
             System.out.println("Please fill in all information");
             Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -110,5 +147,12 @@ public class LoginController {
     @FXML
     void register() throws IOException {
         Main.setRoot("signUp");
+    }
+
+    private static void connectWebSocket(String token) throws Exception {
+        WebSocketContainer container = ContainerProvider.getWebSocketContainer();
+        String wsUrl = "ws://localhost:8081/getLogs?Token=" + token;
+        webSocketSession = container.connectToServer(WebSocketClient.class, new URI(wsUrl));
+
     }
 }

@@ -3,6 +3,7 @@ package com.Frontend.Controllers;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 import org.json.JSONObject;
 
@@ -12,6 +13,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.lang.management.ManagementFactory;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -39,18 +41,45 @@ public class SignUpController{
     private TextField userTextField;
 
     @FXML
+    private CheckBox manager;
+
+    @FXML
+    private TextField managerId;
+
+
+    @FXML
+    public void initialize(){
+        manager.selectedProperty().addListener((obs, wasSelected, isNowSelected) -> {
+            // If checkbox is checked, disable textfield
+            if (isNowSelected) {
+                managerId.setDisable(true);
+            } else {
+                managerId.setDisable(false);
+            }
+        });
+    }
+
+    @FXML
     void change() throws IOException {
         if (!userTextField.getText().trim().isEmpty() && !passTextField.getText().trim().isEmpty()) {
             String url = "http://localhost:8080/register";
 
             // Set the JSON data to send in the request body
             JSONObject requestBody = new JSONObject();
-            requestBody.put("Username", userTextField.getText());
-            requestBody.put("Password", passTextField.getText());
-            requestBody.put("First-Name", firstTextField.getText());
-            requestBody.put("Last-Name", lastTextField.getText());
-            requestBody.put("User-Type", "Employee");
-            requestBody.put("ManagerID", "5aec5abe-57cc-4049-9e95-5c122bc2b133");
+            if(manager.isSelected()){
+                requestBody.put("Username", userTextField.getText());
+                requestBody.put("Password", passTextField.getText());
+                requestBody.put("First-Name", firstTextField.getText());
+                requestBody.put("Last-Name", lastTextField.getText());
+                requestBody.put("User-Type", "Manager");
+            }else{
+                requestBody.put("Username", userTextField.getText());
+                requestBody.put("Password", passTextField.getText());
+                requestBody.put("First-Name", firstTextField.getText());
+                requestBody.put("Last-Name", lastTextField.getText());
+                requestBody.put("User-Type", "Employee");
+                requestBody.put("ManagerID", managerId.getText());
+            }
 
             // Convert the JSON object to a string
             String requestBodyString = requestBody.toString();

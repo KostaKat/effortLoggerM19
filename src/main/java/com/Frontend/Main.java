@@ -5,6 +5,7 @@ package com.Frontend;
 
 import com.Frontend.Controllers.CreateLogController;
 import com.Frontend.Controllers.EditLogController;
+import com.Frontend.Controllers.ManagerController;
 import com.Frontend.Controllers.ViewLogController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -60,6 +61,14 @@ public class Main extends Application {
         }
     }
 
+    public static void setManagerRoot(ArrayList<Log> logArrayList, String authToken, String Id) throws IOException {
+        Window window = scene.getWindow();
+        Stage stage = (Stage) window;
+        scene.setRoot(loadManagerFXML(logArrayList, authToken, Id));
+        stage.setScene(scene);
+        stage.sizeToScene();
+    }
+
     //switch scene
     public static void setRoot(String fxml, ArrayList<Log> logArrayList, String authToken) throws IOException {
         Window window = scene.getWindow();
@@ -83,6 +92,13 @@ public class Main extends Application {
         }
     }
 
+    private static Parent loadManagerFXML(ArrayList<Log> logArrayList, String authToken, String ManagerId) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/org/FXML/"+ "Manager.fxml"));
+        ManagerController temp = new ManagerController(logArrayList, authToken, ManagerId);
+        fxmlLoader.setController(temp);
+        Parent root = fxmlLoader.load();
+        return root;
+    }
 
     private static Parent loadCreateLogFXML(ArrayList<Log> logArrayList, String authToken) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/org/FXML/"+ "CreateLog.fxml"));
@@ -90,7 +106,6 @@ public class Main extends Application {
         fxmlLoader.setController(temp);
         Parent root = fxmlLoader.load();
         return root;
-
     }
     private static Parent loadViewLogFXML(ArrayList<Log> logArrayList, String authToken) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/org/FXML/"+"ViewLog.fxml"));

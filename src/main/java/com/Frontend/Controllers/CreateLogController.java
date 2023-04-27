@@ -57,10 +57,6 @@ public class CreateLogController {
 
     @FXML
     private void initialize() {
-        /*
-         * TODO retrieve all the logs, What I need is initialize the stored logs to the
-         * arraylist name logs
-         */
         start.setOnAction(event -> {
             if (lifeCycleStep.getValue() == null || effortDetail.getValue() == null
                     || logDescription.getText() == null) {
