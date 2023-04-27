@@ -136,6 +136,7 @@ class LoginContextHandler implements HttpHandler {
 
                     //
                     jsonResponse.put("Token", token);
+                    jsonResponse.put("UserType", userType);
                     jsonResponse.put("status", "success");
 
                     jsonResponse.put("message", "Login successful.");
@@ -175,7 +176,7 @@ class LoginContextHandler implements HttpHandler {
             }
         } catch (Exception e) {
             // handle any exceptions that occur while processing the request
-            helper.sendErrorResponse(exchange, 500, e.getMessage());
+            helper.sendErrorResponse(exchange, 500, e.getMessage() + "login");
         }
     }
 
@@ -436,7 +437,7 @@ class AddLogContextHandler implements HttpHandler {
      * @throws Exception
      */
     private boolean proccessAddLogRequest(String requestBody) throws Exception {
-        
+
         // check if requestBody is a JSON object
         if (!helper.isJSON(requestBody))
             return false;
@@ -518,7 +519,7 @@ class EditLogContextHandler implements HttpHandler {
         } catch (Exception e) {
             // handle any exceptions that occur while processing the request
             String response = "Error processing request: " + e.getMessage();
-            helper.sendErrorResponse(exchange, 500, response);
+            helper.sendErrorResponse(exchange, 500, response + "edit");
         }
     }
 
@@ -534,7 +535,7 @@ class EditLogContextHandler implements HttpHandler {
      * @version prototype
      */
     private boolean proccessEditLogRequest(String requestBody) throws Exception {
-        
+
         // check if requestBody is a JSON object
         if (!helper.isJSON(requestBody))
             return false;
@@ -553,8 +554,9 @@ class EditLogContextHandler implements HttpHandler {
         String effortDetail = jsonNode.get("EffortDetail").asText();
         String lifeCycleStep = jsonNode.get("LifeCycleStep").asText();
         String logID = jsonNode.get("LogID").asText();
-        
-        if(!databaseManager.editLog(logID, date, startTime, endTime, project, effortCategory, effortDetail, lifeCycleStep))
+
+        if (!databaseManager.editLog(logID, date, startTime, endTime, project, effortCategory, effortDetail,
+                lifeCycleStep))
             return false;
         return true;
 
@@ -573,6 +575,7 @@ class DeleteLogContextHandler implements HttpHandler {
     // attributes
     private DeleteLogHandlerHelper helper = new DeleteLogHandlerHelper();
     private DatabaseManager databaseManager = new DatabaseManager();
+
     /**
      * <p>
      * Handles an HTTP exchange for deleting a log in the database.
@@ -615,7 +618,7 @@ class DeleteLogContextHandler implements HttpHandler {
             }
         } catch (Exception e) {
             // handle any exceptions that occur while processing the request
-            helper.sendErrorResponse(exchange, 500, "Error processing request: " + e.getMessage());
+            helper.sendErrorResponse(exchange, 500, "Error processing request: " + e.getMessage() + "delete");
         }
     }
 
@@ -632,7 +635,7 @@ class DeleteLogContextHandler implements HttpHandler {
      * @throws Exception
      */
     private boolean proccessDeleteLogRequest(String requestBody) throws Exception {
-        
+
         // check if requestBody is a JSON object
         if (!helper.isJSON(requestBody))
             return false;
@@ -644,7 +647,7 @@ class DeleteLogContextHandler implements HttpHandler {
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(requestBody);
         String logID = jsonNode.get("LogID").asText();
-        if(!databaseManager.deleteLog(logID))
+        if (!databaseManager.deleteLog(logID))
             return false;
         return true;
 

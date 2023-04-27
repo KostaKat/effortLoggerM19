@@ -39,34 +39,40 @@ public class CreateLogController {
 
     int startFlag = 0;
 
-    @FXML private ChoiceBox<String> project, lifeCycleStep, effortCategory, effortDetail;
-    @FXML private TextArea logDescription;
-    @FXML private Button start, stop, interruption;
-    @FXML private MenuItem viewLog, editLog, logOut;
-    @FXML private Label warnL, clock, timeStart;
+    @FXML
+    private ChoiceBox<String> project, lifeCycleStep, effortCategory, effortDetail;
+    @FXML
+    private TextArea logDescription;
+    @FXML
+    private Button start, stop, interruption;
+    @FXML
+    private MenuItem viewLog, editLog, logOut;
+    @FXML
+    private Label warnL, clock, timeStart;
 
-    public CreateLogController(ArrayList<Log> logArrayList, String authToken){
+    public CreateLogController(ArrayList<Log> logArrayList, String authToken) {
         this.logs = logArrayList;
         this.authToken = authToken;
     }
 
     @FXML
-    private void initialize(){
+    private void initialize() {
         start.setOnAction(event -> {
-            if(lifeCycleStep.getValue() == null || effortDetail.getValue() == null || logDescription.getText() == null){
+            if (lifeCycleStep.getValue() == null || effortDetail.getValue() == null
+                    || logDescription.getText() == null) {
                 alert.setTitle("Warning Dialog");
                 alert.setContentText("Please fill all the box in order to start!");
                 alert.show();
                 warnL.setText("Please fill all the box in order to start!");
                 warnL.setDisable(false);
-            }else{
-                //get the current date and time
+            } else {
+                // get the current date and time
                 LocalDateTime currentDateTime = LocalDateTime.now();
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
                 startTime = currentDateTime.format(formatter);
                 date = currentDateTime.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
 
-                //set the time
+                // set the time
                 clock.setText("TIME START ON:");
                 timeStart.setText(startTime);
                 taskLog = new Log();
@@ -81,13 +87,13 @@ public class CreateLogController {
         });
 
         stop.setOnAction(event -> {
-            if(startFlag != 1){
+            if (startFlag != 1) {
                 alert.setTitle("Warning Dialog");
                 alert.setContentText("Please press start first!");
                 alert.show();
                 warnL.setText("Please press start first!");
                 warnL.setDisable(false);
-            }else{
+            } else {
                 clock.setText("CLOCK IS STOPPED");
                 timeStart.setText(null);
                 LocalDateTime currentDateTime = LocalDateTime.now();
@@ -114,11 +120,11 @@ public class CreateLogController {
         });
 
         logOut.setOnAction(event -> {
-            if(startFlag == 1) {
+            if (startFlag == 1) {
                 alert.setTitle("Warning Dialog");
                 alert.setContentText("Please stop the Log first to log out!!!");
                 alert.show();
-            }else{
+            } else {
                 try {
                     Main.setRoot("login");
                 } catch (IOException e) {
@@ -128,8 +134,8 @@ public class CreateLogController {
         });
 
         interruption.setOnAction(event -> {
-            try{
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/FXML/"+ "interruption.fxml"));
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/FXML/" + "interruption.fxml"));
                 InterruptionController temp = new InterruptionController();
                 loader.setController(temp);
                 Parent root = loader.load();
@@ -139,17 +145,17 @@ public class CreateLogController {
                 popupStage.setScene(new Scene(root));
                 popupStage.setTitle("Pop-up Page");
                 popupStage.showAndWait();
-            }catch(IOException e) {
+            } catch (IOException e) {
 
             }
         });
 
         editLog.setOnAction(event -> {
-            if(startFlag == 1) {
+            if (startFlag == 1) {
                 alert.setTitle("Warning Dialog");
                 alert.setContentText("Please stop the Log to process to other page!!!");
                 alert.show();
-            }else{
+            } else {
                 try {
                     Main.setRoot("EditLog", logs, authToken);
                 } catch (IOException e) {
@@ -160,7 +166,7 @@ public class CreateLogController {
 
         viewLog.setOnAction(event -> {
             try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/FXML/"+ "ViewLog.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/FXML/" + "ViewLog.fxml"));
                 ViewLogController temp = new ViewLogController(logs, authToken);
                 loader.setController(temp);
                 Parent root = loader.load();
@@ -175,26 +181,33 @@ public class CreateLogController {
             }
         });
 
-        //This block of code is used to initilize the choice box property.
-        //The choice box value may be dependent on other to change.
+        // This block of code is used to initilize the choice box property.
+        // The choice box value may be dependent on other to change.
         logDescription.setWrapText(true);
         project.getItems().addAll("Business Project", "Development Project");
         project.setValue("Business Project");
-        lifeCycleStep.getItems().addAll("Planning","Information Gathering","Information Understanding","Verifying","Outlining","Drafting","Finalizing","Team Meeting","Coach Meeting","Stakeholder Meeting");
-        effortCategory.getItems().addAll("Plans","Deliverables","Interruptions","Defects","Others");
+        lifeCycleStep.getItems().addAll("Planning", "Information Gathering", "Information Understanding", "Verifying",
+                "Outlining", "Drafting", "Finalizing", "Team Meeting", "Coach Meeting", "Stakeholder Meeting");
+        effortCategory.getItems().addAll("Plans", "Deliverables", "Interruptions", "Defects", "Others");
         effortCategory.setValue("Plans");
-        effortDetail.getItems().addAll("Project Plan","Risk Management Plan","Conceptual Design Plan","Detailed Design Plan","Implementation Plan");
+        effortDetail.getItems().addAll("Project Plan", "Risk Management Plan", "Conceptual Design Plan",
+                "Detailed Design Plan", "Implementation Plan");
         project.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue.equals("Business Project")) {
                 lifeCycleStep.getItems().clear();
                 lifeCycleStep.setValue(null);
-                lifeCycleStep.getItems().addAll("Planning","Information Gathering","Information Understanding","Verifying","Outlining","Drafting","Finalizing","Team Meeting","Coach Meeting","Stakeholder Meeting");
+                lifeCycleStep.getItems().addAll("Planning", "Information Gathering", "Information Understanding",
+                        "Verifying", "Outlining", "Drafting", "Finalizing", "Team Meeting", "Coach Meeting",
+                        "Stakeholder Meeting");
             } else if (newValue.equals("Development Project")) {
                 lifeCycleStep.getItems().clear();
                 lifeCycleStep.setValue(null);
-                lifeCycleStep.getItems().addAll("Problem Understanding","Conceptual Design Plan","Requirements","Conceptual Design",
-                        "Conceptual Design Review","Detailed Design Plan","Detailed Design/Prototype","Detailed Design Review","Implementation Plan","Test Case Generation",
-                        "Solution Specification","Solution Review","Solution Implementation","Unit/System Test","Reflection","Repository Update");
+                lifeCycleStep.getItems().addAll("Problem Understanding", "Conceptual Design Plan", "Requirements",
+                        "Conceptual Design",
+                        "Conceptual Design Review", "Detailed Design Plan", "Detailed Design/Prototype",
+                        "Detailed Design Review", "Implementation Plan", "Test Case Generation",
+                        "Solution Specification", "Solution Review", "Solution Implementation", "Unit/System Test",
+                        "Reflection", "Repository Update");
             }
         });
         effortCategory.valueProperty().addListener((observable, oldValue, newValue) -> {
@@ -202,19 +215,21 @@ public class CreateLogController {
                 case "Plans":
                     effortDetail.getItems().clear();
                     effortDetail.setValue(null);
-                    effortDetail.getItems().addAll("Project Plan","Risk Management Plan","Conceptual Design Plan","Detailed Design Plan","Implementation Plan");
+                    effortDetail.getItems().addAll("Project Plan", "Risk Management Plan", "Conceptual Design Plan",
+                            "Detailed Design Plan", "Implementation Plan");
                     effortDetail.setValue("Project Plan");
                     break;
                 case "Deliverables":
                     effortDetail.getItems().clear();
                     effortDetail.setValue(null);
-                    effortDetail.getItems().addAll("Conceptual Design","Detailed Design","Test Cases","Solution","Reflection","Outline","Draft","Report","User Defined","Other");
+                    effortDetail.getItems().addAll("Conceptual Design", "Detailed Design", "Test Cases", "Solution",
+                            "Reflection", "Outline", "Draft", "Report", "User Defined", "Other");
                     effortDetail.setValue("Conceptual Design");
                     break;
                 case "Interruptions":
                     effortDetail.getItems().clear();
                     effortDetail.setValue(null);
-                    effortDetail.getItems().addAll("Break","Phone","Teammate","Visitor","Other");
+                    effortDetail.getItems().addAll("Break", "Phone", "Teammate", "Visitor", "Other");
                     effortDetail.setValue("Break");
                     break;
                 case "Defects":
@@ -233,9 +248,8 @@ public class CreateLogController {
         });
     }
 
-
     void addDatabase() throws IOException {
-        String url = "http://localhost:8086/addLog";
+        String url = "http://localhost:8080/addLog";
 
         // Set the JSON data for the log request
         JSONObject logData = new JSONObject();

@@ -130,7 +130,7 @@ public class LoginClientTest {
 		// Set the JSON data for the log request
 		JSONObject logDataEdit = new JSONObject();
 		logDataEdit.put("Token", token);
-		logDataEdit.put("LogID","cf7fb902-e4ce-43bb-9d14-e67350e2cd11");
+		logDataEdit.put("LogID", "ebfd3483-6311-41fb-91fd-b09b5ef3ff45");
 		logDataEdit.put("Date", "2023-04-23");
 		logDataEdit.put("StartTime", "09:00:00");
 		logDataEdit.put("EndTime", "10:00:00");
@@ -160,20 +160,18 @@ public class LoginClientTest {
 
 		// Read the response from the log request's input stream
 		int logResponseCodeEdit = logConEdit.getResponseCode();
-		String logResponseMessageEdit = logConEdit.getResponseMessage();
+		String logResponseMessageEdit = logConEdit.getResponseMessage() + "edit";
 
 		// Print the response from the log request
 		System.out.println("Log request code: " + logResponseCodeEdit);
 		System.out.println("Log request message: " + logResponseMessageEdit);
 
-
 		String logUrlDelete = "http://localhost:8080/deleteLog";
 
 		// Set the JSON data for the log request
-		JSONObject logDataDelete= new JSONObject();
+		JSONObject logDataDelete = new JSONObject();
 		logDataDelete.put("Token", token);
-		logDataDelete.put("LogID","cf7fb902-e4ce-43bb-9d14-e67350e2cd11");
-	
+		logDataDelete.put("LogID", "ad6889e2-b56a-4134-9a24-76ea645d6205");
 
 		// Convert the JSON object to a string
 		String logDataDeleteString = logDataDelete.toString();
@@ -199,7 +197,7 @@ public class LoginClientTest {
 		String logResponseMessageDelete = logConDelete.getResponseMessage();
 
 		// Print the response from the log request
-		System.out.println("Log request code: " + logResponseCodeDelete);
+		System.out.println("Log request code: " + logResponseCodeDelete + "DELETE");
 		System.out.println("Log request message: " + logResponseMessageDelete);
 	}
 
@@ -210,5 +208,4 @@ public class LoginClientTest {
 
 	}
 
-	
 }
