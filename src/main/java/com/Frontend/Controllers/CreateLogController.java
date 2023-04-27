@@ -142,19 +142,49 @@ public class CreateLogController {
         });
 
         interruption.setOnAction(event -> {
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/FXML/" + "interruption.fxml"));
-                InterruptionController temp = new InterruptionController();
-                loader.setController(temp);
-                Parent root = loader.load();
+            if(startFlag == 1){
+                try {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/FXML/" + "interruption.fxml"));
+                    InterruptionController temp = new InterruptionController();
+                    loader.setController(temp);
+                    Parent root = loader.load();
 
-                Stage popupStage = new Stage();
-                popupStage.initModality(Modality.APPLICATION_MODAL);
-                popupStage.setScene(new Scene(root));
-                popupStage.setTitle("Pop-up Page");
-                popupStage.showAndWait();
-            } catch (IOException e) {
+                    Stage popupStage = new Stage();
+                    popupStage.initModality(Modality.APPLICATION_MODAL);
+                    popupStage.setScene(new Scene(root));
+                    popupStage.setTitle("Pop-up Page");
+                    popupStage.showAndWait();
 
+                    InterruptionController iLogC = loader.getController();
+                    if(iLogC.getI_type()!=null){
+                        LocalDateTime ct = LocalDateTime.now();
+                        String date = ct.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+                        Log interruptLog = new Log();
+                        interruptLog.setDate(date);
+                        interruptLog.setStartTime(iLogC.getStartFormattedTime());
+                        interruptLog.setEndTime(iLogC.getEndFormattedDateTime());
+                        interruptLog.setProject(project.getValue());
+                        interruptLog.setLifeCycleStep(lifeCycleStep.getValue());
+                        interruptLog.setEffortCategory("Interruption");
+                        interruptLog.setEffortDetail(iLogC.getI_type());
+                        interruptLog.setLogDescription(iLogC.getDes());
+                        /*
+                            TODO This section should also be connect to the server and add.
+                            TODO the interruption log already saved in the object named interrupt log.
+                         */
+                        logs.add(interruptLog);
+                    }else{
+                        alert.setTitle("Warning Dialog");
+                        alert.setContentText("No interrupt was made!!!");
+                        alert.show();
+                    }
+                } catch (IOException e) {
+
+                }
+            }else{
+                alert.setTitle("Warning Dialog");
+                alert.setContentText("You have to start on task first!!!");
+                alert.show();
             }
         });
 

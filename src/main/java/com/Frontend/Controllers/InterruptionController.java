@@ -12,10 +12,29 @@ import java.util.concurrent.TimeUnit;
 
 public class InterruptionController {
     @FXML private ChoiceBox<String> interruptionType;
-    String i_type;
+    private String i_type = null;
+    private String startFormattedTime, endFormattedDateTime, des;
     @FXML private Button start, stop;
     @FXML private TextArea description;
-    long startTime;
+
+
+    public String getDes() {
+        return des;
+    }
+
+    public String getEndFormattedDateTime() {
+        return endFormattedDateTime;
+    }
+
+    public String getI_type() {
+        return i_type;
+    }
+
+    public String getStartFormattedTime() {
+        return startFormattedTime;
+    }
+
+
 
     @FXML
     private void initialize(){
@@ -25,24 +44,20 @@ public class InterruptionController {
 
         start.setOnAction(event -> {
             LocalDateTime currentDateTime = LocalDateTime.now();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-            String formattedDateTime = currentDateTime.format(formatter);
-            System.out.println(formattedDateTime);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+            startFormattedTime = currentDateTime.format(formatter);
             start.setDisable(true);
             stop.setDisable(false);
-            startTime = System.nanoTime();
         });
 
         stop.setOnAction(event -> {
             LocalDateTime currentDateTime = LocalDateTime.now();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-            String formattedDateTime = currentDateTime.format(formatter);
-            long estimatedTime = System.nanoTime() - startTime;
-            String formattedTime = String.format("%02d:%02d:%02d", TimeUnit.NANOSECONDS.toHours(estimatedTime),
-                    TimeUnit.NANOSECONDS.toMinutes(estimatedTime) - TimeUnit.HOURS.toMinutes(TimeUnit.NANOSECONDS.toHours(estimatedTime)),
-                    TimeUnit.NANOSECONDS.toSeconds(estimatedTime) - TimeUnit.MINUTES.toSeconds(TimeUnit.NANOSECONDS.toMinutes(estimatedTime)));
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+            endFormattedDateTime = currentDateTime.format(formatter);
+
             i_type = interruptionType.getValue();
-            System.out.println(formattedDateTime+"\n"+formattedTime+"\n"+i_type);
+            des = description.getText();
+
             start.setDisable(false);
             stop.setDisable(true);
             Stage stage = (Stage) start.getScene().getWindow();
