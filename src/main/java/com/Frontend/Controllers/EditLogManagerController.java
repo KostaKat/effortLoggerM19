@@ -210,7 +210,7 @@ public class EditLogManagerController {
         String url = "http://localhost:8080/deleteLog";
         // Set the JSON data for the log request
         JSONObject logData = new JSONObject();
-        logData.put("Token", "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhdXRoMCIsIlVzZXJuYW1lIjoiZSIsIlVzZXItVHlwZSI6IkVtcGxveWVlIn0.JPHxJKWtiRPFsGVPihM8RhDyPvtBu4SeONvVLbFD5U9RMWrvjCkoC9o2AKHbVmCljJ-eAR9qor5UqNrFjuUjIe3jFL1oSq3K94HdPSPZnAFr1sRM-2M34j3D_8pUfF2wCg6qO1IPkkgztnDdwtCxEiWUFBLFkat2PeKm2YByyq0j9HTbDKlpobEncP1EDEZppelQlAfPVNBXwUoDSOsR06iOQ5U0ByHfiBDGwvxHtVAQsf_RwrkW0lk1h4X1mwdsR4A_Vx6bDa8TA0A1tNkmWkzcp578XXElFjffI-OnWo42mMkBTgKWg_a4px2QUC-73oL9QulU0qvcU4U3xR6rcg");
+        logData.put("Token", authToken);
         logData.put("LogID", selectedLog.getLogID());
 
         String logDataString = logData.toString();
@@ -241,7 +241,7 @@ public class EditLogManagerController {
         // Set the JSON data for the log request
         JSONObject logDataEdit = new JSONObject();
 
-        logDataEdit.put("Token", "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhdXRoMCIsIlVzZXJuYW1lIjoiZSIsIlVzZXItVHlwZSI6IkVtcGxveWVlIn0.JPHxJKWtiRPFsGVPihM8RhDyPvtBu4SeONvVLbFD5U9RMWrvjCkoC9o2AKHbVmCljJ-eAR9qor5UqNrFjuUjIe3jFL1oSq3K94HdPSPZnAFr1sRM-2M34j3D_8pUfF2wCg6qO1IPkkgztnDdwtCxEiWUFBLFkat2PeKm2YByyq0j9HTbDKlpobEncP1EDEZppelQlAfPVNBXwUoDSOsR06iOQ5U0ByHfiBDGwvxHtVAQsf_RwrkW0lk1h4X1mwdsR4A_Vx6bDa8TA0A1tNkmWkzcp578XXElFjffI-OnWo42mMkBTgKWg_a4px2QUC-73oL9QulU0qvcU4U3xR6rcg");
+        logDataEdit.put("Token", authToken);
         logDataEdit.put("LogID", logID);
         logDataEdit.put("Date", date);
         logDataEdit.put("StartTime", startTime);
