@@ -131,7 +131,7 @@ public class CreateLogController {
                 alert.setTitle("Warning Dialog");
                 alert.setContentText("Please stop the Log first to log out!!!");
                 alert.show();
-            } else {
+            }else{
                 try {
                     Main.setRoot("login");
                 } catch (IOException e) {

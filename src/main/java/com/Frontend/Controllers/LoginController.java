@@ -109,12 +109,6 @@ public class LoginController {
                     ObjectMapper objectMapper = new ObjectMapper();
                     JsonNode jsonNode = objectMapper.readTree(responseBody);
                     authToken = jsonNode.get("Token").asText();
-                    /*
-                     * TODO; ROLE: Manager
-                     * TODO retrieve the employee logs, What I need is to retrieve the logs to the
-                     * logArrayList
-                     *
-                     */
                     Main.setManagerRoot(logs, authToken, manager);
                 } else {
                     Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -130,12 +124,6 @@ public class LoginController {
                     ObjectMapper objectMapper = new ObjectMapper();
                     JsonNode jsonNode = objectMapper.readTree(responseBody);
                     authToken = jsonNode.get("Token").asText();
-                    /*
-                     * TODO; ROLE: Employee
-                     * TODO retrieve the employee logs, What I need is to retrieve the logs to the
-                     * logArrayList
-                     *
-                     */
                     Main.setRoot("CreateLog", logs, authToken);
                 } else {
                     Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -167,6 +155,5 @@ public class LoginController {
         String wsUrl = "ws://localhost:8081/getLogs?Token=" + token;
         WebSocketClient webSocketClient = new WebSocketClient(logs);
         webSocketSession = container.connectToServer(webSocketClient, new URI(wsUrl));
-
     }
 }
