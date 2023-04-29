@@ -46,6 +46,7 @@ public class EditLogManagerController {
 
     @FXML
     private void initialize() {
+        System.out.println(authToken);
         // Initialize the choice box
         for (Log log : logs) {
             select.getItems().add(log.toString());

@@ -33,6 +33,7 @@ public class ManagerController {
 
     @FXML
     public void initialize() {
+        System.out.println(authToken);
         managerId.setText(ManagerId);
         date.setCellValueFactory(new PropertyValueFactory<>("date"));
         startTime.setCellValueFactory(new PropertyValueFactory<>("startTime"));

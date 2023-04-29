@@ -155,7 +155,24 @@ public class CreateLogController {
 
                     InterruptionController iLogC = loader.getController();
                     if (iLogC.getI_type() != null) {
-
+                        String effortCategoryT = effortCategory.getValue();
+                        String effortDetailT = effortDetail.getValue();
+                        String startTimeT = startTime;
+                        String logDescriptionT = logDescription.getText();
+                        effortCategory.setValue("Interruption");
+                        effortDetail.setValue(iLogC.getI_type());
+                        startTime = iLogC.getStartFormattedTime();
+                        logDescription.setText(iLogC.getDes());
+                        endTime = iLogC.getEndFormattedDateTime();
+                        try {
+                            addDatabase();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        effortCategory.setValue(effortCategoryT);
+                        effortDetail.setValue(effortDetailT);
+                        startTime = startTimeT;
+                        logDescription.setText(logDescriptionT);
                     } else {
                         alert.setTitle("Warning Dialog");
                         alert.setContentText("No interrupt was made!!!");
