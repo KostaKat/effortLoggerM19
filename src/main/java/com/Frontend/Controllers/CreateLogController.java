@@ -60,6 +60,7 @@ public class CreateLogController {
     @FXML
     private void initialize() {
         start.setOnAction(event -> {
+            System.out.println(logs.size());
             if (lifeCycleStep.getValue() == null || effortDetail.getValue() == null
                     || logDescription.getText() == null) {
                 alert.setTitle("Warning Dialog");

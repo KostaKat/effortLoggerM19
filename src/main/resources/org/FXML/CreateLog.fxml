@@ -42,6 +42,7 @@
                </font>
             </Label>
             <Button fx:id="interruption" layoutX="606.0" layoutY="321.0" mnemonicParsing="false" text="Interruption" />
+            <Button fx:id="defect" layoutX="496.0" layoutY="321.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="82.0" text="Defect" />
          </children>
       </AnchorPane>
    </center>

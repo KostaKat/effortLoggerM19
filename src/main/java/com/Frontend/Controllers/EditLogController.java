@@ -39,7 +39,7 @@ public class EditLogController {
     @FXML
     private Button update, delete;
     @FXML
-    private MenuItem createLog, viewLog;
+    private MenuItem createLog, viewLog, logOut;
 
     @FXML
     private void initialize() {
@@ -47,7 +47,7 @@ public class EditLogController {
         for (Log log : logs) {
             select.getItems().add(log.toString());
         }
-
+        System.out.println(logs.size());
         // Add a listener to the logs list to update the select choice box
         logs.addListener((ListChangeListener<Log>) c -> {
             select.getItems().clear();
@@ -100,6 +100,13 @@ public class EditLogController {
                 Alert alert = new Alert(Alert.AlertType.WARNING);
                 alert.setContentText("You have to select on Log first!");
                 alert.showAndWait();
+            }
+        });
+        logOut.setOnAction(event -> {
+            try {
+                Main.setRoot("login");
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         });
 

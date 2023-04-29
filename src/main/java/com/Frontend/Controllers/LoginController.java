@@ -106,6 +106,7 @@ public class LoginController {
                 System.out.println("Manager ID: " + manager);
                 connectWebSocket(token);
                 if (responseCode == 200) {
+                    System.out.println(logs.size());
                     ObjectMapper objectMapper = new ObjectMapper();
                     JsonNode jsonNode = objectMapper.readTree(responseBody);
                     authToken = jsonNode.get("Token").asText();
@@ -121,6 +122,7 @@ public class LoginController {
                 System.out.println("Token: " + token);
                 connectWebSocket(token);
                 if (responseCode == 200) {
+                    System.out.println(logs.size());
                     ObjectMapper objectMapper = new ObjectMapper();
                     JsonNode jsonNode = objectMapper.readTree(responseBody);
                     authToken = jsonNode.get("Token").asText();
