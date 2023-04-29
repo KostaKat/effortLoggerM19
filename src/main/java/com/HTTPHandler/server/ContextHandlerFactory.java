@@ -7,6 +7,7 @@ import java.util.Map;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.Database.DatabaseManager;
+import com.HTTPHandler.PasswordUtils;
 import com.WebSocket.WebSocket;
 import com.WebSocket.WebSocketManager;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -269,7 +270,9 @@ class RegisterContextHandler implements HttpHandler {
                     String lastName = jsonNode.get("Last-Name").asText();
                     String userType = jsonNode.get("User-Type").asText();
                     String employeeID = helper.generateEmployeeID();
-
+                    PasswordUtils passwordUtils = new PasswordUtils();
+                    String salt = passwordUtils.generateSalt();
+                    password = passwordUtils.hashPassword(password, salt);
                     if (userType.equalsIgnoreCase("Employee")) {
                         String managerID = jsonNode.get("ManagerID").asText();
 
@@ -277,26 +280,18 @@ class RegisterContextHandler implements HttpHandler {
 
                         databaseManager.insertNewEmployee(employeeID, firstName, lastName,
                                 username, password, userType,
-                                managerID, managerID);
+                                employeeID, managerID, salt);
 
                     } else {
                         System.out.println("Generating manager ID");
-                        databaseManager.insertNewManager(employeeID, firstName, lastName, username, password, userType);
+                        databaseManager.insertNewManager(employeeID, firstName, lastName,
+                                username, password, userType, salt);
                         jsonResponse.put("ManagerID", employeeID);
                     }
                     System.out.println("Registering user with username: " + username);
 
-                    // Generate the key pair using the createKeys() method
-                    // Map<String, String> keys = helper.createKeys();
-                    // Add the keys to the JSON response
-
                     jsonResponse.put("status", "success");
                     jsonResponse.put("message", "Registration successful.");
-                    // //send server's public key
-                    // jsonResponse.put("public-key-server", keys.get("public-key"));
-                    // //send client's private key
-                    // jsonResponse.put("private-key-client", keys.get("private-key"));
-                    // System.out.println("Sending registration response to client");
 
                     // save client public key in database
                     String response = objectMapper.writeValueAsString(jsonResponse);

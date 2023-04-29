@@ -51,9 +51,10 @@ public class DatabaseManager {
   }
 
   public void insertNewEmployee(String employeeID, String firstName, String lastName, String username, String password,
-      String userType, String managerID, String managerEmployeeID) throws SQLException, InvalidManagerException {
+      String userType, String managerID, String managerEmployeeID, String salt)
+      throws SQLException, InvalidManagerException {
     connect();
-    String sql = "INSERT INTO Employee (EmployeeID, FirstName, LastName, Username, Password, UserType, ManagerID) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    String sql = "INSERT INTO Employee (EmployeeID, FirstName, LastName, Username, Password, UserType, ManagerID, Salt) VALUES (?, ?, ?, ?, ?, ?, ?,?)";
     try (PreparedStatement statement = connection.prepareStatement(sql)) {
       statement.setString(1, employeeID);
       statement.setString(2, firstName);
@@ -62,6 +63,7 @@ public class DatabaseManager {
       statement.setString(5, password);
       statement.setString(6, userType);
       statement.setString(7, managerID);
+      statement.setString(8, salt);
       int rowsInserted = statement.executeUpdate();
       if (rowsInserted > 0) {
         System.out.println("A new employee was inserted successfully!");
@@ -91,10 +93,10 @@ public class DatabaseManager {
   }
 
   public void insertNewManager(String employeeID, String firstName, String lastName,
-      String username, String password, String userType) throws SQLException, InvalidManagerException {
+      String username, String password, String userType, String salt) throws SQLException, InvalidManagerException {
     try {
       connect();
-      String sql = "INSERT INTO Employee (EmployeeID, FirstName, LastName, Username, Password, UserType) VALUES (?, ?, ?, ?, ?, ?)";
+      String sql = "INSERT INTO Employee (EmployeeID, FirstName, LastName, Username, Password, UserType, Salt) VALUES (?, ?, ?, ?, ?, ?,?)";
       PreparedStatement statement = connection.prepareStatement(sql);
       statement.setString(1, employeeID);
       statement.setString(2, firstName);
@@ -102,6 +104,7 @@ public class DatabaseManager {
       statement.setString(4, username);
       statement.setString(5, password);
       statement.setString(6, userType);
+      statement.setString(7, salt);
       int rowsInserted = statement.executeUpdate();
       if (rowsInserted > 0) {
         System.out.println("A new manager was inserted successfully!");

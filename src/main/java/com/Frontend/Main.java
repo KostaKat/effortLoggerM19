@@ -39,6 +39,11 @@ public class Main extends Application {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+        stage.setOnCloseRequest(event -> {
+            server.stopHttpServer();
+            server.stopWebSocketServer();
+            System.exit(0); // This exits the application with status code 0 (successful exit)
+        });
         stage.setScene(scene);
         stage.sizeToScene();
         stage.show();
@@ -60,6 +65,7 @@ public class Main extends Application {
                 stage.sizeToScene();
                 break;
         }
+
     }
 
     public static void setManagerRoot(ObservableList<Log> logs, String authToken, String Id) throws IOException {
