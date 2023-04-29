@@ -13,6 +13,8 @@ import java.util.UUID;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.WebSocket.WebSocket;
+
 public class DatabaseManager {
 
   private final String dbUrl;
@@ -155,7 +157,8 @@ public class DatabaseManager {
     // Add the log to the Logs table
     String addLogSql = "INSERT INTO Logs (LogID,EmployeeID, Date, StartTime, EndTime, Project, EffortCategory, EffortDetail, LifeCycleStep) VALUES (?, ?, ?, ?, ?, ?, ?, ?,?)";
     PreparedStatement addLogStatement = connection.prepareStatement(addLogSql);
-    addLogStatement.setString(1, UUID.randomUUID().toString());
+    String logID = UUID.randomUUID().toString();
+    addLogStatement.setString(1, logID);
     addLogStatement.setString(2, employeeID);
     addLogStatement.setString(3, date);
     addLogStatement.setString(4, startTime);
@@ -169,7 +172,18 @@ public class DatabaseManager {
     addLogStatement.close();
 
     disconnect();
+    JSONObject logObject = new JSONObject();
+    logObject.put("action", "addLog");
+    logObject.put("logID", logID);
+    logObject.put("date", date);
+    logObject.put("startTime", startTime);
+    logObject.put("endTime", endTime);
+    logObject.put("project", project);
+    logObject.put("effortCategory", effortCategory);
+    logObject.put("effortDetail", effortDetail);
+    logObject.put("lifeCycleStep", lifeCycleStep);
 
+    WebSocket.sendUpdate(employeeID, logObject.toString());
     return rowsInserted > 0;
   }
 
@@ -192,6 +206,24 @@ public class DatabaseManager {
     return employeeID;
   }
 
+  public String getManagerID(String employeeID) throws SQLException {
+    connect();
+    String managerID = null;
+    try {
+      String sql = "SELECT ManagerID FROM Team WHERE EmployeeID = ? ";
+      PreparedStatement statement = connection.prepareStatement(sql);
+      statement.setString(1, employeeID);
+      ResultSet resultSet = statement.executeQuery();
+      employeeID = resultSet.getString(1);
+      statement.close();
+      disconnect();
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+    }
+
+    return managerID;
+  }
+
   public String getLogsEmployee(String employeeID) throws SQLException {
     // Create a JSON array to hold the logs data
     JSONArray logsArray = new JSONArray();
@@ -207,14 +239,14 @@ public class DatabaseManager {
       // Loop through the result set and add each log to the JSON array
       while (rs.next()) {
         JSONObject logObject = new JSONObject();
-        logObject.put("LogID", rs.getString("LogID"));
-        logObject.put("Date", rs.getString("Date"));
-        logObject.put("StartTime", rs.getString("StartTime"));
-        logObject.put("EndTime", rs.getString("EndTime"));
-        logObject.put("Project", rs.getInt("Project"));
-        logObject.put("EffortCategory", rs.getString("EffortCategory"));
-        logObject.put("EffortDetail", rs.getString("EffortDetail"));
-        logObject.put("LifeCycleStep", rs.getString("LifeCycleStep"));
+        logObject.put("logID", rs.getString("LogID"));
+        logObject.put("date", rs.getString("Date"));
+        logObject.put("startTime", rs.getString("StartTime"));
+        logObject.put("endTime", rs.getString("EndTime"));
+        logObject.put("project", rs.getString("Project"));
+        logObject.put("effortCategory", rs.getString("EffortCategory"));
+        logObject.put("effortDetail", rs.getString("EffortDetail"));
+        logObject.put("lifeCycleStep", rs.getString("LifeCycleStep"));
         logsArray.put(logObject);
       }
 
@@ -260,14 +292,14 @@ public class DatabaseManager {
         // Loop through the result set and add each log to the JSON array
         while (logsResultSet.next()) {
           JSONObject logObject = new JSONObject();
-          logObject.put("LogID", logsResultSet.getString("LogID"));
-          logObject.put("Date", logsResultSet.getString("Date"));
-          logObject.put("StartTime", logsResultSet.getString("StartTime"));
-          logObject.put("EndTime", logsResultSet.getString("EndTime"));
-          logObject.put("Project", logsResultSet.getInt("Project"));
-          logObject.put("EffortCategory", logsResultSet.getString("EffortCategory"));
-          logObject.put("EffortDetail", logsResultSet.getString("EffortDetail"));
-          logObject.put("LifeCycleStep", logsResultSet.getString("LifeCycleStep"));
+          logObject.put("logID", logsResultSet.getString("LogID"));
+          logObject.put("date", logsResultSet.getString("Date"));
+          logObject.put("startTime", logsResultSet.getString("StartTime"));
+          logObject.put("endTime", logsResultSet.getString("EndTime"));
+          logObject.put("project", logsResultSet.getString("Project"));
+          logObject.put("effortCategory", logsResultSet.getString("EffortCategory"));
+          logObject.put("effortDetail", logsResultSet.getString("EffortDetail"));
+          logObject.put("lifeCycleStep", logsResultSet.getString("LifeCycleStep"));
           logsArray.put(logObject);
         }
 
@@ -286,14 +318,15 @@ public class DatabaseManager {
   }
 
   public boolean editLog(String logID, String date, String startTime, String endTime, String project,
-      String effortCategory, String effortDetail, String lifeCycleStep) throws SQLException {
+      String effortCategory, String effortDetail, String lifeCycleStep, String userID) throws SQLException {
 
     connect();
 
     // Check if the log exists in the Logs table
-    String checkLogSql = "SELECT COUNT(*) FROM Logs WHERE LogID = ?";
+    String checkLogSql = "SELECT COUNT(*) FROM Logs WHERE LogID = ? AND EmployeeID = ?";
     PreparedStatement checkLogStatement = connection.prepareStatement(checkLogSql);
     checkLogStatement.setString(1, logID);
+    checkLogStatement.setString(2, userID);
     ResultSet checkLogResultSet = checkLogStatement.executeQuery();
     int logCount = checkLogResultSet.getInt(1);
     checkLogStatement.close();
@@ -305,7 +338,7 @@ public class DatabaseManager {
     }
 
     // Update the log in the Logs table
-    String updateLogSql = "UPDATE Logs SET Date=?, StartTime=?, EndTime=?, Project=?, EffortCategory=?, EffortDetail=?, LifeCycleStep=? WHERE LogID=?";
+    String updateLogSql = "UPDATE Logs SET Date=?, StartTime=?, EndTime=?, Project=?, EffortCategory=?, EffortDetail=?, LifeCycleStep=? WHERE LogID=? AND EmployeeID=?";
     PreparedStatement updateLogStatement = connection.prepareStatement(updateLogSql);
     updateLogStatement.setString(1, date);
     updateLogStatement.setString(2, startTime);
@@ -315,22 +348,34 @@ public class DatabaseManager {
     updateLogStatement.setString(6, effortDetail);
     updateLogStatement.setString(7, lifeCycleStep);
     updateLogStatement.setString(8, logID);
-
+    updateLogStatement.setString(9, userID);
     int rowsUpdated = updateLogStatement.executeUpdate();
     updateLogStatement.close();
 
     disconnect();
+    JSONObject logObject = new JSONObject();
+    logObject.put("action", "editLog");
+    logObject.put("logID", logID);
+    logObject.put("date", date);
+    logObject.put("startTime", startTime);
+    logObject.put("endTime", endTime);
+    logObject.put("project", project);
+    logObject.put("effortCategory", effortCategory);
+    logObject.put("effortDetail", effortDetail);
+    logObject.put("lifeCycleStep", lifeCycleStep);
 
+    WebSocket.sendUpdate(userID, logObject.toString());
     return rowsUpdated > 0;
   }
 
-  public boolean deleteLog(String logID) throws SQLException {
+  public boolean deleteLog(String logID, String userID) throws SQLException {
     connect();
 
     // Check if the log exists in the Logs table
-    String checkLogSql = "SELECT COUNT(*) FROM Logs WHERE LogID = ?";
+    String checkLogSql = "SELECT COUNT(*) FROM Logs WHERE LogID = ? AND EmployeeID = ?";
     PreparedStatement checkLogStatement = connection.prepareStatement(checkLogSql);
     checkLogStatement.setString(1, logID);
+    checkLogStatement.setString(2, userID);
     ResultSet checkLogResultSet = checkLogStatement.executeQuery();
     int logCount = checkLogResultSet.getInt(1);
     checkLogStatement.close();
@@ -342,15 +387,19 @@ public class DatabaseManager {
     }
 
     // Delete the log from the Logs table
-    String deleteLogSql = "DELETE FROM Logs WHERE LogID = ?";
+    String deleteLogSql = "DELETE FROM Logs WHERE LogID = ? AND EmployeeID = ?";
     PreparedStatement deleteLogStatement = connection.prepareStatement(deleteLogSql);
+    deleteLogStatement.setString(2, userID);
     deleteLogStatement.setString(1, logID);
 
     int rowsDeleted = deleteLogStatement.executeUpdate();
     deleteLogStatement.close();
 
     disconnect();
-
+    JSONObject logObject = new JSONObject();
+    logObject.put("action", "deleteLog");
+    logObject.put("logID", logID);
+    WebSocket.sendUpdate(userID, logObject.toString());
     return rowsDeleted > 0;
   }
 

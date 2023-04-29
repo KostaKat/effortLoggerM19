@@ -15,6 +15,9 @@ import java.util.ArrayList;
 
 import com.Frontend.Log;
 import com.Frontend.Main;
+
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -29,7 +32,7 @@ import org.json.JSONObject;
 public class CreateLogController {
 
     private Log taskLog;
-    private ArrayList<Log> logs = new ArrayList<>();
+    private ObservableList<Log> logs;
     private final Alert alert = new Alert(AlertType.WARNING);
 
     private final String authToken;
@@ -50,7 +53,7 @@ public class CreateLogController {
     @FXML
     private Label warnL, clock, timeStart;
 
-    public CreateLogController(ArrayList<Log> logArrayList, String authToken) {
+    public CreateLogController(ObservableList<Log> logArrayList, String authToken) {
         this.logs = logArrayList;
         this.authToken = authToken;
     }
@@ -105,10 +108,10 @@ public class CreateLogController {
                 taskLog.setEffortCategory(effortCategory.getValue());
                 taskLog.setEffortDetail(effortDetail.getValue());
                 taskLog.setLogDescription(logDescription.getText());
-                logs.add(taskLog);
-                for (int i = 0; i < logs.size(); i++) {
-                    Log temp = logs.get(i);
-                }
+                // logs.add(taskLog);
+                // for (int i = 0; i < logs.size(); i++) {
+                // Log temp = logs.get(i);
+                // }
                 /*
                  * TODO This is where the add log feature happens to the database
                  * TODO all logs should be saved into a arraylist of log named logs
@@ -138,7 +141,7 @@ public class CreateLogController {
         });
 
         interruption.setOnAction(event -> {
-            if(startFlag == 1){
+            if (startFlag == 1) {
                 try {
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/FXML/" + "interruption.fxml"));
                     InterruptionController temp = new InterruptionController();
@@ -152,24 +155,9 @@ public class CreateLogController {
                     popupStage.showAndWait();
 
                     InterruptionController iLogC = loader.getController();
-                    if(iLogC.getI_type()!=null){
-                        LocalDateTime ct = LocalDateTime.now();
-                        String date = ct.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
-                        Log interruptLog = new Log();
-                        interruptLog.setDate(date);
-                        interruptLog.setStartTime(iLogC.getStartFormattedTime());
-                        interruptLog.setEndTime(iLogC.getEndFormattedDateTime());
-                        interruptLog.setProject(project.getValue());
-                        interruptLog.setLifeCycleStep(lifeCycleStep.getValue());
-                        interruptLog.setEffortCategory("Interruption");
-                        interruptLog.setEffortDetail(iLogC.getI_type());
-                        interruptLog.setLogDescription(iLogC.getDes());
-                        /*
-                            TODO This section should also be connect to the server and add.
-                            TODO the interruption log already saved in the object named interrupt log.
-                         */
-                        logs.add(interruptLog);
-                    }else{
+                    if (iLogC.getI_type() != null) {
+
+                    } else {
                         alert.setTitle("Warning Dialog");
                         alert.setContentText("No interrupt was made!!!");
                         alert.show();
@@ -177,7 +165,7 @@ public class CreateLogController {
                 } catch (IOException e) {
 
                 }
-            }else{
+            } else {
                 alert.setTitle("Warning Dialog");
                 alert.setContentText("You have to start on task first!!!");
                 alert.show();

@@ -403,12 +403,6 @@ class AddLogContextHandler implements HttpHandler {
                             project, effortCategory, effortDetail,
                             lifeCycleStep);
 
-                    if (userType.compareTo("Manager") == 0) {
-                        WebSocket.sendUpdate(userID, databaseManager.getLogsManager(userID));
-                    } else {
-                        WebSocket.sendUpdate(userID, databaseManager.getLogsEmployee(userID));
-                    }
-
                     response = "Added log successfully!";
                     code = 200;
                 } else {
@@ -498,16 +492,7 @@ class EditLogContextHandler implements HttpHandler {
                 int code;
                 if (editLogSuccess) {
                     // decrypt log w/server priv key
-                    Map<String, String> claims = helper.getClaims(helper.getToken(requestBody));
-                    String userName = claims.get("Username");
-                    String userType = claims.get("User-Type");
-                    String userID = databaseManager.getIDbyUsernameUserType(userName, userType);
 
-                    if (userType.compareTo("Manager") == 0) {
-                        WebSocket.sendUpdate(userID, databaseManager.getLogsManager(userID));
-                    } else {
-                        WebSocket.sendUpdate(userID, databaseManager.getLogsEmployee(userID));
-                    }
                     response = "Editted log successfully!";
                     code = 200;
                 } else {
@@ -548,19 +533,8 @@ class EditLogContextHandler implements HttpHandler {
         // check if there username exists in db
         if (!helper.verifyToken(helper.getToken(requestBody)))
             return false;
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode jsonNode = objectMapper.readTree(requestBody);
-        String date = jsonNode.get("Date").asText();
-        String startTime = jsonNode.get("StartTime").asText();
-        String endTime = jsonNode.get("EndTime").asText();
-        String project = jsonNode.get("Project").asText();
-        String effortCategory = jsonNode.get("EffortCategory").asText();
-        String effortDetail = jsonNode.get("EffortDetail").asText();
-        String lifeCycleStep = jsonNode.get("LifeCycleStep").asText();
-        String logID = jsonNode.get("LogID").asText();
 
-        if (!databaseManager.editLog(logID, date, startTime, endTime, project, effortCategory, effortDetail,
-                lifeCycleStep))
+        if (!helper.editLogSuccess(requestBody))
             return false;
         return true;
 
@@ -648,10 +622,8 @@ class DeleteLogContextHandler implements HttpHandler {
         // check if there username exists in db
         if (!helper.verifyToken(helper.getToken(requestBody)))
             return false;
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode jsonNode = objectMapper.readTree(requestBody);
-        String logID = jsonNode.get("LogID").asText();
-        if (!databaseManager.deleteLog(logID))
+
+        if (!helper.deleteLogSuccessful(requestBody))
             return false;
         return true;
 

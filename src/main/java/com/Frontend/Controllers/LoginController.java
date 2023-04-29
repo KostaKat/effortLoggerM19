@@ -4,6 +4,7 @@ Author : Yihui Wu
 package com.Frontend.Controllers;
 
 import com.Frontend.Log;
+import com.Frontend.LogWebSocketClient;
 import com.Frontend.Main;
 import com.WebSocket.WebSocketClient;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -11,6 +12,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.websocket.ContainerProvider;
 import jakarta.websocket.Session;
 import jakarta.websocket.WebSocketContainer;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -26,13 +29,19 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import javafx.scene.control.TextField;
+
 public class LoginController {
-    ArrayList<Log> logArrayList = new ArrayList<Log>();
+
+    ObservableList<Log> logs = FXCollections.observableArrayList();
     String authToken;
-    @FXML Button pass;
-    @FXML TextField username;
-    @FXML PasswordField password;
+    @FXML
+    Button pass;
+    @FXML
+    TextField username;
+    @FXML
+    PasswordField password;
     private static Session webSocketSession;
+
     @FXML
     void loadPage() throws Exception {
         if (!username.getText().trim().isEmpty() && !password.getText().trim().isEmpty()) {
@@ -42,7 +51,6 @@ public class LoginController {
             JSONObject requestBody = new JSONObject();
             requestBody.put("Username", username.getText());
             requestBody.put("Password", password.getText());
-
 
             // Convert the JSON object to a string
             String requestBodyString = requestBody.toString();
@@ -97,62 +105,68 @@ public class LoginController {
                 System.out.println("Token: " + token);
                 System.out.println("Manager ID: " + manager);
                 connectWebSocket(token);
-                if(responseCode == 200){
+                if (responseCode == 200) {
                     ObjectMapper objectMapper = new ObjectMapper();
                     JsonNode jsonNode = objectMapper.readTree(responseBody);
                     authToken = jsonNode.get("Token").asText();
                     /*
-                    *  TODO; ROLE: Manager
-                     * TODO retrieve the employee logs, What I need is to retrieve the logs to the logArrayList
+                     * TODO; ROLE: Manager
+                     * TODO retrieve the employee logs, What I need is to retrieve the logs to the
+                     * logArrayList
                      *
                      */
-                    Main.setManagerRoot(logArrayList, authToken, manager);
-                }else{
+                    Main.setManagerRoot(logs, authToken, manager);
+                } else {
                     Alert alert = new Alert(Alert.AlertType.ERROR);
                     alert.setContentText("Username or Password is not correct, you need register one");
                     alert.show();
                 }
-            }else{
+            } else {
                 System.out.println("Response code: " + responseCode);
                 System.out.println("Response message: " + responseMessage);
                 System.out.println("Token: " + token);
                 connectWebSocket(token);
-                if(responseCode == 200){
+                if (responseCode == 200) {
                     ObjectMapper objectMapper = new ObjectMapper();
                     JsonNode jsonNode = objectMapper.readTree(responseBody);
                     authToken = jsonNode.get("Token").asText();
-                   /*
-                   *    TODO; ROLE: Employee
-                     * TODO retrieve the employee logs, What I need is to retrieve the logs to the logArrayList
+                    /*
+                     * TODO; ROLE: Employee
+                     * TODO retrieve the employee logs, What I need is to retrieve the logs to the
+                     * logArrayList
+                     *
                      */
-                    Main.setRoot("CreateLog", logArrayList, authToken);
-                }else{
+                    Main.setRoot("CreateLog", logs, authToken);
+                } else {
                     Alert alert = new Alert(Alert.AlertType.ERROR);
                     alert.setContentText("Username or Password is not correct, you need register one");
                     alert.show();
                 }
             }
 
-        }else{
+        } else {
             System.out.println("Please fill in all information");
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setContentText("Please Fill in all information");
             alert.show();
         }
     }
-     @FXML
-     void loadCreatePage() throws IOException {
-         Main.setRoot("CreateLog", logArrayList, authToken);
-     }
+
+    @FXML
+    void loadCreatePage() throws IOException {
+        Main.setRoot("CreateLog", logs, authToken);
+    }
+
     @FXML
     void register() throws IOException {
         Main.setRoot("signUp");
     }
 
-    private static void connectWebSocket(String token) throws Exception {
+    private void connectWebSocket(String token) throws Exception {
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
         String wsUrl = "ws://localhost:8081/getLogs?Token=" + token;
-        webSocketSession = container.connectToServer(WebSocketClient.class, new URI(wsUrl));
+        WebSocketClient webSocketClient = new WebSocketClient(logs);
+        webSocketSession = container.connectToServer(webSocketClient, new URI(wsUrl));
 
     }
 }

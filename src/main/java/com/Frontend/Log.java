@@ -12,8 +12,10 @@ public class Log {
     private String effortCategory;
     private String effortDetail;
     private String logDescription;
+    private String logID;
 
-    public Log(String project, String date, String startTime, String endTime, String lifeCycleStep, String effortCategory, String effortDetail, String logDescription) {
+    public Log(String project, String date, String startTime, String endTime, String lifeCycleStep,
+            String effortCategory, String effortDetail, String logDescription, String logID) {
         this.date = date;
         this.project = project;
         this.startTime = startTime;
@@ -22,6 +24,7 @@ public class Log {
         this.effortCategory = effortCategory;
         this.effortDetail = effortDetail;
         this.logDescription = logDescription;
+        this.logID = logID;
     }
 
     public Log() {
@@ -30,13 +33,20 @@ public class Log {
 
     // Getters and setters for all fields
 
-
     public void setDate(String date) {
         this.date = date;
     }
 
-    public String getDate(){
+    public String getDate() {
         return date;
+    }
+
+    public String getLogID() {
+        return logID;
+    }
+
+    public void setLogID(String logID) {
+        this.logID = logID;
     }
 
     public String getProject() {
@@ -95,11 +105,10 @@ public class Log {
         this.logDescription = logDescription;
     }
 
-
     @Override
     public String toString() {
-        return String.format("PROJECT: %s,   startTime: %s,   endTime: %s,   lifeCycleStep: %s,   effortCategory: %s,   effortDetail: %s",
-                project, startTime, endTime, lifeCycleStep, effortCategory, effortDetail);
+        return String.format(
+                "PROJECT: %s,   startTime: %s,   endTime: %s,   lifeCycleStep: %s,   effortCategory: %s,   effortDetail: %s, Date: %s ID: %s",
+                project, startTime, endTime, lifeCycleStep, effortCategory, effortDetail, date, logID);
     }
 }
-

@@ -28,8 +28,8 @@ public class LoginClientTest {
 
 		// Set the JSON data to send in the request body
 		JSONObject requestBody = new JSONObject();
-		requestBody.put("Username", "d");
-		requestBody.put("Password", "d");
+		requestBody.put("Username", "c");
+		requestBody.put("Password", "c");
 
 		// Convert the JSON object to a string
 		String requestBodyString = requestBody.toString();
@@ -78,12 +78,12 @@ public class LoginClientTest {
 
 		// Extract values from the JSON response
 		String token = jsonResponse.getString("Token");
-		String manager = jsonResponse.getString("ManagerID");
+
 		// Print the response from the server
 		System.out.println("Response code: " + responseCode);
 		System.out.println("Response message: " + responseMessage);
 		System.out.println("Token: " + token);
-		System.out.println("Manager: " + manager);
+
 		connectWebSocket(token);
 		// Set the URL of the server endpoint to add a log
 		String logUrl = "http://localhost:8080/addLog";

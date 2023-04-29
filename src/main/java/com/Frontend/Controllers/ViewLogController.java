@@ -2,10 +2,13 @@
 Author : Yihui Wu
  */
 package com.Frontend.Controllers;
+
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 import com.Frontend.Log;
+import com.Frontend.LogWebSocketClient;
 import com.Frontend.Main;
 
 import javafx.collections.FXCollections;
@@ -15,19 +18,21 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 public class ViewLogController {
-    @FXML private TableView logTable;
-    @FXML private TableColumn<Log, String> date, startTime,endTime, project, effortCategory, lifeCycleStep, effortDetail;
-    private ArrayList<Log> logArrayList = null;
+    @FXML
+    private TableView<Log> logTable;
+
+    @FXML
+    private TableColumn<Log, String> date, startTime, endTime, project, effortCategory, lifeCycleStep, effortDetail;
+    private ObservableList<Log> logs;
     private String authToken;
 
-    public ViewLogController(ArrayList<Log> logArrayList, String authToken){
-        this.logArrayList = logArrayList;
+    public ViewLogController(ObservableList<Log> logs, String authToken) {
+        this.logs = logs;
         this.authToken = authToken;
     }
 
     @FXML
-    private void initialize(){
-        ObservableList<Log> logList = FXCollections.observableArrayList(logArrayList);
+    private void initialize() {
         date.setCellValueFactory(new PropertyValueFactory<>("date"));
         startTime.setCellValueFactory(new PropertyValueFactory<>("startTime"));
         endTime.setCellValueFactory(new PropertyValueFactory<>("endTime"));
@@ -35,11 +40,12 @@ public class ViewLogController {
         effortCategory.setCellValueFactory(new PropertyValueFactory<>("effortCategory"));
         lifeCycleStep.setCellValueFactory(new PropertyValueFactory<>("lifeCycleStep"));
         effortDetail.setCellValueFactory(new PropertyValueFactory<>("effortDetail"));
-        logTable.setItems(logList);
+        logTable.setItems(logs);
         logTable.setOnMouseClicked(event -> {
-            Log current = (Log) logTable.getSelectionModel().getSelectedItem();
+            Log current = logTable.getSelectionModel().getSelectedItem();
             System.out.println(current);
         });
+
     }
 
 }
