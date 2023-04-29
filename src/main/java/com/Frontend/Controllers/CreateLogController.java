@@ -34,7 +34,6 @@ public class CreateLogController {
     private Log taskLog;
     private ObservableList<Log> logs;
     private final Alert alert = new Alert(AlertType.WARNING);
-
     private final String authToken;
     private String startTime;
     private String endTime;

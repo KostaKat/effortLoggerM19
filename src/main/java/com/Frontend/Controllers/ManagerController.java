@@ -6,8 +6,13 @@ import com.Frontend.Main;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,7 +29,7 @@ public class ManagerController {
     @FXML
     private TextArea description;
     @FXML
-    private Button logOut;
+    private Button logOut, edit;
 
     @FXML
     public void initialize() {
@@ -42,12 +47,34 @@ public class ManagerController {
                     "Are you show you wan to log out?",
                     ButtonType.YES, ButtonType.NO);
             alert.showAndWait();
-            if (alert.getResult() == ButtonType.YES) {
+            if (alert.getResult() == ButtonType.YES){
                 try {
                     Main.setRoot("login");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+            }
+        });
+        edit.setOnAction(event -> {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/FXML/" + "editLogM.fxml"));
+                EditLogManagerController temp = new EditLogManagerController(logs, authToken);
+                loader.setController(temp);
+                Parent root = loader.load();
+
+                Stage popupStage = new Stage();
+                popupStage.initModality(Modality.APPLICATION_MODAL);
+                popupStage.setScene(new Scene(root));
+                popupStage.setTitle("Pop-up Page");
+                popupStage.showAndWait();
+
+                EditLogManagerController e = loader.getController();
+                for (Log log : e.logs) {
+                    System.out.println("p"+ log);
+                }
+                logTable.refresh();
+            }catch(IOException e){
+
             }
         });
         logTable.setOnMouseClicked(event -> {

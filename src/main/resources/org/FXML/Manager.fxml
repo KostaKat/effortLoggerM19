@@ -12,7 +12,7 @@
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="482.0" prefWidth="750.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1">
    <center>
-      <AnchorPane prefHeight="482.0" prefWidth="759.0" BorderPane.alignment="CENTER">
+      <AnchorPane prefHeight="482.0" prefWidth="759.0" style="-fx-background-color: aliceblue;" BorderPane.alignment="CENTER">
          <children>
             <Label layoutX="12.0" layoutY="15.0" text="Your Manager ID:">
                <font>
@@ -30,7 +30,7 @@
               </columns>
             </TableView>
             <TextArea fx:id="description" editable="false" layoutX="17.0" layoutY="320.0" prefHeight="148.0" prefWidth="382.0" promptText="Description Detail. Click one log to show..." />
-            <Button layoutX="671.0" layoutY="443.0" mnemonicParsing="false" text="Edit Logs" />
+            <Button fx:id="edit" layoutX="671.0" layoutY="443.0" mnemonicParsing="false" text="Edit Logs" />
             <Button fx:id="logOut" layoutX="602.0" layoutY="443.0" mnemonicParsing="false" text="Logout" />
             <Label layoutX="463.0" layoutY="314.0" text="Defect #:">
                <font>
