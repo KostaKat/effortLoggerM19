@@ -67,10 +67,9 @@ public class DatabaseManager {
       statement.close();
     }
     if (count > 0) {
-      // manager exists
-    } else {
-      // manager does not exist
+      throw new InvalidManagerException("Invalid manager ID: " + managerID);
     }
+
     sql = "INSERT INTO Employee (EmployeeID, FirstName, LastName, Username, Password, UserType, ManagerID, Salt) VALUES (?, ?, ?, ?, ?, ?, ?,?)";
     try (PreparedStatement statement = connection.prepareStatement(sql)) {
       statement.setString(1, employeeID);
