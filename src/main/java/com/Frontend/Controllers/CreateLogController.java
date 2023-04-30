@@ -202,10 +202,8 @@ public class CreateLogController {
                         defectTemp.setDefectID(defectC.getDefectID());
                         defectUpdate();
                     } else if (defectC.getFlag().equals("delete")) {
-                        defects.remove(defectC.getIndex());
-                        /*
-                         * TODO delete function
-                         */
+                        defectTemp.setDefectID(defectC.getDefectID());
+                        defectDelete();
                     } else {
 
                     }
