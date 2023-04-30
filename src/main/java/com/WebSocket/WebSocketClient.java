@@ -96,6 +96,8 @@ public class WebSocketClient {
                 } else if (actionValue.compareTo("getDefects") == 0) {
                     Defect[] defectArray = gson.fromJson(message, Defect[].class);
                     ArrayList<Defect> receivedDefects = new ArrayList<>(Arrays.asList(defectArray));
+                    receivedDefects.removeIf(defect -> defect.getName() == null);
+
                     defects.addAll(receivedDefects);
                     System.out.println(receivedDefects);
                 }
