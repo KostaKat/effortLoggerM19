@@ -48,7 +48,7 @@ public class CreateLogController {
     @FXML
     private TextArea logDescription;
     @FXML
-    private Button start, stop, interruption, defect;
+    private Button start, stop, interruption, defect, defectManage;
     @FXML
     private MenuItem viewLog, editLog, logOut;
     @FXML
@@ -156,7 +156,53 @@ public class CreateLogController {
                 popupStage.setTitle("Pop-up Page");
                 popupStage.showAndWait();
 
-                
+                DefectController defectC = loader.getController();
+
+                if(defectC.getNameS() != null){
+                    Defect defectTemp = new Defect();
+
+                    defectTemp.setName(defectC.getNameS());
+                    defectTemp.setDescription(defectC.getDescriptionS());
+                    defectTemp.setFixStatus("Open");
+                    defectTemp.setStepWhenInjected(defectC.getStepWhenInjectedS());
+                    defectTemp.setStepWhenRemoved(defectC.getStepWhenRemovedS());
+                    defectTemp.setDefectCategory(defectC.getDefectCategoryS());
+
+                    defects.add(defectTemp);
+
+                }
+
+            }catch(IOException e){
+                System.out.println("exception caught in the defect pop up page");
+            }
+        });
+
+        defectManage.setOnAction(event -> {
+            try{
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/FXML/" + "DefectManage.fxml"));
+                DefectManageController temp = new DefectManageController(defects);
+                loader.setController(temp);
+                Parent root = loader.load();
+
+                Stage popupStage = new Stage();
+                popupStage.initModality(Modality.APPLICATION_MODAL);
+                popupStage.setScene(new Scene(root));
+                popupStage.setTitle("Pop-up Page");
+                popupStage.showAndWait();
+
+                DefectManageController defectC = loader.getController();
+
+                if(defectC.getFlag() != null){
+                    if(defectC.getFlag().equals("update")){
+                        System.out.println(defectC.getStatus()+ defectC.getDes());
+                        defects.get(defectC.getIndex()).setFixStatus(defectC.getStatus());
+                        defects.get(defectC.getIndex()).setDescription(defectC.getDes());
+                    }else if(defectC.getFlag().equals("delete")){
+                        defects.remove(defectC.getIndex());
+                    }else{
+
+                    }
+                }
 
             }catch(IOException e){
                 System.out.println("exception caught in the defect pop up page");

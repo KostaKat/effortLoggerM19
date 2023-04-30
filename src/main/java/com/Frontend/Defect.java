@@ -19,6 +19,10 @@ public class Defect {
         this.description = description;
     }
 
+    public Defect() {
+
+    }
+
     public String getDefectID() {
         return defectID;
     }
@@ -73,5 +77,12 @@ public class Defect {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    @Override
+    public String toString() {
+        return String.format(
+                "Name: %s,   Fix Status: %s,   Step When Injected: %s,   Step When Removed: %s,   Defect Category: %s",
+                name, fixStatus, stepWhenInjected, stepWhenRemoved, defectCategory);
     }
 }

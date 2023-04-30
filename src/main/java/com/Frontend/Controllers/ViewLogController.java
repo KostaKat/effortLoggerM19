@@ -53,6 +53,7 @@ public class ViewLogController {
         stepWhenInjected.setCellValueFactory(new PropertyValueFactory<>("stepWhenInjected"));
         stepWhenRemoved.setCellValueFactory(new PropertyValueFactory<>("stepWhenRemoved"));
         defectCategory.setCellValueFactory(new PropertyValueFactory<>("defectCategory"));
+        defectTable.setItems(defects);
 
         logTable.setOnMouseClicked(event -> {
             Log current = logTable.getSelectionModel().getSelectedItem();
