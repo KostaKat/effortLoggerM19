@@ -66,7 +66,7 @@ public class DatabaseManager {
       count = result.getInt(1);
       statement.close();
     }
-    if (count > 0) {
+    if (count <=0) {
       throw new InvalidManagerException("Invalid manager ID: " + managerID);
     }
 

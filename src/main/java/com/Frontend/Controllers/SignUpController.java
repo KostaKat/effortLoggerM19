@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.lang.management.ManagementFactory;
+
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -131,8 +131,15 @@ public class SignUpController {
                 lastT = lastTextField.getText();
                 Main.setRoot("login");
             } else {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setContentText("Username already exists");
+            	Alert alert = new Alert(Alert.AlertType.ERROR);
+            	if(responseCode == 500) {
+            		
+                    alert.setContentText(response);
+            	}else {
+            		
+                    alert.setContentText("Username already exists");
+            	}
+                
                 alert.show();
             }
         } else {

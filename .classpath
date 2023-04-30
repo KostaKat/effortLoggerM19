@@ -28,21 +28,14 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="src" path="target/generated-sources/annotations">
+	<classpathentry kind="lib" path="C:/Users/Kosta/.m2/repository/org/glassfish/javax.json/1.1.4/javax.json-1.1.4.jar" sourcepath="C:/Users/Kosta/.m2/repository/org/glassfish/javax.json/1.1.4/javax.json-1.1.4-sources.jar">
 		<attributes>
-			<attribute name="optional" value="true"/>
 			<attribute name="maven.pomderived" value="true"/>
-			<attribute name="ignore_optional_problems" value="true"/>
-			<attribute name="m2e-apt" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="src" output="target/test-classes" path="target/generated-test-sources/test-annotations">
-		<attributes>
-			<attribute name="optional" value="true"/>
-			<attribute name="maven.pomderived" value="true"/>
-			<attribute name="ignore_optional_problems" value="true"/>
-			<attribute name="m2e-apt" value="true"/>
-			<attribute name="test" value="true"/>
+			<attribute name="module" value="true"/>
+			<attribute name="maven.groupId" value="org.glassfish"/>
+			<attribute name="maven.artifactId" value="javax.json"/>
+			<attribute name="maven.version" value="1.1.4"/>
+			<attribute name="maven.scope" value="compile"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="output" path="target/classes"/>

@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 import com.Frontend.Defect;
 import com.Frontend.Log;
-import com.Frontend.LogWebSocketClient;
+
 import com.Frontend.Main;
 
 import javafx.collections.FXCollections;

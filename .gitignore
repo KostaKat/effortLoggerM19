@@ -4,3 +4,4 @@ bin/*
 /bin/
 /target/*
 /src/test/*
+/target/

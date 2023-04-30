@@ -5,7 +5,7 @@ package com.Frontend.Controllers;
 
 import com.Frontend.Defect;
 import com.Frontend.Log;
-import com.Frontend.LogWebSocketClient;
+
 import com.Frontend.Main;
 import com.WebSocket.WebSocketClient;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -133,7 +133,7 @@ public class LoginController {
                     Main.setRoot("CreateLog", logs, defects, authToken);
                 } else {
                     Alert alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setContentText("Username or Password is not correct\n Or you are not registered");
+                    alert.setContentText("Username or Password is not correct\nPlease signup if you haven't made an account!");
                     alert.show();
                 }
             }
