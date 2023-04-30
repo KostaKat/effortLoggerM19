@@ -73,65 +73,65 @@ public class Main extends Application {
 
     }
 
-    public static void setManagerRoot(ObservableList<Log> logs, String authToken, String Id) throws IOException {
+    public static void setManagerRoot(ObservableList<Log> logs, ObservableList<Defect> defects, String authToken, String Id) throws IOException {
         Window window = scene.getWindow();
         Stage stage = (Stage) window;
-        scene.setRoot(loadManagerFXML(logs, authToken, Id));
+        scene.setRoot(loadManagerFXML(logs, defects, authToken, Id));
         stage.setScene(scene);
         stage.sizeToScene();
     }
 
     // switch scene
-    public static void setRoot(String fxml, ObservableList<Log> logs, String authToken) throws IOException {
+    public static void setRoot(String fxml, ObservableList<Log> logs, ObservableList<Defect> defects, String authToken) throws IOException {
         Window window = scene.getWindow();
         Stage stage = (Stage) window;
         switch (fxml) {
             case "ViewLog":
-                scene.setRoot(loadViewLogFXML(logs, authToken));
+                scene.setRoot(loadViewLogFXML(logs, defects, authToken));
                 stage.setScene(scene);
                 stage.sizeToScene();
                 break;
             case "CreateLog":
-                scene.setRoot(loadCreateLogFXML(logs, authToken));
+                scene.setRoot(loadCreateLogFXML(logs, defects, authToken));
                 stage.setScene(scene);
                 stage.sizeToScene();
                 break;
             case "EditLog":
-                scene.setRoot(loadEditLogController(logs, authToken));
+                scene.setRoot(loadEditLogController(logs, defects, authToken));
                 stage.setScene(scene);
                 stage.sizeToScene();
                 break;
         }
     }
 
-    private static Parent loadManagerFXML(ObservableList<Log> logs, String authToken, String ManagerId)
+    private static Parent loadManagerFXML(ObservableList<Log> logs, ObservableList<Defect> defects, String authToken, String ManagerId)
             throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/org/FXML/" + "Manager.fxml"));
-        ManagerController temp = new ManagerController(logs, authToken, ManagerId);
+        ManagerController temp = new ManagerController(logs, defects, authToken, ManagerId);
         fxmlLoader.setController(temp);
         Parent root = fxmlLoader.load();
         return root;
     }
 
-    private static Parent loadCreateLogFXML(ObservableList<Log> logs, String authToken) throws IOException {
+    private static Parent loadCreateLogFXML(ObservableList<Log> logs, ObservableList<Defect> defects, String authToken) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/org/FXML/" + "CreateLog.fxml"));
-        CreateLogController temp = new CreateLogController(logs, authToken);
+        CreateLogController temp = new CreateLogController(logs, defects, authToken);
         fxmlLoader.setController(temp);
         Parent root = fxmlLoader.load();
         return root;
     }
 
-    private static Parent loadViewLogFXML(ObservableList<Log> logs, String authToken) throws IOException {
+    private static Parent loadViewLogFXML(ObservableList<Log> logs, ObservableList<Defect> defects, String authToken) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/org/FXML/" + "ViewLog.fxml"));
-        ViewLogController temp = new ViewLogController(logs, authToken);
+        ViewLogController temp = new ViewLogController(logs, defects, authToken);
         fxmlLoader.setController(temp);
         Parent root = fxmlLoader.load();
         return root;
     }
 
-    private static Parent loadEditLogController(ObservableList<Log> logs, String authToken) throws IOException {
+    private static Parent loadEditLogController(ObservableList<Log> logs, ObservableList<Defect> defects, String authToken) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/org/FXML/" + "editLog.fxml"));
-        EditLogController temp = new EditLogController(logs, authToken);
+        EditLogController temp = new EditLogController(logs, defects, authToken);
         fxmlLoader.setController(temp);
         Parent root = fxmlLoader.load();
         return root;

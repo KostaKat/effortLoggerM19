@@ -1,5 +1,6 @@
 package com.Frontend.Controllers;
 
+import com.Frontend.Defect;
 import com.Frontend.Log;
 import com.Frontend.Main;
 import javafx.collections.FXCollections;
@@ -24,6 +25,7 @@ import org.json.JSONObject;
 
 public class EditLogController {
     private ObservableList<Log> logs;
+    private ObservableList<Defect> defects;
     private String authToken;
     private Log selectedLog;
     private int index;
@@ -144,7 +146,7 @@ public class EditLogController {
         viewLog.setOnAction(event -> {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/FXML/" + "ViewLog.fxml"));
-                ViewLogController temp = new ViewLogController(logs, authToken);
+                ViewLogController temp = new ViewLogController(logs, defects, authToken);
                 loader.setController(temp);
                 Parent root = loader.load();
 
@@ -160,7 +162,7 @@ public class EditLogController {
 
         createLog.setOnAction(event -> {
             try {
-                Main.setRoot("CreateLog", logs, authToken);
+                Main.setRoot("CreateLog", logs, defects, authToken);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -231,8 +233,9 @@ public class EditLogController {
 
     }
 
-    public EditLogController(ObservableList<Log> logs, String authToken) {
+    public EditLogController(ObservableList<Log> logs, ObservableList<Defect> defects, String authToken) {
         this.logs = logs;
+        this.defects = defects;
         this.authToken = authToken;
     }
 

@@ -89,7 +89,7 @@ public class LoginHandlerHelper extends HandlerHelpers {
 			conn.close();
 
 		} catch (SQLException e) {
-			e.printStackTrace();
+			System.out.println("Exception caught");
 
 		}
 		if (salt == null) {

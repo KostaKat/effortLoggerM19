@@ -7,24 +7,43 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="429.0" prefWidth="758.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane prefHeight="507.0" prefWidth="758.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1">
    <center>
       <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="430.0" prefWidth="758.0" style="-fx-background-color: aliceblue;" BorderPane.alignment="CENTER">
          <children>
-            <TableView fx:id="logTable" layoutX="14.0" layoutY="50.0" prefHeight="232.0" prefWidth="731.0">
+            <TableView fx:id="logTable" layoutX="15.0" layoutY="67.0" prefHeight="219.0" prefWidth="731.0">
               <columns>
                 <TableColumn fx:id="date" prefWidth="81.0" text="Date" />
                   <TableColumn fx:id="startTime" minWidth="3.0" prefWidth="66.0" text="Start Time" />
                   <TableColumn fx:id="endTime" minWidth="3.0" prefWidth="67.0" text="End Time" />
                   <TableColumn fx:id="project" minWidth="9.0" prefWidth="112.0" text="Project" />
-                  <TableColumn fx:id="lifeCycleStep" minWidth="9.0" prefWidth="133.0" text="lifeCycleStep" />
+                  <TableColumn fx:id="lifeCycleStep" minWidth="9.0" prefWidth="133.0" text="Life Cycle Setup" />
                   <TableColumn fx:id="effortCategory" minWidth="9.0" prefWidth="126.0" text="Effort Category" />
                   <TableColumn fx:id="effortDetail" minWidth="9.0" prefWidth="145.0" text="effortDetail" />
               </columns>
             </TableView>
-            <Label layoutX="14.0" layoutY="14.0" text="View Logs">
+            <Label layoutX="14.0" layoutY="13.0" text="View Logs">
                <font>
                   <Font name="System Bold" size="25.0" />
+               </font>
+            </Label>
+            <TableView fx:id="defectTable" layoutX="14.0" layoutY="316.0" prefHeight="155.0" prefWidth="732.0">
+              <columns>
+                <TableColumn fx:id="name" text="Name" />
+                <TableColumn fx:id="fixStatus" prefWidth="83.0" text="Fix Status" />
+                  <TableColumn fx:id="stepWhenInjected" prefWidth="180.0" text="Step When Injected" />
+                  <TableColumn fx:id="stepWhenRemoved" prefWidth="208.0" text="Step When Removed" />
+                  <TableColumn fx:id="defectCategory" prefWidth="180.0" text="Defect Category" />
+              </columns>
+            </TableView>
+            <Label layoutX="15.0" layoutY="48.0" text="Task Log:">
+               <font>
+                  <Font name="Verdana" size="15.0" />
+               </font>
+            </Label>
+            <Label layoutX="14.0" layoutY="295.0" text="Defect Log:">
+               <font>
+                  <Font size="15.0" />
                </font>
             </Label>
          </children>

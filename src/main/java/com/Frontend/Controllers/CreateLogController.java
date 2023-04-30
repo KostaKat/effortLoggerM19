@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
+import com.Frontend.Defect;
 import com.Frontend.Log;
 import com.Frontend.Main;
 
@@ -33,6 +34,7 @@ public class CreateLogController {
 
     private Log taskLog;
     private ObservableList<Log> logs;
+    private ObservableList<Defect> defects;
     private final Alert alert = new Alert(AlertType.WARNING);
     private final String authToken;
     private String startTime;
@@ -46,14 +48,15 @@ public class CreateLogController {
     @FXML
     private TextArea logDescription;
     @FXML
-    private Button start, stop, interruption;
+    private Button start, stop, interruption, defect;
     @FXML
     private MenuItem viewLog, editLog, logOut;
     @FXML
     private Label warnL, clock, timeStart;
 
-    public CreateLogController(ObservableList<Log> logArrayList, String authToken) {
+    public CreateLogController(ObservableList<Log> logArrayList, ObservableList<Defect> defects, String authToken) {
         this.logs = logArrayList;
+        this.defects = defects;
         this.authToken = authToken;
     }
 
@@ -140,6 +143,26 @@ public class CreateLogController {
             }
         });
 
+        defect.setOnAction(event -> {
+            try{
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/FXML/" + "Defect.fxml"));
+                DefectController temp = new DefectController();
+                loader.setController(temp);
+                Parent root = loader.load();
+
+                Stage popupStage = new Stage();
+                popupStage.initModality(Modality.APPLICATION_MODAL);
+                popupStage.setScene(new Scene(root));
+                popupStage.setTitle("Pop-up Page");
+                popupStage.showAndWait();
+
+                
+
+            }catch(IOException e){
+                System.out.println("exception caught in the defect pop up page");
+            }
+        });
+
         interruption.setOnAction(event -> {
             if (startFlag == 1) {
                 try {
@@ -196,7 +219,7 @@ public class CreateLogController {
                 alert.show();
             } else {
                 try {
-                    Main.setRoot("EditLog", logs, authToken);
+                    Main.setRoot("EditLog", logs, defects, authToken);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -206,7 +229,7 @@ public class CreateLogController {
         viewLog.setOnAction(event -> {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/FXML/" + "ViewLog.fxml"));
-                ViewLogController temp = new ViewLogController(logs, authToken);
+                ViewLogController temp = new ViewLogController(logs, defects, authToken);
                 loader.setController(temp);
                 Parent root = loader.load();
 

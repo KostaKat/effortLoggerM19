@@ -3,6 +3,7 @@ Author : Yihui Wu
  */
 package com.Frontend.Controllers;
 
+import com.Frontend.Defect;
 import com.Frontend.Log;
 import com.Frontend.LogWebSocketClient;
 import com.Frontend.Main;
@@ -33,6 +34,7 @@ import javafx.scene.control.TextField;
 public class LoginController {
 
     ObservableList<Log> logs = FXCollections.observableArrayList();
+    ObservableList<Defect> defects = FXCollections.observableArrayList();
     String authToken;
     @FXML
     Button pass;
@@ -110,7 +112,7 @@ public class LoginController {
                     ObjectMapper objectMapper = new ObjectMapper();
                     JsonNode jsonNode = objectMapper.readTree(responseBody);
                     authToken = jsonNode.get("Token").asText();
-                    Main.setManagerRoot(logs, authToken, manager);
+                    Main.setManagerRoot(logs, defects, authToken, manager);
                 } else {
                     Alert alert = new Alert(Alert.AlertType.ERROR);
                     alert.setContentText("Username or Password is not correct, you need register one");
@@ -126,7 +128,7 @@ public class LoginController {
                     ObjectMapper objectMapper = new ObjectMapper();
                     JsonNode jsonNode = objectMapper.readTree(responseBody);
                     authToken = jsonNode.get("Token").asText();
-                    Main.setRoot("CreateLog", logs, authToken);
+                    Main.setRoot("CreateLog", logs, defects, authToken);
                 } else {
                     Alert alert = new Alert(Alert.AlertType.ERROR);
                     alert.setContentText("Username or Password is not correct\n Or you are not registered");
@@ -144,7 +146,7 @@ public class LoginController {
 
     @FXML
     void loadCreatePage() throws IOException {
-        Main.setRoot("CreateLog", logs, authToken);
+        Main.setRoot("CreateLog", logs, defects, authToken);
     }
 
     @FXML

@@ -1,5 +1,6 @@
 package com.Frontend.Controllers;
 
+import com.Frontend.Defect;
 import com.Frontend.Log;
 
 import com.Frontend.Main;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 public class ManagerController {
     private String authToken, ManagerId;
     private ObservableList<Log> logs;
+    private ObservableList<Defect> defects;
     @FXML
     private TableView<Log> logTable;
     @FXML
@@ -70,9 +72,6 @@ public class ManagerController {
                 popupStage.showAndWait();
 
                 EditLogManagerController e = loader.getController();
-                for (Log log : e.logs) {
-                    System.out.println("p" + log);
-                }
                 logTable.refresh();
             } catch (IOException e) {
 
@@ -86,8 +85,9 @@ public class ManagerController {
         });
     }
 
-    public ManagerController(ObservableList<Log> logs, String authToken, String ManagerId) {
+    public ManagerController(ObservableList<Log> logs, ObservableList<Defect> defects, String authToken, String ManagerId) {
         this.authToken = authToken;
+        this.defects = defects;
         this.logs = logs;
         this.ManagerId = ManagerId;
     }

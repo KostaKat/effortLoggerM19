@@ -1,5 +1,6 @@
 package com.Frontend.Controllers;
 
+import com.Frontend.Defect;
 import com.Frontend.Log;
 import com.Frontend.Main;
 import javafx.collections.ListChangeListener;
@@ -20,8 +21,10 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
 public class EditLogManagerController {
-    String authToken;
-    ObservableList<Log> logs;
+    private String authToken;
+    private ObservableList<Log> logs;
+    ObservableList<Defect> defects;
+
     private Log selectedLog;
     private int index;
     private String logID;
