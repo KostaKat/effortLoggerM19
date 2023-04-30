@@ -33,6 +33,7 @@ public class WebSocket {
 
         }
         String logs = "";
+        String defects = "";
         String employeeID = db.getIDbyUsernameUserType(helper.getClaims(token).get("Username"),
                 helper.getClaims(token).get("User-Type")); // Implement this method to extract the employee ID from the
                                                            // token
@@ -44,7 +45,14 @@ public class WebSocket {
             logs = db.getLogsManager(employeeID);
         }
         session.setMaxTextMessageBufferSize(10000);
-        manager.initialize(employeeID, logs);
+        manager.initialize(employeeID, "logs" + logs);
+
+        if (helper.getClaims(token).get(("User-Type")).equals("Employee")) {
+            defects = db.getDefectsEmployee(employeeID);
+        } else {
+            defects = db.getDefectsManager(employeeID);
+        }
+        manager.initialize(employeeID, "defects" + defects);
     }
 
     @OnMessage

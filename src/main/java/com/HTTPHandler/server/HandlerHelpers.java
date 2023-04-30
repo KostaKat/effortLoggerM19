@@ -69,6 +69,7 @@ public class HandlerHelpers {
             JsonNode jsonNode = mapper.readTree(requestBody);
             return true;
         } catch (IOException e) {
+            System.out.println("Not valid JSON");
             return false;
         }
     }

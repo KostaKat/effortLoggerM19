@@ -7,6 +7,7 @@ import java.util.Map;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.Database.DatabaseManager;
+import com.HTTPHandler.AddDefectHandlerHelper;
 import com.HTTPHandler.PasswordUtils;
 import com.WebSocket.WebSocket;
 import com.WebSocket.WebSocketManager;
@@ -49,8 +50,12 @@ public class ContextHandlerFactory {
                 return new EditLogContextHandler();
             case "/deleteLog":
                 return new DeleteLogContextHandler();
-            // case "/getLog":
-            // return new GetLogContextHandler();
+            case "/addDefect":
+                return new AddDefectContextHandler();
+            case "/editDefect":
+                return new EditDefectContextHandler();
+            case "/deleteDefect":
+                return new DeleteDefectContextHandler();
             default:
                 return new NotFoundHandler();
         }
@@ -655,100 +660,294 @@ class NotFoundHandler implements HttpHandler {
         helper.sendErrorResponse(exchange, code, response);
     }
 
-    class AddLogContextHandler implements HttpHandler {
-        // attributes
-        private AddLogHandlerHelper helper = new AddLogHandlerHelper();
-        private DatabaseManager databaseManager = new DatabaseManager();
+}
 
-        /**
-         * <p>
-         * Handles an HTTP exchange for adding a log to the database.
-         * To be implemented in the future
-         * </p>
-         * 
-         * @param exchange - HTTP exchange to handle
-         * @throws IOException if an I/O error occurs while handling the exchange
-         * @version prototype
-         */
-        @Override
-        public void handle(HttpExchange exchange) throws IOException {
-            try {
-                String requestMethod = exchange.getRequestMethod();
-                if ("POST".equals(requestMethod)) {
-                    // Get the request body
-                    InputStreamReader isr = new InputStreamReader(exchange.getRequestBody());
-                    BufferedReader br = new BufferedReader(isr);
-                    String requestBody = br.readLine();
+class AddDefectContextHandler implements HttpHandler {
+    // attributes
+    private AddDefectHandlerHelper helper = new AddDefectHandlerHelper();
+    private DatabaseManager databaseManager = new DatabaseManager();
 
-                    // Process the addLog request and check the credentials
-                    boolean addLogSuccess = proccessAddLogRequest(requestBody);
+    /**
+     * <p>
+     * Handles an HTTP exchange for adding a log to the database.
+     * To be implemented in the future
+     * </p>
+     * 
+     * @param exchange - HTTP exchange to handle
+     * @throws IOException if an I/O error occurs while handling the exchange
+     * @version prototype
+     */
+    @Override
+    public void handle(HttpExchange exchange) throws IOException {
+        System.out.println("AddDefectContextHandler");
+        try {
+            String requestMethod = exchange.getRequestMethod();
+            if ("POST".equals(requestMethod)) {
+                // Get the request body
+                InputStreamReader isr = new InputStreamReader(exchange.getRequestBody());
+                BufferedReader br = new BufferedReader(isr);
+                String requestBody = br.readLine();
+                System.out.println(requestBody);
+                // Process the addLog request and check the credentials
+                boolean addDefectSuccesful = proccessAddDefectRequest(requestBody);
+                System.out.println(addDefectSuccesful);
+                // Send the response to the client & code
+                String response;
+                int code;
+                if (addDefectSuccesful) {
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    JsonNode jsonNode = objectMapper.readTree(requestBody);
+                    String StepWhenInjected = jsonNode.get("stepWhenInjected").asText();
+                    String StepWhenRemoved = jsonNode.get("stepWhenRemoved").asText();
+                    String DefectCategory = jsonNode.get("defectCategory").asText();
+                    String FixStatus = jsonNode.get("fixStatus").asText();
+                    String Name = jsonNode.get("name").asText();
+                    String Description = jsonNode.get("description").asText();
+                    Map<String, String> claims = helper.getClaims(helper.getToken(requestBody));
+                    String userName = claims.get("Username");
+                    String userType = claims.get("User-Type");
+                    String userID = databaseManager.getIDbyUsernameUserType(userName, userType);
+                    databaseManager.addDefect(userID, Description, Name, FixStatus, StepWhenInjected,
+                            StepWhenRemoved, DefectCategory);
 
-                    // Send the response to the client & code
-                    String response;
-                    int code;
-                    if (addLogSuccess) {
-                        ObjectMapper objectMapper = new ObjectMapper();
-                        JsonNode jsonNode = objectMapper.readTree(requestBody);
-                        String date = jsonNode.get("Date").asText();
-                        String startTime = jsonNode.get("StartTime").asText();
-                        String endTime = jsonNode.get("EndTime").asText();
-                        String project = jsonNode.get("Project").asText();
-                        String effortCategory = jsonNode.get("EffortCategory").asText();
-                        String effortDetail = jsonNode.get("EffortDetail").asText();
-                        String lifeCycleStep = jsonNode.get("LifeCycleStep").asText();
-                        Map<String, String> claims = helper.getClaims(helper.getToken(requestBody));
-                        String userName = claims.get("Username");
-                        String userType = claims.get("User-Type");
-                        String userID = databaseManager.getIDbyUsernameUserType(userName, userType);
-
-                        databaseManager.addLog(userName, userType, userID, date, startTime, endTime,
-                                project, effortCategory, effortDetail,
-                                lifeCycleStep);
-
-                        response = "Added log successfully!";
-                        code = 200;
-                    } else {
-                        code = 500;
-                        response = "Couldn't add log.";
-                    }
-                    helper.sendJsonResponse(exchange, code, response);
+                    response = "Added Defect successfully!";
+                    code = 200;
                 } else {
-                    // return error response for unsupported method
-                    String response = "Unsupported request method: " + requestMethod;
-                    helper.sendErrorResponse(exchange, 400, response);
+                    code = 500;
+                    response = "Couldn't Defect log.";
                 }
-            } catch (Exception e) {
-                // handle any exceptions that occur while processing the request
-                String response = "Error processing request: " + e.getMessage();
-                helper.sendErrorResponse(exchange, 500, response);
+                helper.sendJsonResponse(exchange, code, response);
+            } else {
+                // return error response for unsupported method
+                String response = "Unsupported request method: " + requestMethod;
+                helper.sendErrorResponse(exchange, 400, response);
             }
-        }
-
-        /**
-         * <p>
-         * Processes a request to add a log to the database.
-         * To be implemented in the future
-         * </p>
-         * 
-         * @param requestBody - Request body containing the log information
-         * @return true if the log was added successfully, false otherwise
-         * @author Kosta Katergaris
-         * @version prototype
-         * @throws Exception
-         */
-        private boolean proccessAddLogRequest(String requestBody) throws Exception {
-
-            // check if requestBody is a JSON object
-            if (!helper.isJSON(requestBody))
-                return false;
-            if (!helper.correctAttributes(requestBody))
-                return false;
-            // check if there username exists in db
-            if (!helper.verifyToken(helper.getToken(requestBody)))
-                return false;
-            return true;
-
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            // handle any exceptions that occur while processing the request
+            String response = "Error processing request: " + e.getMessage();
+            helper.sendErrorResponse(exchange, 500, response);
         }
     }
 
+    /**
+     * <p>
+     * Processes a request to add a log to the database.
+     * To be implemented in the future
+     * </p>
+     * 
+     * @param requestBody - Request body containing the log information
+     * @return true if the log was added successfully, false otherwise
+     * @author Kosta Katergaris
+     * @version prototype
+     * @throws Exception
+     */
+    private boolean proccessAddDefectRequest(String requestBody) throws Exception {
+
+        // check if requestBody is a JSON object
+        if (!helper.isJSON(requestBody)) {
+            System.out.println("not json");
+            return false;
+        }
+
+        if (!helper.correctAttributes(requestBody)) {
+            System.out.println("not correct attributes");
+            return false;
+        }
+
+        // check if there username exists in db
+        if (!helper.verifyToken(helper.getToken(requestBody))) {
+            System.out.println("not verified token");
+            return false;
+        }
+
+        return true;
+
+    }
+}
+
+/**
+ * <p>
+ * An HTTP handler for editing a log to the server.
+ * </p>
+ * 
+ * @author Kosta Katergaris
+ * @version prototype
+ */
+class EditDefectContextHandler implements HttpHandler {
+    // attributes
+
+    private DatabaseManager databaseManager = new DatabaseManager();
+    private EditDefectHandlerHelper helper = new EditDefectHandlerHelper();
+
+    /**
+     * <p>
+     * Handles an HTTP exchange for editing a log in the database.
+     * To be implemented in the future
+     * </p>
+     * 
+     * @param exchange - HTTP exchange to handle
+     * @throws IOException if an I/O error occurs while handling the exchange
+     * @author Kosta Katergaris
+     * @version prototype
+     */
+    @Override
+    public void handle(HttpExchange exchange) throws IOException {
+        try {
+            System.out.println("EditDefectContextHandler");
+            String requestMethod = exchange.getRequestMethod();
+            if ("PUT".equals(requestMethod)) {
+                // Get the request body
+
+                InputStreamReader isr = new InputStreamReader(exchange.getRequestBody());
+                BufferedReader br = new BufferedReader(isr);
+                String requestBody = br.readLine();
+
+                // Process the editLog request and check the credentials
+                boolean editDefectSuccess = proccessEditDefectRequest(requestBody);
+
+                // Send the response to the client
+                String response;
+                int code;
+                if (editDefectSuccess) {
+                    // decrypt log w/server priv key
+
+                    response = "Editted log successfully!";
+                    code = 200;
+                } else {
+                    response = "Couldn't edit log.";
+                    code = 500;
+                }
+                helper.sendJsonResponse(exchange, code, response);
+            } else {
+                // return error response for unsupported method
+                String response = "Unsupported request method: " + requestMethod;
+                helper.sendErrorResponse(exchange, 400, response);
+            }
+        } catch (Exception e) {
+            // handle any exceptions that occur while processing the request
+            String response = "Error processing request: " + e.getMessage();
+            helper.sendErrorResponse(exchange, 500, response + "edit");
+        }
+    }
+
+    /**
+     * <p>
+     * Processes a request to edit a log in the database.
+     * To be implemented in the future
+     * </p>
+     * 
+     * @param requestBody - Request body containing the log information
+     * @return true if the log was edited successfully, false otherwise
+     * @author Kosta Katergaris
+     * @version prototype
+     */
+    private boolean proccessEditDefectRequest(String requestBody) throws Exception {
+
+        // check if requestBody is a JSON object
+        if (!helper.isJSON(requestBody))
+            return false;
+        if (!helper.correctAttributes(requestBody))
+            return false;
+        // check if there username exists in db
+        if (!helper.verifyToken(helper.getToken(requestBody)))
+            return false;
+
+        if (!helper.editDefectSuccess(requestBody)) {
+            System.out.println("not edit defect success");
+            return false;
+        }
+
+        return true;
+
+    }
+
+}
+
+class DeleteDefectContextHandler implements HttpHandler {
+    // attributes
+    private DeleteDefectHandlerHelper helper = new DeleteDefectHandlerHelper();
+    private DatabaseManager databaseManager = new DatabaseManager();
+
+    /**
+     * <p>
+     * Handles an HTTP exchange for deleting a log in the database.
+     * To be implemented in the future
+     * </p>
+     * 
+     * @param exchange - HTTP exchange to handle
+     * @throws IOException if an I/O error occurs while handling the exchange
+     * @author Kosta Katergaris
+     * @version prototype
+     */
+    @Override
+    public void handle(HttpExchange exchange) throws IOException {
+        try {
+            String requestMethod = exchange.getRequestMethod();
+            if ("DELETE".equals(requestMethod)) {
+                System.out.println("DeleteDefectContextHandler");
+                // Get the request body
+                InputStreamReader isr = new InputStreamReader(exchange.getRequestBody());
+                BufferedReader br = new BufferedReader(isr);
+                String requestBody = br.readLine();
+
+                // Process the login request and check the credentials
+                boolean deleteDefectSuccess = proccessDeleteDefectRequest(requestBody);
+
+                // Send the response to the client
+                String response;
+                int code;
+                if (deleteDefectSuccess) {
+                    // decrypt w/ server priv key
+                    response = "Deleted log successfully!";
+                    code = 200;
+                } else {
+                    response = "Couldn't delete log.";
+                    code = 500;
+                }
+                helper.sendJsonResponse(exchange, code, response);
+            } else {
+                // return error response for unsupported method
+                helper.sendErrorResponse(exchange, 400, "Unsupported request method: " + requestMethod);
+            }
+        } catch (Exception e) {
+            // handle any exceptions that occur while processing the request
+            helper.sendErrorResponse(exchange, 500, "Error processing request: " + e.getMessage() + "delete");
+        }
+    }
+
+    /**
+     * <p>
+     * Processes a request to delete a log in the database.
+     * To be implemented in the future
+     * </p>
+     * 
+     * @param requestBody - Request body containing the log information
+     * @return true if the log was deleted successfully, false otherwise
+     * @author Kosta Katergaris
+     * @version prototype
+     * @throws Exception
+     */
+    private boolean proccessDeleteDefectRequest(String requestBody) throws Exception {
+
+        // check if requestBody is a JSON object
+        if (!helper.isJSON(requestBody))
+            return false;
+        if (!helper.correctAttributes(requestBody)) {
+            System.out.println("not correct attributes");
+            return false;
+        }
+
+        // check if there username exists in db
+        if (!helper.verifyToken(helper.getToken(requestBody)))
+            return false;
+
+        if (!helper.deleteDefectSuccessful(requestBody)) {
+            System.out.println("not delete defect success");
+            return false;
+        }
+
+        return true;
+
+    }
 }

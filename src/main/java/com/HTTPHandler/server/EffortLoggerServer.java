@@ -28,11 +28,11 @@ public class EffortLoggerServer {
     }
 
     public void startHttpServer() throws Exception {
-           // Initialize variables
+        // Initialize variables
         ContextHandlerFactory contextFactory = new ContextHandlerFactory();
         List<String> endpoints = null;
         HttpContext context = null;
-    
+
         // Create a list of endpoint paths
         endpoints = Arrays.asList(
                 "/login",
@@ -40,26 +40,29 @@ public class EffortLoggerServer {
                 "/addLog",
                 "/editLog",
                 "/deleteLog",
-                "/getLog");
-    
+                "/getLog",
+                "/addDefect",
+                "/editDefect",
+                "/deleteDefect");
+
         // Create the server on port 8000
         this.httpServer = HttpServer.create(new InetSocketAddress(this.httpPort), 0);
-    
+
         // Loop through each endpoint and create a context for it with the corresponding
         // handler using the factory
         for (String endpoint : endpoints) {
-    
+
             // Create a context for the endpoint
             context = httpServer.createContext(endpoint);
-    
+
             // Set the handler for the context using the factory
             context.setHandler(contextFactory.create(endpoint));
         }
-    
+
         // Start the server
         httpServer.start();
         System.out.println("Server listening on port " + httpPort);
-    
+
     }
 
     public void stopHttpServer() {

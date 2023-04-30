@@ -1,12 +1,14 @@
 package com.HTTPHandler.server.TestClients;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.stream.Collectors;
 
 import org.json.JSONObject;
 
@@ -84,122 +86,149 @@ public class LoginClientTest {
 		System.out.println("Response message: " + responseMessage);
 		System.out.println("Token: " + token);
 
-		connectWebSocket(token);
-		// Set the URL of the server endpoint to add a log
-		String logUrl = "http://localhost:8080/addLog";
+		String serverUrl = "http://localhost:8080/addDefect"; // Replace with your server's URL
+		URL addDefectUrl = new URL(serverUrl);
+		con = (HttpURLConnection) addDefectUrl.openConnection();
 
-		// Set the JSON data for the log request
-		JSONObject logData = new JSONObject();
-		logData.put("Token", token);
-		logData.put("Date", "2023-04-23");
-		logData.put("StartTime", "09:00:00");
-		logData.put("EndTime", "10:00:00");
-		logData.put("Project", "Project X");
-		logData.put("EffortCategory", "Development");
-		logData.put("EffortDetail", "c2");
-		logData.put("LifeCycleStep", "Coding");
+		// Set request method and headers
+		con.setRequestMethod("POST");
+		con.setRequestProperty("Content-Type", "application/json");
+		con.setRequestProperty("Accept", "application/json");
+		con.setDoOutput(true);
 
-		// Convert the JSON object to a string
-		String logDataString = logData.toString();
+		// Create JSON payload
 
-		// Create a new HTTP connection for the log request
-		HttpURLConnection logCon = (HttpURLConnection) new URL(logUrl).openConnection();
-		logCon.setRequestMethod("POST");
+		JSONObject defectAddData = new JSONObject();
+		defectAddData.put("Token", token);
+		defectAddData.put("stepWhenInjected", "2023-04-23");
+		defectAddData.put("stepWhenRemoved", "2023-04-24"); // Corrected value
+		defectAddData.put("defectCategory", "UI"); // Corrected value
+		defectAddData.put("fixStatus", "Project X");
+		defectAddData.put("name", "Sample Defect"); // Corrected value
+		defectAddData.put("description", "edited2");
 
-		// Set the content type of the request to application/json
-		logCon.setRequestProperty("Content-Type", "application/json");
+		String defectAddString = defectAddData.toString();
 
-		// Enable output on the connection to allow sending the request body
-		logCon.setDoOutput(true);
-
-		// Write the log request body to the connection's output stream
-		try (OutputStream os = logCon.getOutputStream()) {
-			byte[] logDataBytes = logDataString.getBytes(StandardCharsets.UTF_8);
-			os.write(logDataBytes, 0, logDataBytes.length);
+		// Send the request
+		try (OutputStream os = con.getOutputStream()) {
+			byte[] input = defectAddString.getBytes("utf-8");
+			os.write(input, 0, input.length);
 		}
 
-		// Read the response from the log request's input stream
-		int logResponseCode = logCon.getResponseCode();
-		String logResponseMessage = logCon.getResponseMessage();
+		// Read the response
+		try (BufferedReader in = new BufferedReader(
+				new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8))) {
+			String line;
+			while ((line = in.readLine()) != null) {
+				responseBuilder.append(line);
+			}
+		} catch (Exception e) {
+			// If there is an exception, read the response from the error stream instead
+			try (BufferedReader in = new BufferedReader(
+					new InputStreamReader(con.getErrorStream(), StandardCharsets.UTF_8))) {
+				String line;
+				while ((line = in.readLine()) != null) {
+					responseBuilder.append(line);
+				}
+			}
+		}
+		String editUrl = "http://localhost:8080/editDefect"; // Replace with your server's URL
+		URL editURL = new URL(editUrl);
+		con = (HttpURLConnection) editURL.openConnection();
 
-		// Print the response from the log request
-		System.out.println("Log request code: " + logResponseCode);
-		System.out.println("Log request message: " + logResponseMessage);
-		// Connect to the WebSocket server
-		String logUrlEdit = "http://localhost:8080/editLog";
+		// Set request method and headers
+		con.setRequestMethod("PUT");
+		con.setRequestProperty("Content-Type", "application/json");
+		con.setRequestProperty("Accept", "application/json");
+		con.setDoOutput(true);
 
-		// Set the JSON data for the log request
-		JSONObject logDataEdit = new JSONObject();
-		logDataEdit.put("Token", token);
-		logDataEdit.put("LogID", "ebfd3483-6311-41fb-91fd-b09b5ef3ff45");
-		logDataEdit.put("Date", "2023-04-23");
-		logDataEdit.put("StartTime", "09:00:00");
-		logDataEdit.put("EndTime", "10:00:00");
-		logDataEdit.put("Project", "Project X");
-		logDataEdit.put("EffortCategory", "Development");
-		logDataEdit.put("EffortDetail", "edited2");
-		logDataEdit.put("LifeCycleStep", "Coding");
+		// Create JSON payload
+		JSONObject defectEditData = new JSONObject();
+		defectEditData.put("Token", token);
+		defectEditData.put("stepWhenInjected", "2023-04-23");
+		defectEditData.put("stepWhenRemoved", "2023-04-24"); // Corrected value
+		defectEditData.put("defectCategory", "UI"); // Corrected value
+		defectEditData.put("fixStatus", "Project X");
+		defectEditData.put("name", "Sample Defect"); // Corrected value
+		defectEditData.put("description", "edit");
+		defectEditData.put("defectID", "b7c1f5d1-ad10-459f-ae82-4db3ad1b0595");
+		String defectEditDataString = defectEditData.toString();
 
-		// Convert the JSON object to a string
-		String logDataEditString = logDataEdit.toString();
-
-		// Create a new HTTP connection for the log request
-		HttpURLConnection logConEdit = (HttpURLConnection) new URL(logUrlEdit).openConnection();
-		logConEdit.setRequestMethod("PUT");
-
-		// Set the content type of the request to application/json
-		logConEdit.setRequestProperty("Content-Type", "application/json");
-
-		// Enable output on the connection to allow sending the request body
-		logConEdit.setDoOutput(true);
-
-		// Write the log request body to the connection's output stream
-		try (OutputStream os = logConEdit.getOutputStream()) {
-			byte[] logDataBytes = logDataEditString.getBytes(StandardCharsets.UTF_8);
-			os.write(logDataBytes, 0, logDataBytes.length);
+		// Send the request
+		try (OutputStream os = con.getOutputStream()) {
+			byte[] input = defectEditDataString.getBytes(StandardCharsets.UTF_8);
+			os.write(input, 0, input.length);
 		}
 
-		// Read the response from the log request's input stream
-		int logResponseCodeEdit = logConEdit.getResponseCode();
-		String logResponseMessageEdit = logConEdit.getResponseMessage() + "edit";
-
-		// Print the response from the log request
-		System.out.println("Log request code: " + logResponseCodeEdit);
-		System.out.println("Log request message: " + logResponseMessageEdit);
-
-		String logUrlDelete = "http://localhost:8080/deleteLog";
-
-		// Set the JSON data for the log request
-		JSONObject logDataDelete = new JSONObject();
-		logDataDelete.put("Token", token);
-		logDataDelete.put("LogID", "ad6889e2-b56a-4134-9a24-76ea645d6205");
-
-		// Convert the JSON object to a string
-		String logDataDeleteString = logDataDelete.toString();
-
-		// Create a new HTTP connection for the log request
-		HttpURLConnection logConDelete = (HttpURLConnection) new URL(logUrlDelete).openConnection();
-		logConDelete.setRequestMethod("DELETE");
-
-		// Set the content type of the request to application/json
-		logConDelete.setRequestProperty("Content-Type", "application/json");
-
-		// Enable output on the connection to allow sending the request body
-		logConDelete.setDoOutput(true);
-
-		// Write the log request body to the connection's output stream
-		try (OutputStream os = logConDelete.getOutputStream()) {
-			byte[] logDataBytes = logDataDeleteString.getBytes(StandardCharsets.UTF_8);
-			os.write(logDataBytes, 0, logDataBytes.length);
+		// Check for server errors
+		if (con.getResponseCode() >= 400) {
+			try (BufferedReader in = new BufferedReader(
+					new InputStreamReader(con.getErrorStream(), StandardCharsets.UTF_8))) {
+				String errorResponse = in.lines().collect(Collectors.joining());
+				throw new RuntimeException(
+						"Server returned error code " + con.getResponseCode() + ": " + errorResponse);
+			}
 		}
 
-		// Read the response from the log request's input stream
-		int logResponseCodeDelete = logConDelete.getResponseCode();
-		String logResponseMessageDelete = logConDelete.getResponseMessage();
+		// Read the response
+		StringBuilder responseBuildera = new StringBuilder();
+		try (BufferedReader in = new BufferedReader(
+				new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8))) {
+			String line;
+			while ((line = in.readLine()) != null) {
+				responseBuildera.append(line);
+			}
+		}
 
-		// Print the response from the log request
-		System.out.println("Log request code: " + logResponseCodeDelete + "DELETE");
-		System.out.println("Log request message: " + logResponseMessageDelete);
+		// Print the response
+		String response = responseBuilder.toString();
+		System.out.println(response);
+		String deleteURL = "http://localhost:8080/deleteDefect"; // Replace with your server's URL
+		URL deleteURL_ = new URL(deleteURL);
+		con = (HttpURLConnection) deleteURL_.openConnection();
+
+		// Set request method and headers
+		con.setRequestMethod("DELETE");
+		con.setRequestProperty("Content-Type", "application/json");
+		con.setRequestProperty("Accept", "application/json");
+		con.setDoOutput(true);
+
+		// Create JSON payload
+		JSONObject defectDeleteData = new JSONObject();
+		defectDeleteData.put("Token", token);
+		defectDeleteData.put("defectID", "b7c1f5d1-ad10-459f-ae82-4db3ad1b0595");
+		String defectDeleteDataString = defectDeleteData.toString();
+
+		// Send the request
+		try (OutputStream os = con.getOutputStream()) {
+			byte[] input = defectDeleteDataString.getBytes(StandardCharsets.UTF_8);
+			os.write(input, 0, input.length);
+		}
+
+		// Check for server errors
+		if (con.getResponseCode() >= 400) {
+			try (BufferedReader in = new BufferedReader(
+					new InputStreamReader(con.getErrorStream(), StandardCharsets.UTF_8))) {
+				String errorResponse = in.lines().collect(Collectors.joining());
+				throw new RuntimeException(
+						"Server returned error code " + con.getResponseCode() + ": " + errorResponse);
+			}
+		}
+
+		// Read the response
+		StringBuilder responseBuilderb = new StringBuilder();
+		try (BufferedReader in = new BufferedReader(
+				new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8))) {
+			String line;
+			while ((line = in.readLine()) != null) {
+				responseBuilderb.append(line);
+			}
+		}
+
+		// Print the response
+		response = responseBuilderb.toString();
+		System.out.println(response);
+
 	}
 
 	private static void connectWebSocket(String token) throws Exception {

@@ -8,14 +8,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import javax.json.Json;
+import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.json.JsonReader;
 import javax.json.JsonValue;
 
 import com.Frontend.Log;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 
 import jakarta.websocket.ClientEndpoint;
 import jakarta.websocket.CloseReason;
@@ -34,6 +38,7 @@ public class WebSocketClient {
 
     private Session session;
     private ObservableList<Log> logs;
+    private ObservableList<Defect> defects;
 
     public WebSocketClient(ObservableList<Log> logs) {
 
@@ -52,11 +57,38 @@ public class WebSocketClient {
         try (JsonReader reader = Json.createReader(new StringReader(message))) {
             JsonValue jsonValue = reader.readValue();
             if (jsonValue.getValueType() == JsonValue.ValueType.ARRAY) {
-                // Received message is a JSON array
+                // Parse the JSON array string as a JsonArray using the javax.json library
+                JsonReader jsonReader = Json.createReader(new StringReader(message));
+                JsonArray jsonArray = jsonReader.readArray();
 
-                Log[] logArray = gson.fromJson(message, Log[].class);
-                ArrayList<Log> receivedLogs = new ArrayList<>(Arrays.asList(logArray));
-                logs.addAll(receivedLogs);
+                // Iterate over the JSON array to find the object with an "action" attribute
+                JsonObject objectToRemove = null;
+                for (JsonValue value : jsonArray) {
+                    if (value.getValueType() == JsonValue.ValueType.OBJECT) {
+                        JsonObject object = (JsonObject) value;
+                        if (object.containsKey("action") && object.getString("action").equals("message")) {
+                            objectToRemove = object;
+                            break;
+                        }
+                    }
+                }
+                String messageObj = "default";
+                // If an object with an "action" attribute was found, extract its "message"
+                // attribute and remove the object from the JSON array
+                if (objectToRemove != null) {
+                    messageObj = objectToRemove.getString("message");
+                    jsonArray.remove(objectToRemove);
+                }
+
+                if (messageObj.compareTo("getLogs") == 0) {
+                    Log[] logArray = gson.fromJson(message, Log[].class);
+                    ArrayList<Log> receivedLogs = new ArrayList<>(Arrays.asList(logArray));
+                    logs.addAll(receivedLogs);
+                } else if (messageObj.compareTo("getDefects") == 0) {
+                    Defect[] defectArray = gson.fromJson(message, Defect[].class);
+                    ArrayList<Log> receivedDefects = new ArrayList<>(Arrays.asList(defectArray));
+                    defects.addAll(receivedDefects);
+                }
 
             } else if (jsonValue.getValueType() == JsonValue.ValueType.OBJECT) {
                 // Received message is a JSON object

@@ -10,10 +10,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import javax.json.Json;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.WebSocket.WebSocket;
+import com.google.gson.JsonObject;
 
 public class DatabaseManager {
 
@@ -269,9 +272,11 @@ public class DatabaseManager {
         logObject.put("lifeCycleStep", rs.getString("LifeCycleStep"));
         logsArray.put(logObject);
       }
-
+      disconnect();
       // Convert the JSON array to a string and send it back to the client
-
+      JsonObject message = new JsonObject();
+      message.addProperty("action", "getLogs");
+      logsArray.put(message);
     } catch (Exception e) {
       System.out.println(e.getMessage());
     }
@@ -328,6 +333,9 @@ public class DatabaseManager {
 
       teamMembersStatement.close();
       teamMembersResultSet.close();
+      JsonObject message = new JsonObject();
+      message.addProperty("action", "getLogs");
+      logsArray.put(message);
       disconnect();
 
     } catch (Exception e) {
@@ -462,6 +470,267 @@ public class DatabaseManager {
     logObject.put("logID", logID);
     WebSocket.sendUpdate(tempID, logObject.toString());
     return rowsDeleted > 0;
+  }
+
+  public boolean addDefect(String employeeID, String description, String name, String fixStatus,
+      String stepWhenInjected, String stepWhenRemoved, String defectCategory) throws SQLException {
+    System.out.println("In add Defect");
+
+    connect();
+
+    // Check that the employee exists in the Employee table
+    String checkEmployeeSql = "SELECT COUNT(*) FROM Employee WHERE EmployeeID = ?";
+    PreparedStatement checkEmployeeStatement = connection.prepareStatement(checkEmployeeSql);
+    checkEmployeeStatement.setString(1, employeeID);
+    ResultSet checkEmployeeResultSet = checkEmployeeStatement.executeQuery();
+    int employeeCount = checkEmployeeResultSet.getInt(1);
+    checkEmployeeStatement.close();
+    checkEmployeeResultSet.close();
+
+    if (employeeCount == 0) {
+      disconnect();
+      return false;
+    }
+
+    // Add the defect to the Defects table
+    String addDefectSql = "INSERT INTO Defects (DefectID, EmployeeID, Description, Name, FixStatus, StepWhenInjected, StepWhenRemoved, DefectCategory) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    PreparedStatement addDefectStatement = connection.prepareStatement(addDefectSql);
+    String defectID = UUID.randomUUID().toString();
+    addDefectStatement.setString(1, defectID);
+    addDefectStatement.setString(2, employeeID);
+    addDefectStatement.setString(3, description);
+    addDefectStatement.setString(4, name);
+    addDefectStatement.setString(5, fixStatus);
+    addDefectStatement.setString(6, stepWhenInjected);
+    addDefectStatement.setString(7, stepWhenRemoved);
+    addDefectStatement.setString(8, defectCategory);
+
+    int rowsInserted = addDefectStatement.executeUpdate();
+    addDefectStatement.close();
+
+    disconnect();
+    JSONObject defectObject = new JSONObject();
+    defectObject.put("action", "addDefect");
+    defectObject.put("defectID", defectID);
+    defectObject.put("description", description);
+    defectObject.put("name", name);
+    defectObject.put("fixStatus", fixStatus);
+    defectObject.put("stepWhenInjected", stepWhenInjected);
+    defectObject.put("stepWhenRemoved", stepWhenRemoved);
+    defectObject.put("defectCategory", defectCategory);
+
+    WebSocket.sendUpdate(employeeID, defectObject.toString());
+    return rowsInserted > 0;
+  }
+
+  public boolean editDefect(String defectID, String userID, String userType, String description, String name,
+      String fixStatus,
+      String stepWhenInjected, String stepWhenRemoved, String defectCategory) throws SQLException {
+    connect();
+
+    String tempID = userID;
+    String checkDefectSql = "SELECT COUNT(*), EmployeeID FROM Defects WHERE DefectID = ? GROUP BY EmployeeID";
+    PreparedStatement checkDefectStatement = connection.prepareStatement(checkDefectSql);
+    checkDefectStatement.setString(1, defectID);
+    ResultSet checkDefectResultSet = checkDefectStatement.executeQuery();
+    int defectCount = 0;
+    String employeeID = null;
+    if (checkDefectResultSet.next()) {
+      defectCount = checkDefectResultSet.getInt(1);
+      employeeID = checkDefectResultSet.getString(2);
+    }
+    checkDefectStatement.close();
+    checkDefectResultSet.close();
+    System.out.println("DEFECT COUNT" + defectCount);
+    if (defectCount == 0) {
+      disconnect();
+      return false;
+    }
+    System.out.println("DEFECT USER ID" + employeeID);
+
+    // Update the defect in the Defects table
+    String updateDefectSql = "UPDATE Defects SET Description=?, Name=?, FixStatus=?, StepWhenInjected=?, StepWhenRemoved=?, DefectCategory=? WHERE DefectID=? AND EmployeeID=?";
+    PreparedStatement updateDefectStatement = connection.prepareStatement(updateDefectSql);
+    updateDefectStatement.setString(1, description);
+    updateDefectStatement.setString(2, name);
+    updateDefectStatement.setString(3, fixStatus);
+    updateDefectStatement.setString(4, stepWhenInjected);
+    updateDefectStatement.setString(5, stepWhenRemoved);
+    updateDefectStatement.setString(6, defectCategory);
+    updateDefectStatement.setString(7, defectID);
+    updateDefectStatement.setString(8, userID);
+    int rowsUpdated = updateDefectStatement.executeUpdate();
+    updateDefectStatement.close();
+
+    disconnect();
+    JSONObject defectObject = new JSONObject();
+    defectObject.put("action", "editDefect");
+    defectObject.put("defectID", defectID);
+    defectObject.put("description", description);
+    defectObject.put("name", name);
+    defectObject.put("fixStatus", fixStatus);
+    defectObject.put("stepWhenInjected", stepWhenInjected);
+    defectObject.put("stepWhenRemoved", stepWhenRemoved);
+    defectObject.put("defectCategory", defectCategory);
+
+    WebSocket.sendUpdate(tempID, defectObject.toString());
+    return rowsUpdated > 0;
+
+  }
+
+  public boolean deleteDefect(String defectID, String userID, String userType) {
+    try {
+      connect();
+      String tempID = userID;
+      String checkDefectSql = "SELECT COUNT(*), EmployeeID FROM Defects WHERE DefectID = ? GROUP BY EmployeeID";
+      PreparedStatement checkDefectStatement = connection.prepareStatement(checkDefectSql);
+      checkDefectStatement.setString(1, defectID);
+      ResultSet checkDefectResultSet = checkDefectStatement.executeQuery();
+      int defectCount = 0;
+      String employeeID = null;
+      if (checkDefectResultSet.next()) {
+        defectCount = checkDefectResultSet.getInt(1);
+        employeeID = checkDefectResultSet.getString(2);
+      }
+      checkDefectStatement.close();
+      checkDefectResultSet.close();
+      System.out.println("DEFECT COUNT" + defectCount);
+      if (defectCount == 0) {
+        disconnect();
+        return false;
+      }
+
+      if (userType.equals("Manager") && !employeeID.equals(userID)) {
+        String checkManagerSql = "SELECT COUNT(*) FROM Team e JOIN Employee m ON e.ManagerID = m.EmployeeID WHERE e.EmployeeID = ? AND m.EmployeeID = ? AND m.UserType = 'Manager'";
+        PreparedStatement checkManagerStatement = connection.prepareStatement(checkManagerSql);
+        checkManagerStatement.setString(1, employeeID);
+        checkManagerStatement.setString(2, userID);
+        ResultSet checkManagerResultSet = checkManagerStatement.executeQuery();
+        int managerCount = checkManagerResultSet.getInt(1);
+        checkManagerStatement.close();
+        checkManagerResultSet.close();
+
+        if (managerCount == 0) {
+          disconnect();
+          return false;
+        }
+        userID = employeeID;
+
+      }
+      // Delete the defect from the Defects table
+      String deleteDefectSql = "DELETE FROM Defects WHERE DefectID = ? AND EmployeeID = ?";
+      PreparedStatement deleteDefectStatement = connection.prepareStatement(deleteDefectSql);
+      deleteDefectStatement.setString(1, defectID);
+      deleteDefectStatement.setString(2, userID);
+
+      int rowsDeleted = deleteDefectStatement.executeUpdate();
+      deleteDefectStatement.close();
+      System.out.println("ROWS DELETED" + rowsDeleted);
+      disconnect();
+      JSONObject defectObject = new JSONObject();
+      defectObject.put("action", "deleteDefect");
+      defectObject.put("defectID", defectID);
+      WebSocket.sendUpdate(tempID, defectObject.toString());
+      return rowsDeleted > 0;
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+      return false;
+    }
+  }
+
+  public String getDefectsManager(String managerID) throws SQLException {
+    // Create a JSON array to hold the defects data
+    JSONArray defectsArray = new JSONArray();
+
+    try {
+      connect();
+
+      // Retrieve the employee IDs of all team members under the given manager
+      String teamMembersSql = "SELECT EmployeeID FROM Team WHERE ManagerID = ?";
+      PreparedStatement teamMembersStatement = connection.prepareStatement(teamMembersSql);
+      teamMembersStatement.setString(1, managerID);
+      ResultSet teamMembersResultSet = teamMembersStatement.executeQuery();
+      List<String> teamMemberIds = new ArrayList<>();
+
+      while (teamMembersResultSet.next()) {
+        teamMemberIds.add(teamMembersResultSet.getString("EmployeeID"));
+      }
+
+      // Include the manager's employee ID as well
+      teamMemberIds.add(managerID);
+
+      // Retrieve defects for each team member, including the manager
+      String defectsSql = "SELECT * FROM Defects WHERE EmployeeID = ?";
+
+      for (String employeeID : teamMemberIds) {
+        PreparedStatement defectsStatement = connection.prepareStatement(defectsSql);
+        defectsStatement.setString(1, employeeID);
+        ResultSet defectsResultSet = defectsStatement.executeQuery();
+
+        // Loop through the result set and add each defect to the JSON array
+        while (defectsResultSet.next()) {
+          JSONObject defectObject = new JSONObject();
+          defectObject.put("defectID", defectsResultSet.getString("DefectID"));
+          defectObject.put("description", defectsResultSet.getString("Description"));
+          defectObject.put("name", defectsResultSet.getString("Name"));
+          defectObject.put("fixStatus", defectsResultSet.getString("FixStatus"));
+          defectObject.put("stepWhenInjected", defectsResultSet.getString("StepWhenInjected"));
+          defectObject.put("stepWhenRemoved", defectsResultSet.getString("StepWhenRemoved"));
+          defectObject.put("defectCategory", defectsResultSet.getString("DefectCategory"));
+          defectsArray.put(defectObject);
+        }
+
+        defectsStatement.close();
+      }
+
+      teamMembersStatement.close();
+      teamMembersResultSet.close();
+      disconnect();
+      JsonObject message = new JsonObject();
+      message.addProperty("action", "getDefects");
+      defectsArray.put(message);
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+    }
+
+    return defectsArray.toString();
+  }
+
+  public String getDefectsEmployee(String employeeID) throws SQLException {
+    // Create a JSON array to hold the defects data
+    JSONArray defectsArray = new JSONArray();
+    try {
+
+      connect();
+      String sql = "SELECT * FROM Defects WHERE EmployeeID = ?";
+      PreparedStatement statement = connection.prepareStatement(sql);
+      statement.setString(1, employeeID);
+
+      ResultSet rs = statement.executeQuery();
+
+      // Loop through the result set and add each defect to the JSON array
+      while (rs.next()) {
+        JSONObject defectObject = new JSONObject();
+        defectObject.put("defectID", rs.getString("DefectID"));
+        defectObject.put("description", rs.getString("Description"));
+        defectObject.put("name", rs.getString("Name"));
+        defectObject.put("fixStatus", rs.getString("FixStatus"));
+        defectObject.put("stepWhenInjected", rs.getString("StepWhenInjected"));
+        defectObject.put("stepWhenRemoved", rs.getString("StepWhenRemoved"));
+        defectObject.put("defectCategory", rs.getString("DefectCategory"));
+        defectsArray.put(defectObject);
+      }
+      JsonObject message = new JsonObject();
+      message.addProperty("action", "getDefects");
+      defectsArray.put(message);
+      // Convert the JSON array to a string and send it back to the client
+
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+    }
+
+    return defectsArray.toString();
+
   }
 
 }
