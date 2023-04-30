@@ -52,6 +52,6 @@ public class EditLogHandlerHelper extends HandlerHelpers {
         String userID = databaseManager.getIDbyUsernameUserType(userName, userType);
 
         return databaseManager.editLog(logID, date, startTime, endTime, project, effortCategory, effortDetail,
-                lifeCycleStep, userID);
+                lifeCycleStep, userID, userType);
     }
 }

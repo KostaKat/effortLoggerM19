@@ -19,7 +19,7 @@ import java.util.ArrayList;
 
 public class ManagerController {
     private String authToken, ManagerId;
-    private ObservableList<Log> logs = FXCollections.observableArrayList();
+    private ObservableList<Log> logs;
     @FXML
     private TableView<Log> logTable;
     @FXML
@@ -48,7 +48,7 @@ public class ManagerController {
                     "Are you show you wan to log out?",
                     ButtonType.YES, ButtonType.NO);
             alert.showAndWait();
-            if (alert.getResult() == ButtonType.YES){
+            if (alert.getResult() == ButtonType.YES) {
                 try {
                     Main.setRoot("login");
                 } catch (IOException e) {
@@ -71,10 +71,10 @@ public class ManagerController {
 
                 EditLogManagerController e = loader.getController();
                 for (Log log : e.logs) {
-                    System.out.println("p"+ log);
+                    System.out.println("p" + log);
                 }
                 logTable.refresh();
-            }catch(IOException e){
+            } catch (IOException e) {
 
             }
         });
@@ -91,7 +91,5 @@ public class ManagerController {
         this.logs = logs;
         this.ManagerId = ManagerId;
     }
-
-
 
 }

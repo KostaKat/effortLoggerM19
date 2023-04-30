@@ -31,16 +31,29 @@ public class WebSocketManager {
             sessions.remove(employeeID);
     }
 
+    public void initialize(String employeeID, String message) throws SQLException {
+
+        Session session = sessions.get(employeeID);
+
+        if (session != null) {
+
+            session.getAsyncRemote().sendText(message);
+
+        }
+    }
+
     public void sendUpdate(String employeeID, String message) throws SQLException {
         DatabaseManager db = new DatabaseManager();
         Session session = sessions.get(employeeID);
         String managerID = db.getManagerID(employeeID);
 
+        System.out.println("managerID: " + managerID);
         if (session != null) {
 
             session.getAsyncRemote().sendText(message);
             if (managerID != null) {
                 Session managerSession = sessions.get(managerID);
+                System.out.println("managerSession: " + managerSession + " message: " + message);
                 if (managerSession != null) {
                     managerSession.getAsyncRemote().sendText(message);
                 }

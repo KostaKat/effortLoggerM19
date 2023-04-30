@@ -37,7 +37,7 @@ public class DeleteLogHandlerHelper extends HandlerHelpers {
         String userName = claims.get("Username");
         String userType = claims.get("User-Type");
         String userID = databaseManager.getIDbyUsernameUserType(userName, userType);
-        return databaseManager.deleteLog(logID, userID);
+        return databaseManager.deleteLog(logID, userID, userType);
 
     }
 }

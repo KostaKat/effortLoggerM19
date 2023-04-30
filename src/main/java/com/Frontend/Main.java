@@ -40,8 +40,13 @@ public class Main extends Application {
             e.printStackTrace();
         }
         stage.setOnCloseRequest(event -> {
-            server.stopHttpServer();
-            server.stopWebSocketServer();
+            try {
+                server.stopHttpServer();
+                server.stopWebSocketServer();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
             System.exit(0); // This exits the application with status code 0 (successful exit)
         });
         stage.setScene(scene);

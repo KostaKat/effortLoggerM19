@@ -44,7 +44,7 @@ public class WebSocket {
             logs = db.getLogsManager(employeeID);
         }
         session.setMaxTextMessageBufferSize(10000);
-        manager.sendUpdate(employeeID, logs);
+        manager.initialize(employeeID, logs);
     }
 
     @OnMessage

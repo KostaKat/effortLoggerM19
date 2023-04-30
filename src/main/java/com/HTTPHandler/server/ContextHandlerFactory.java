@@ -280,7 +280,7 @@ class RegisterContextHandler implements HttpHandler {
 
                         databaseManager.insertNewEmployee(employeeID, firstName, lastName,
                                 username, password, userType,
-                                employeeID, managerID, salt);
+                                managerID, salt);
 
                     } else {
                         System.out.println("Generating manager ID");
@@ -299,7 +299,7 @@ class RegisterContextHandler implements HttpHandler {
                 } else {
                     ObjectNode jsonResponse = objectMapper.createObjectNode();
                     jsonResponse.put("status", "failure");
-                    jsonResponse.put("message", "Invalid username or password.");
+                    jsonResponse.put("message", "Username already exists.");
                     String response = objectMapper.writeValueAsString(jsonResponse);
                     helper.sendJsonResponse(exchange, 400, response);
                 }

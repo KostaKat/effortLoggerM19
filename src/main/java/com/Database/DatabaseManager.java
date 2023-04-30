@@ -51,10 +51,24 @@ public class DatabaseManager {
   }
 
   public void insertNewEmployee(String employeeID, String firstName, String lastName, String username, String password,
-      String userType, String managerID, String managerEmployeeID, String salt)
+      String userType, String managerID, String salt)
       throws SQLException, InvalidManagerException {
     connect();
-    String sql = "INSERT INTO Employee (EmployeeID, FirstName, LastName, Username, Password, UserType, ManagerID, Salt) VALUES (?, ?, ?, ?, ?, ?, ?,?)";
+    int count = 0;
+    String sql = "SELECT COUNT(*) FROM Employee WHERE EmployeeID = ? AND UserType = 'Manager'";
+    try (PreparedStatement statement = connection.prepareStatement(sql)) {
+      statement.setString(1, managerID);
+      ResultSet result = statement.executeQuery();
+      result.next();
+      count = result.getInt(1);
+      statement.close();
+    }
+    if (count > 0) {
+      // manager exists
+    } else {
+      // manager does not exist
+    }
+    sql = "INSERT INTO Employee (EmployeeID, FirstName, LastName, Username, Password, UserType, ManagerID, Salt) VALUES (?, ?, ?, ?, ?, ?, ?,?)";
     try (PreparedStatement statement = connection.prepareStatement(sql)) {
       statement.setString(1, employeeID);
       statement.setString(2, firstName);
@@ -73,11 +87,11 @@ public class DatabaseManager {
       statement.close();
 
       // Add employee to manager's team
-      if (managerEmployeeID != null) {
+      if (managerID != null) {
         String teamSql = "INSERT INTO Team (EmployeeID, ManagerID) VALUES (?, ?)";
         PreparedStatement teamStatement = connection.prepareStatement(teamSql);
         teamStatement.setString(1, employeeID);
-        teamStatement.setString(2, managerEmployeeID);
+        teamStatement.setString(2, managerID);
         int teamRowsInserted = teamStatement.executeUpdate();
         if (teamRowsInserted > 0) {
           System.out.println("Employee added to manager's team successfully!");
@@ -217,7 +231,10 @@ public class DatabaseManager {
       PreparedStatement statement = connection.prepareStatement(sql);
       statement.setString(1, employeeID);
       ResultSet resultSet = statement.executeQuery();
-      employeeID = resultSet.getString(1);
+      if (resultSet.next()) {
+        managerID = resultSet.getString("ManagerID");
+      }
+      System.out.println("ManagerID: " + managerID);
       statement.close();
       disconnect();
     } catch (Exception e) {
@@ -321,17 +338,21 @@ public class DatabaseManager {
   }
 
   public boolean editLog(String logID, String date, String startTime, String endTime, String project,
-      String effortCategory, String effortDetail, String lifeCycleStep, String userID) throws SQLException {
+      String effortCategory, String effortDetail, String lifeCycleStep, String userID, String userType)
+      throws SQLException {
 
     connect();
 
-    // Check if the log exists in the Logs table
-    String checkLogSql = "SELECT COUNT(*) FROM Logs WHERE LogID = ? AND EmployeeID = ?";
+    String checkLogSql = "SELECT COUNT(*), EmployeeID FROM Logs WHERE LogID = ? GROUP BY EmployeeID";
     PreparedStatement checkLogStatement = connection.prepareStatement(checkLogSql);
     checkLogStatement.setString(1, logID);
-    checkLogStatement.setString(2, userID);
     ResultSet checkLogResultSet = checkLogStatement.executeQuery();
-    int logCount = checkLogResultSet.getInt(1);
+    int logCount = 0;
+    String employeeID = null;
+    if (checkLogResultSet.next()) {
+      logCount = checkLogResultSet.getInt(1);
+      employeeID = checkLogResultSet.getString(2);
+    }
     checkLogStatement.close();
     checkLogResultSet.close();
 
@@ -339,7 +360,24 @@ public class DatabaseManager {
       disconnect();
       return false;
     }
+    System.out.println("LOG USER ID" + employeeID);
+    if (userType.equals("Manager") && !employeeID.equals(userID)) {
+      String checkManagerSql = "SELECT COUNT(*) FROM Team e JOIN Employee m ON e.ManagerID = m.EmployeeID WHERE e.EmployeeID = ? AND m.EmployeeID = ? AND m.UserType = 'Manager'";
+      PreparedStatement checkManagerStatement = connection.prepareStatement(checkManagerSql);
+      checkManagerStatement.setString(1, employeeID);
+      checkManagerStatement.setString(2, userID);
+      ResultSet checkManagerResultSet = checkManagerStatement.executeQuery();
+      int managerCount = checkManagerResultSet.getInt(1);
+      checkManagerStatement.close();
+      checkManagerResultSet.close();
 
+      if (managerCount == 0) {
+        disconnect();
+        return false;
+      }
+      userID = employeeID;
+
+    }
     // Update the log in the Logs table
     String updateLogSql = "UPDATE Logs SET Date=?, StartTime=?, EndTime=?, Project=?, EffortCategory=?, EffortDetail=?, LifeCycleStep=? WHERE LogID=? AND EmployeeID=?";
     PreparedStatement updateLogStatement = connection.prepareStatement(updateLogSql);
@@ -371,16 +409,19 @@ public class DatabaseManager {
     return rowsUpdated > 0;
   }
 
-  public boolean deleteLog(String logID, String userID) throws SQLException {
+  public boolean deleteLog(String logID, String userID, String userType) throws SQLException {
     connect();
 
-    // Check if the log exists in the Logs table
-    String checkLogSql = "SELECT COUNT(*) FROM Logs WHERE LogID = ? AND EmployeeID = ?";
+    String checkLogSql = "SELECT COUNT(*), EmployeeID FROM Logs WHERE LogID = ? GROUP BY EmployeeID";
     PreparedStatement checkLogStatement = connection.prepareStatement(checkLogSql);
     checkLogStatement.setString(1, logID);
-    checkLogStatement.setString(2, userID);
     ResultSet checkLogResultSet = checkLogStatement.executeQuery();
-    int logCount = checkLogResultSet.getInt(1);
+    int logCount = 0;
+    String employeeID = null;
+    if (checkLogResultSet.next()) {
+      logCount = checkLogResultSet.getInt(1);
+      employeeID = checkLogResultSet.getString(2);
+    }
     checkLogStatement.close();
     checkLogResultSet.close();
 
@@ -389,6 +430,23 @@ public class DatabaseManager {
       return false;
     }
 
+    if (userType.equals("Manager") && !employeeID.equals(userID)) {
+      String checkManagerSql = "SELECT COUNT(*) FROM Team e JOIN Employee m ON e.ManagerID = m.EmployeeID WHERE e.EmployeeID = ? AND m.EmployeeID = ? AND m.UserType = 'Manager'";
+      PreparedStatement checkManagerStatement = connection.prepareStatement(checkManagerSql);
+      checkManagerStatement.setString(1, employeeID);
+      checkManagerStatement.setString(2, userID);
+      ResultSet checkManagerResultSet = checkManagerStatement.executeQuery();
+      int managerCount = checkManagerResultSet.getInt(1);
+      checkManagerStatement.close();
+      checkManagerResultSet.close();
+
+      if (managerCount == 0) {
+        disconnect();
+        return false;
+      }
+      userID = employeeID;
+
+    }
     // Delete the log from the Logs table
     String deleteLogSql = "DELETE FROM Logs WHERE LogID = ? AND EmployeeID = ?";
     PreparedStatement deleteLogStatement = connection.prepareStatement(deleteLogSql);
