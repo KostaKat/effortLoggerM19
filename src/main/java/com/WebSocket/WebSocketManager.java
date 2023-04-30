@@ -46,7 +46,7 @@ public class WebSocketManager {
         DatabaseManager db = new DatabaseManager();
         Session session = sessions.get(employeeID);
         String managerID = db.getManagerID(employeeID);
-
+        System.out.println("This is the message:" + message);
         System.out.println("managerID: " + managerID);
         if (session != null) {
 

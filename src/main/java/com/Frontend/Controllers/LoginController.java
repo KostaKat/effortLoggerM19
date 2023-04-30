@@ -97,7 +97,7 @@ public class LoginController {
             JSONObject jsonResponse = new JSONObject(responseBody);
 
             // Extract values from the JSON response
-            String token = jsonResponse.getString("Token");
+            String token = jsonResponse.optString("Token");
             String manager = jsonResponse.optString("ManagerID", "");
             if (!manager.isEmpty()) {
                 System.out.println("Response code: " + responseCode);
@@ -129,7 +129,7 @@ public class LoginController {
                     Main.setRoot("CreateLog", logs, authToken);
                 } else {
                     Alert alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setContentText("Username or Password is not correct, you need register one");
+                    alert.setContentText("Username or Password is not correct\n Or you are not registered");
                     alert.show();
                 }
             }

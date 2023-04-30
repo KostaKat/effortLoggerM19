@@ -342,7 +342,7 @@ public class DatabaseManager {
       throws SQLException {
 
     connect();
-
+    String tempID = userID;
     String checkLogSql = "SELECT COUNT(*), EmployeeID FROM Logs WHERE LogID = ? GROUP BY EmployeeID";
     PreparedStatement checkLogStatement = connection.prepareStatement(checkLogSql);
     checkLogStatement.setString(1, logID);
@@ -405,13 +405,13 @@ public class DatabaseManager {
     logObject.put("effortDetail", effortDetail);
     logObject.put("lifeCycleStep", lifeCycleStep);
 
-    WebSocket.sendUpdate(userID, logObject.toString());
+    WebSocket.sendUpdate(tempID, logObject.toString());
     return rowsUpdated > 0;
   }
 
   public boolean deleteLog(String logID, String userID, String userType) throws SQLException {
     connect();
-
+    String tempID = userID;
     String checkLogSql = "SELECT COUNT(*), EmployeeID FROM Logs WHERE LogID = ? GROUP BY EmployeeID";
     PreparedStatement checkLogStatement = connection.prepareStatement(checkLogSql);
     checkLogStatement.setString(1, logID);
@@ -460,7 +460,7 @@ public class DatabaseManager {
     JSONObject logObject = new JSONObject();
     logObject.put("action", "deleteLog");
     logObject.put("logID", logID);
-    WebSocket.sendUpdate(userID, logObject.toString());
+    WebSocket.sendUpdate(tempID, logObject.toString());
     return rowsDeleted > 0;
   }
 

@@ -39,8 +39,8 @@ public class EditLogManagerController {
     @FXML
     private MenuItem createLog, viewLog;
 
-    public EditLogManagerController(ObservableList<Log> logs,String authToken){
-        this.logs=logs;
+    public EditLogManagerController(ObservableList<Log> logs, String authToken) {
+        this.logs = logs;
         this.authToken = authToken;
     }
 
@@ -93,6 +93,7 @@ public class EditLogManagerController {
                         effortCategory_e.setValue(null);
                         effortDetail_e.setValue(null);
                         logDescription_e.setText(null);
+
                     } catch (IOException e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
@@ -205,7 +206,6 @@ public class EditLogManagerController {
         });
 
     }
-
 
     void deleteDatabase() throws IOException {
         String url = "http://localhost:8080/deleteLog";

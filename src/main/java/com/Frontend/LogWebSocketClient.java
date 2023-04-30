@@ -61,6 +61,7 @@ public class LogWebSocketClient extends WebSocketClient {
                         logArrayList.add(log);
                         break;
                     case "deleteLog":
+                        System.out.println("Received deleteLog message: " + jsonObject.toString());
                         String logID = jsonObject.get("logID").toString();
                         System.out.println(logID);
                         for (int i = 0; i < logArrayList.size(); i++) {

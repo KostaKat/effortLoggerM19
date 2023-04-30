@@ -531,6 +531,7 @@ class EditLogContextHandler implements HttpHandler {
 
         if (!helper.editLogSuccess(requestBody))
             return false;
+
         return true;
 
     }
@@ -653,4 +654,101 @@ class NotFoundHandler implements HttpHandler {
         String response = "The requested resource could not be found.";
         helper.sendErrorResponse(exchange, code, response);
     }
+
+    class AddLogContextHandler implements HttpHandler {
+        // attributes
+        private AddLogHandlerHelper helper = new AddLogHandlerHelper();
+        private DatabaseManager databaseManager = new DatabaseManager();
+
+        /**
+         * <p>
+         * Handles an HTTP exchange for adding a log to the database.
+         * To be implemented in the future
+         * </p>
+         * 
+         * @param exchange - HTTP exchange to handle
+         * @throws IOException if an I/O error occurs while handling the exchange
+         * @version prototype
+         */
+        @Override
+        public void handle(HttpExchange exchange) throws IOException {
+            try {
+                String requestMethod = exchange.getRequestMethod();
+                if ("POST".equals(requestMethod)) {
+                    // Get the request body
+                    InputStreamReader isr = new InputStreamReader(exchange.getRequestBody());
+                    BufferedReader br = new BufferedReader(isr);
+                    String requestBody = br.readLine();
+
+                    // Process the addLog request and check the credentials
+                    boolean addLogSuccess = proccessAddLogRequest(requestBody);
+
+                    // Send the response to the client & code
+                    String response;
+                    int code;
+                    if (addLogSuccess) {
+                        ObjectMapper objectMapper = new ObjectMapper();
+                        JsonNode jsonNode = objectMapper.readTree(requestBody);
+                        String date = jsonNode.get("Date").asText();
+                        String startTime = jsonNode.get("StartTime").asText();
+                        String endTime = jsonNode.get("EndTime").asText();
+                        String project = jsonNode.get("Project").asText();
+                        String effortCategory = jsonNode.get("EffortCategory").asText();
+                        String effortDetail = jsonNode.get("EffortDetail").asText();
+                        String lifeCycleStep = jsonNode.get("LifeCycleStep").asText();
+                        Map<String, String> claims = helper.getClaims(helper.getToken(requestBody));
+                        String userName = claims.get("Username");
+                        String userType = claims.get("User-Type");
+                        String userID = databaseManager.getIDbyUsernameUserType(userName, userType);
+
+                        databaseManager.addLog(userName, userType, userID, date, startTime, endTime,
+                                project, effortCategory, effortDetail,
+                                lifeCycleStep);
+
+                        response = "Added log successfully!";
+                        code = 200;
+                    } else {
+                        code = 500;
+                        response = "Couldn't add log.";
+                    }
+                    helper.sendJsonResponse(exchange, code, response);
+                } else {
+                    // return error response for unsupported method
+                    String response = "Unsupported request method: " + requestMethod;
+                    helper.sendErrorResponse(exchange, 400, response);
+                }
+            } catch (Exception e) {
+                // handle any exceptions that occur while processing the request
+                String response = "Error processing request: " + e.getMessage();
+                helper.sendErrorResponse(exchange, 500, response);
+            }
+        }
+
+        /**
+         * <p>
+         * Processes a request to add a log to the database.
+         * To be implemented in the future
+         * </p>
+         * 
+         * @param requestBody - Request body containing the log information
+         * @return true if the log was added successfully, false otherwise
+         * @author Kosta Katergaris
+         * @version prototype
+         * @throws Exception
+         */
+        private boolean proccessAddLogRequest(String requestBody) throws Exception {
+
+            // check if requestBody is a JSON object
+            if (!helper.isJSON(requestBody))
+                return false;
+            if (!helper.correctAttributes(requestBody))
+                return false;
+            // check if there username exists in db
+            if (!helper.verifyToken(helper.getToken(requestBody)))
+                return false;
+            return true;
+
+        }
+    }
+
 }

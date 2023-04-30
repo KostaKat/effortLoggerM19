@@ -92,7 +92,10 @@ public class LoginHandlerHelper extends HandlerHelpers {
 			e.printStackTrace();
 
 		}
-		System.out.println(salt);
+		if (salt == null) {
+			return false;
+		}
+
 		String password = passwordUtils.hashPassword(jsonNode.get("Password").asText(), salt);
 		// check if in the database
 		try {
