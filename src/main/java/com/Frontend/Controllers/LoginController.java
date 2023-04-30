@@ -157,7 +157,7 @@ public class LoginController {
     private void connectWebSocket(String token) throws Exception {
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
         String wsUrl = "ws://localhost:8081/getLogs?Token=" + token;
-        WebSocketClient webSocketClient = new WebSocketClient(logs);
+        WebSocketClient webSocketClient = new WebSocketClient(logs, defects);
         webSocketSession = container.connectToServer(webSocketClient, new URI(wsUrl));
     }
 }

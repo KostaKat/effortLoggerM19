@@ -33,6 +33,8 @@ import jakarta.websocket.Session;
 import jakarta.websocket.WebSocketContainer;
 import javafx.collections.ObservableList;
 
+import com.Frontend.Defect;
+
 @ClientEndpoint
 public class WebSocketClient {
 
@@ -40,9 +42,10 @@ public class WebSocketClient {
     private ObservableList<Log> logs;
     private ObservableList<Defect> defects;
 
-    public WebSocketClient(ObservableList<Log> logs) {
+    public WebSocketClient(ObservableList<Log> logs, ObservableList<Defect> defects) {
 
         this.logs = logs;
+        this.defects = defects;
     }
 
     @OnOpen
@@ -86,7 +89,7 @@ public class WebSocketClient {
                     logs.addAll(receivedLogs);
                 } else if (messageObj.compareTo("getDefects") == 0) {
                     Defect[] defectArray = gson.fromJson(message, Defect[].class);
-                    ArrayList<Log> receivedDefects = new ArrayList<>(Arrays.asList(defectArray));
+                    ArrayList<Defect> receivedDefects = new ArrayList<>(Arrays.asList(defectArray));
                     defects.addAll(receivedDefects);
                 }
 
@@ -134,6 +137,38 @@ public class WebSocketClient {
                                 System.out.println("Log found");
                                 logs.set(i, logEdit);
                                 System.out.println(logs);
+                                break;
+                            }
+                        }
+                        break;
+                    case "addDefect":
+                        Defect defect = gson.fromJson(newJsonObject.toString(), Defect.class);
+                        defects.add(defect);
+
+                        break;
+
+                    case "deleteDefect":
+                        String defectID = newJsonObject.getString("defectID");
+
+                        for (int i = 0; i < defects.size(); i++) {
+                            Defect defectDelete = defects.get(i);
+                            if (defectDelete.getDefectID().equals(defectID)) {
+
+                                defects.remove(i);
+
+                                break;
+                            }
+                        }
+                        break;
+
+                    case "editDefect":
+                        Defect defectEdit = gson.fromJson(newJsonObject.toString(), Defect.class);
+                        System.out.println(defectEdit.toString());
+                        for (int i = 0; i < defects.size(); i++) {
+                            Defect defectEdit2 = defects.get(i);
+                            if (defectEdit2.getDefectID().equals(defectEdit.getDefectID())) {
+                                System.out.println("Log found");
+                                defects.set(i, defectEdit);
                                 break;
                             }
                         }
