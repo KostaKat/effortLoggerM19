@@ -112,6 +112,7 @@ public class LoginController {
                     ObjectMapper objectMapper = new ObjectMapper();
                     JsonNode jsonNode = objectMapper.readTree(responseBody);
                     authToken = jsonNode.get("Token").asText();
+                    System.out.println("Login"+logs.size()+defects.size());
                     Main.setManagerRoot(logs, defects, authToken, manager);
                 } else {
                     Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -128,6 +129,7 @@ public class LoginController {
                     ObjectMapper objectMapper = new ObjectMapper();
                     JsonNode jsonNode = objectMapper.readTree(responseBody);
                     authToken = jsonNode.get("Token").asText();
+                    System.out.println("Login"+logs.size()+defects.size());
                     Main.setRoot("CreateLog", logs, defects, authToken);
                 } else {
                     Alert alert = new Alert(Alert.AlertType.ERROR);

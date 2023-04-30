@@ -4,7 +4,6 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
@@ -18,7 +17,7 @@
                <font>
                   <Font name="Verdana" size="17.0" />
                </font></Label>
-            <TableView fx:id="logTable" layoutX="17.0" layoutY="46.0" prefHeight="266.0" prefWidth="717.0">
+            <TableView fx:id="logTable" layoutX="17.0" layoutY="46.0" prefHeight="209.0" prefWidth="717.0">
               <columns>
                 <TableColumn fx:id="date" prefWidth="75.0" text="Date" />
                 <TableColumn fx:id="startTime" prefWidth="75.0" text="Start Time" />
@@ -29,25 +28,19 @@
                   <TableColumn fx:id="effortDetail" minWidth="0.0" prefWidth="136.0" text="Effort Detail" />
               </columns>
             </TableView>
-            <TextArea fx:id="description" editable="false" layoutX="17.0" layoutY="320.0" prefHeight="148.0" prefWidth="382.0" promptText="Description Detail. Click one log to show..." />
             <Button fx:id="edit" layoutX="671.0" layoutY="443.0" mnemonicParsing="false" text="Edit Logs" />
-            <Button fx:id="logOut" layoutX="602.0" layoutY="443.0" mnemonicParsing="false" text="Logout" />
-            <Label layoutX="463.0" layoutY="320.0" text="Defect #:">
-               <font>
-                  <Font name="Verdana" size="15.0" />
-               </font>
-            </Label>
-            <Label layoutX="420.0" layoutY="349.0" text="Interruption #:">
-               <font>
-                  <Font name="Verdana" size="15.0" />
-               </font>
-            </Label>
+            <Button fx:id="logOut" layoutX="495.0" layoutY="443.0" mnemonicParsing="false" text="Logout" />
             <TextField fx:id="managerId" editable="false" layoutX="168.0" layoutY="11.0" prefHeight="26.0" prefWidth="432.0" />
-            <Label fx:id="defectCount" layoutX="547.0" layoutY="319.0" text="0">
-               <font>
-                  <Font name="Verdana" size="17.0" />
-               </font>
-            </Label>
+            <TableView fx:id="defectTable" layoutX="17.0" layoutY="268.0" prefHeight="152.0" prefWidth="717.0">
+              <columns>
+                <TableColumn fx:id="name" prefWidth="75.0" text="Name" />
+                <TableColumn fx:id="fixStatus" prefWidth="92.0" text="Fix Status" />
+                  <TableColumn fx:id="stepWhenInjected" prefWidth="166.0" text="Step When Injected" />
+                  <TableColumn fx:id="stepWhenRemoved" prefWidth="175.0" text="Step When Removed" />
+                  <TableColumn fx:id="defectCategory" prefWidth="208.0" text="Defect Category" />
+              </columns>
+            </TableView>
+            <Button fx:id="defectManage" layoutX="560.0" layoutY="443.0" mnemonicParsing="false" text="Defect Manage" />
          </children>
       </AnchorPane>
    </center>
