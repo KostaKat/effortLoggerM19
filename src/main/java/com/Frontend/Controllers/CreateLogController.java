@@ -169,6 +169,9 @@ public class CreateLogController {
                     defectTemp.setDefectCategory(defectC.getDefectCategoryS());
 
                     defects.add(defectTemp);
+                    /*
+                         TODO Add function
+                    */
 
                 }
 
@@ -197,8 +200,14 @@ public class CreateLogController {
                         System.out.println(defectC.getStatus()+ defectC.getDes());
                         defects.get(defectC.getIndex()).setFixStatus(defectC.getStatus());
                         defects.get(defectC.getIndex()).setDescription(defectC.getDes());
+                        /*
+                         TODO edit function
+                         */
                     }else if(defectC.getFlag().equals("delete")){
                         defects.remove(defectC.getIndex());
+                        /*
+                         TODO delete function
+                         */
                     }else{
 
                     }
