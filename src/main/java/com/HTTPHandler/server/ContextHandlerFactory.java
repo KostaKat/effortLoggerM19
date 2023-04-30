@@ -805,7 +805,7 @@ class EditDefectContextHandler implements HttpHandler {
 
                 // Process the editLog request and check the credentials
                 boolean editDefectSuccess = proccessEditDefectRequest(requestBody);
-
+                System.out.println("edit succes: " + editDefectSuccess);
                 // Send the response to the client
                 String response;
                 int code;
@@ -826,7 +826,7 @@ class EditDefectContextHandler implements HttpHandler {
             }
         } catch (Exception e) {
             // handle any exceptions that occur while processing the request
-            String response = "Error processing request: " + e.getMessage();
+            String response = "Error processing request: " + e;
             helper.sendErrorResponse(exchange, 500, response + "edit");
         }
     }
@@ -847,11 +847,15 @@ class EditDefectContextHandler implements HttpHandler {
         // check if requestBody is a JSON object
         if (!helper.isJSON(requestBody))
             return false;
-        if (!helper.correctAttributes(requestBody))
+        if (!helper.correctAttributes(requestBody)) {
+            System.out.println("not correct attributes");
             return false;
+        }
         // check if there username exists in db
-        if (!helper.verifyToken(helper.getToken(requestBody)))
+        if (!helper.verifyToken(helper.getToken(requestBody))) {
+            System.out.println("token not verified");
             return false;
+        }
 
         if (!helper.editDefectSuccess(requestBody)) {
             System.out.println("not edit defect success");

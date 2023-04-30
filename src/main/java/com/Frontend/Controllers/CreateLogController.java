@@ -3,7 +3,9 @@ Author : Yihui Wu
  */
 package com.Frontend.Controllers;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.ProtocolException;
@@ -12,6 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 import com.Frontend.Defect;
 import com.Frontend.Log;
@@ -24,7 +27,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -37,6 +39,7 @@ public class CreateLogController {
     private ObservableList<Defect> defects;
     private final Alert alert = new Alert(AlertType.WARNING);
     private final String authToken;
+    private Defect defectTemp = new Defect();
     private String startTime;
     private String endTime;
     private String date;
@@ -134,7 +137,7 @@ public class CreateLogController {
                 alert.setTitle("Warning Dialog");
                 alert.setContentText("Please stop the Log first to log out!!!");
                 alert.show();
-            }else{
+            } else {
                 try {
                     Main.setRoot("login");
                 } catch (IOException e) {
@@ -144,7 +147,7 @@ public class CreateLogController {
         });
 
         defect.setOnAction(event -> {
-            try{
+            try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/FXML/" + "Defect.fxml"));
                 DefectController temp = new DefectController();
                 loader.setController(temp);
@@ -158,8 +161,7 @@ public class CreateLogController {
 
                 DefectController defectC = loader.getController();
 
-                if(defectC.getNameS() != null){
-                    Defect defectTemp = new Defect();
+                if (defectC.getNameS() != null) {
 
                     defectTemp.setName(defectC.getNameS());
                     defectTemp.setDescription(defectC.getDescriptionS());
@@ -168,20 +170,17 @@ public class CreateLogController {
                     defectTemp.setStepWhenRemoved(defectC.getStepWhenRemovedS());
                     defectTemp.setDefectCategory(defectC.getDefectCategoryS());
 
-                    defects.add(defectTemp);
-                    /*
-                         TODO Add function
-                    */
+                    defectAdd();
 
                 }
 
-            }catch(IOException e){
+            } catch (IOException e) {
                 System.out.println("exception caught in the defect pop up page");
             }
         });
 
         defectManage.setOnAction(event -> {
-            try{
+            try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/FXML/" + "DefectManage.fxml"));
                 DefectManageController temp = new DefectManageController(defects);
                 loader.setController(temp);
@@ -195,25 +194,24 @@ public class CreateLogController {
 
                 DefectManageController defectC = loader.getController();
 
-                if(defectC.getFlag() != null){
-                    if(defectC.getFlag().equals("update")){
-                        System.out.println(defectC.getStatus()+ defectC.getDes());
-                        defects.get(defectC.getIndex()).setFixStatus(defectC.getStatus());
-                        defects.get(defectC.getIndex()).setDescription(defectC.getDes());
-                        /*
-                         TODO edit function
-                         */
-                    }else if(defectC.getFlag().equals("delete")){
+                if (defectC.getFlag() != null) {
+                    if (defectC.getFlag().equals("update")) {
+                        System.out.println(defectC.getStatus() + defectC.getDes());
+                        defectTemp.setFixStatus(defectC.getStatus());
+                        defectTemp.setDescription(defectC.getDes());
+                        defectTemp.setDefectID(defectC.getDefectID());
+                        defectUpdate();
+                    } else if (defectC.getFlag().equals("delete")) {
                         defects.remove(defectC.getIndex());
                         /*
-                         TODO delete function
+                         * TODO delete function
                          */
-                    }else{
+                    } else {
 
                     }
                 }
 
-            }catch(IOException e){
+            } catch (IOException e) {
                 System.out.println("exception caught in the defect pop up page");
             }
         });
@@ -398,5 +396,151 @@ public class CreateLogController {
 
         System.out.println("Log request code: " + logResponseCode);
         System.out.println("Log request message: " + logResponseMessage);
+    }
+
+    void defectAdd() throws IOException {
+        String serverUrl = "http://localhost:8080/addDefect"; // Replace with your server's URL
+        URL addDefectUrl = new URL(serverUrl);
+        HttpURLConnection con = (HttpURLConnection) addDefectUrl.openConnection();
+
+        // Set request method and headers
+        con.setRequestMethod("POST");
+        con.setRequestProperty("Content-Type", "application/json");
+        con.setRequestProperty("Accept", "application/json");
+        con.setDoOutput(true);
+
+        // Create JSON payload
+
+        JSONObject defectAddData = new JSONObject();
+        defectAddData.put("Token", authToken);
+        defectAddData.put("stepWhenInjected", defectTemp.getStepWhenInjected());
+        defectAddData.put("stepWhenRemoved", defectTemp.getStepWhenRemoved());
+        defectAddData.put("defectCategory", defectTemp.getDefectCategory());
+        defectAddData.put("fixStatus", defectTemp.getFixStatus());
+        defectAddData.put("name", defectTemp.getName());
+        defectAddData.put("description", defectTemp.getDescription());
+
+        String defectAddString = defectAddData.toString();
+        StringBuilder responseBuilder = new StringBuilder();
+        // Send the request
+        try (OutputStream os = con.getOutputStream()) {
+            byte[] input = defectAddString.getBytes("utf-8");
+            os.write(input, 0, input.length);
+        }
+
+        // Read the response
+        try (BufferedReader in = new BufferedReader(
+                new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8))) {
+            String line;
+            while ((line = in.readLine()) != null) {
+                responseBuilder.append(line);
+            }
+        } catch (Exception e) {
+            // If there is an exception, read the response from the error stream instead
+            try (BufferedReader in = new BufferedReader(
+                    new InputStreamReader(con.getErrorStream(), StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = in.readLine()) != null) {
+                    responseBuilder.append(line);
+                }
+            }
+        }
+    }
+
+    void defectUpdate() throws IOException {
+        String serverUrl = "http://localhost:8080/editDefect"; // Replace with your server's URL
+        URL DefectUrl = new URL(serverUrl);
+        HttpURLConnection con = (HttpURLConnection) DefectUrl.openConnection();
+
+        // Set request method and headers
+        con.setRequestMethod("PUT");
+        con.setRequestProperty("Content-Type", "application/json");
+        con.setRequestProperty("Accept", "application/json");
+        con.setDoOutput(true);
+
+        // Create JSON payload
+
+        JSONObject defectData = new JSONObject();
+        defectData.put("Token", authToken);
+        defectData.put("defectID", defectTemp.getDefectID());
+        defectData.put("fixStatus", defectTemp.getFixStatus());
+        defectData.put("description", defectTemp.getDescription());
+        System.out.println("JSON Payload: " + defectData.toString());
+
+        String defectAddString = defectData.toString();
+        StringBuilder responseBuilder = new StringBuilder();
+        // Send the request
+        try (OutputStream os = con.getOutputStream()) {
+            byte[] input = defectAddString.getBytes("utf-8");
+            os.write(input, 0, input.length);
+        }
+
+        // Read the response
+        try (BufferedReader in = new BufferedReader(
+                new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8))) {
+            String line;
+            while ((line = in.readLine()) != null) {
+                responseBuilder.append(line);
+            }
+        } catch (Exception e) {
+            // If there is an exception, read the response from the error stream instead
+            try (BufferedReader in = new BufferedReader(
+                    new InputStreamReader(con.getErrorStream(), StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = in.readLine()) != null) {
+                    responseBuilder.append(line);
+                }
+            }
+        }
+        System.out.println(responseBuilder.toString());
+    }
+
+    void defectDelete() throws IOException {
+        String deleteURL = "http://localhost:8080/deleteDefect"; // Replace with your server's URL
+        URL deleteURL_ = new URL(deleteURL);
+        HttpURLConnection con = (HttpURLConnection) deleteURL_.openConnection();
+
+        // Set request method and headers
+        con.setRequestMethod("DELETE");
+        con.setRequestProperty("Content-Type", "application/json");
+        con.setRequestProperty("Accept", "application/json");
+        con.setDoOutput(true);
+
+        // Create JSON payload
+        JSONObject defectDeleteData = new JSONObject();
+        defectDeleteData.put("Token", authToken);
+        defectDeleteData.put("defectID", defectTemp.getDefectID());
+        String defectDeleteDataString = defectDeleteData.toString();
+
+        // Send the request
+        try (OutputStream os = con.getOutputStream()) {
+            byte[] input = defectDeleteDataString.getBytes(StandardCharsets.UTF_8);
+            os.write(input, 0, input.length);
+        }
+
+        // Check for server errors
+        if (con.getResponseCode() >= 400) {
+            try (BufferedReader in = new BufferedReader(
+                    new InputStreamReader(con.getErrorStream(), StandardCharsets.UTF_8))) {
+                String errorResponse = in.lines().collect(Collectors.joining());
+                throw new RuntimeException(
+                        "Server returned error code " + con.getResponseCode() + ": " + errorResponse);
+            }
+        }
+
+        // Read the response
+        StringBuilder responseBuilderb = new StringBuilder();
+        try (BufferedReader in = new BufferedReader(
+                new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8))) {
+            String line;
+            while ((line = in.readLine()) != null) {
+                responseBuilderb.append(line);
+            }
+        }
+
+        // Print the response
+        String response = responseBuilderb.toString();
+        System.out.println(response);
+
     }
 }

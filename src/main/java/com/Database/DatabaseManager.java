@@ -274,8 +274,8 @@ public class DatabaseManager {
       }
       disconnect();
       // Convert the JSON array to a string and send it back to the client
-      JsonObject message = new JsonObject();
-      message.addProperty("action", "getLogs");
+      JSONObject message = new JSONObject();
+      message.put("action", "getLogs");
       logsArray.put(message);
     } catch (Exception e) {
       System.out.println(e.getMessage());
@@ -333,9 +333,10 @@ public class DatabaseManager {
 
       teamMembersStatement.close();
       teamMembersResultSet.close();
-      JsonObject message = new JsonObject();
-      message.addProperty("action", "getLogs");
+      JSONObject message = new JSONObject();
+      message.put("action", "getLogs");
       logsArray.put(message);
+      System.out.println(logsArray.toString());
       disconnect();
 
     } catch (Exception e) {
@@ -523,9 +524,8 @@ public class DatabaseManager {
     return rowsInserted > 0;
   }
 
-  public boolean editDefect(String defectID, String userID, String userType, String description, String name,
-      String fixStatus,
-      String stepWhenInjected, String stepWhenRemoved, String defectCategory) throws SQLException {
+  public boolean editDefect(String defectID, String userID, String userType, String description, String fixStatus)
+      throws SQLException {
     connect();
 
     String tempID = userID;
@@ -549,16 +549,12 @@ public class DatabaseManager {
     System.out.println("DEFECT USER ID" + employeeID);
 
     // Update the defect in the Defects table
-    String updateDefectSql = "UPDATE Defects SET Description=?, Name=?, FixStatus=?, StepWhenInjected=?, StepWhenRemoved=?, DefectCategory=? WHERE DefectID=? AND EmployeeID=?";
+    String updateDefectSql = "UPDATE Defects SET Description=?, FixStatus=? WHERE DefectID=? AND EmployeeID=?";
     PreparedStatement updateDefectStatement = connection.prepareStatement(updateDefectSql);
     updateDefectStatement.setString(1, description);
-    updateDefectStatement.setString(2, name);
-    updateDefectStatement.setString(3, fixStatus);
-    updateDefectStatement.setString(4, stepWhenInjected);
-    updateDefectStatement.setString(5, stepWhenRemoved);
-    updateDefectStatement.setString(6, defectCategory);
-    updateDefectStatement.setString(7, defectID);
-    updateDefectStatement.setString(8, userID);
+    updateDefectStatement.setString(2, fixStatus);
+    updateDefectStatement.setString(3, defectID);
+    updateDefectStatement.setString(4, userID);
     int rowsUpdated = updateDefectStatement.executeUpdate();
     updateDefectStatement.close();
 
@@ -567,15 +563,10 @@ public class DatabaseManager {
     defectObject.put("action", "editDefect");
     defectObject.put("defectID", defectID);
     defectObject.put("description", description);
-    defectObject.put("name", name);
     defectObject.put("fixStatus", fixStatus);
-    defectObject.put("stepWhenInjected", stepWhenInjected);
-    defectObject.put("stepWhenRemoved", stepWhenRemoved);
-    defectObject.put("defectCategory", defectCategory);
 
     WebSocket.sendUpdate(tempID, defectObject.toString());
     return rowsUpdated > 0;
-
   }
 
   public boolean deleteDefect(String defectID, String userID, String userType) {
@@ -686,8 +677,8 @@ public class DatabaseManager {
       teamMembersStatement.close();
       teamMembersResultSet.close();
       disconnect();
-      JsonObject message = new JsonObject();
-      message.addProperty("action", "getDefects");
+      JSONObject message = new JSONObject();
+      message.put("action", "getDefects");
       defectsArray.put(message);
     } catch (Exception e) {
       System.out.println(e.getMessage());
@@ -720,8 +711,8 @@ public class DatabaseManager {
         defectObject.put("defectCategory", rs.getString("DefectCategory"));
         defectsArray.put(defectObject);
       }
-      JsonObject message = new JsonObject();
-      message.addProperty("action", "getDefects");
+      JSONObject message = new JSONObject();
+      message.put("action", "getDefects");
       defectsArray.put(message);
       // Convert the JSON array to a string and send it back to the client
 

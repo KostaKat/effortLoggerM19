@@ -45,14 +45,14 @@ public class WebSocket {
             logs = db.getLogsManager(employeeID);
         }
         session.setMaxTextMessageBufferSize(10000);
-        manager.initialize(employeeID, "logs" + logs);
+        manager.initialize(employeeID, logs);
 
         if (helper.getClaims(token).get(("User-Type")).equals("Employee")) {
             defects = db.getDefectsEmployee(employeeID);
         } else {
             defects = db.getDefectsManager(employeeID);
         }
-        manager.initialize(employeeID, "defects" + defects);
+        manager.initialize(employeeID, defects);
     }
 
     @OnMessage

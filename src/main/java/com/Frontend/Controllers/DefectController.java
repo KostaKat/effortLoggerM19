@@ -40,14 +40,21 @@ public class DefectController {
     public void initialize() {
         description.setWrapText(true);
 
-        stepWhenInjected.getItems().addAll("Planning","Information Gathering","Information Understanding","Verifying","Outlining","Drafting","Finalizing","Team Meeting","Coach Meeting", "Stakeholder Meeting");
-        stepWhenRemoved.getItems().addAll("Planning","Information Gathering","Information Understanding","Verifying","Outlining","Drafting","Finalizing","Team Meeting","Coach Meeting", "Stakeholder Meeting");
-        defectCategory.getItems().addAll("Not specified","10 Documentation","20 Syntax","30 Build, Package","40 Assignment","50 Interface","60 Checking","70 Data","80 Function","90 System","100 Environment");
+        stepWhenInjected.getItems().addAll("Planning", "Information Gathering", "Information Understanding",
+                "Verifying", "Outlining", "Drafting", "Finalizing", "Team Meeting", "Coach Meeting",
+                "Stakeholder Meeting");
+        stepWhenRemoved.getItems().addAll("Planning", "Information Gathering", "Information Understanding", "Verifying",
+                "Outlining", "Drafting", "Finalizing", "Team Meeting", "Coach Meeting", "Stakeholder Meeting");
+        defectCategory.getItems().addAll("Not specified", "10 Documentation", "20 Syntax", "30 Build, Package",
+                "40 Assignment", "50 Interface", "60 Checking", "70 Data", "80 Function", "90 System",
+                "100 Environment");
 
         defectCategory.setValue("Not specified");
 
         add.setOnAction(event -> {
-            if(!description.getText().isEmpty() && !stepWhenRemoved.getSelectionModel().isEmpty() && !stepWhenInjected.getSelectionModel().isEmpty() && !defectCategory.getSelectionModel().isEmpty() && !name.getText().isEmpty()){
+            if (!description.getText().isEmpty() && !stepWhenRemoved.getSelectionModel().isEmpty()
+                    && !stepWhenInjected.getSelectionModel().isEmpty() && !defectCategory.getSelectionModel().isEmpty()
+                    && !name.getText().isEmpty()) {
                 nameS = name.getText();
                 descriptionS = description.getText();
                 stepWhenInjectedS = stepWhenInjected.getValue();
@@ -58,7 +65,7 @@ public class DefectController {
                 alert.showAndWait();
                 Stage stage = (Stage) add.getScene().getWindow();
                 stage.close();
-            }else{
+            } else {
                 Alert alert = new Alert(Alert.AlertType.WARNING);
                 alert.setContentText("You have to fill all the box!!!");
                 alert.showAndWait();

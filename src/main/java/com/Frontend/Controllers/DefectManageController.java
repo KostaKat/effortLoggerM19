@@ -42,25 +42,25 @@ public class DefectManageController {
         return flag;
     }
 
-    public DefectManageController(ObservableList<Defect> defects){
+    public DefectManageController(ObservableList<Defect> defects) {
         this.defects = defects;
     }
 
     @FXML
-    public void initialize(){
+    public void initialize() {
 
         description.setWrapText(true);
-        fixStatus.getItems().addAll("Open","Solved");
+        fixStatus.getItems().addAll("Open", "Solved");
 
-        if(defects.isEmpty()){
+        if (defects.isEmpty()) {
             System.out.println("No defects found.");
-        }else{
-            for (Defect defect: defects){
+        } else {
+            for (Defect defect : defects) {
                 select.getItems().add(defect.toString());
             }
             defects.addListener((ListChangeListener<Defect>) c -> {
                 select.getItems().clear();
-                for (Defect defect: defects){
+                for (Defect defect : defects) {
                     select.getItems().add(defect.toString());
                 }
             });
@@ -76,7 +76,7 @@ public class DefectManageController {
         });
 
         update.setOnAction(event -> {
-            if(!select.getSelectionModel().isEmpty()){
+            if (!select.getSelectionModel().isEmpty()) {
                 index = select.getSelectionModel().getSelectedIndex();
                 status = fixStatus.getValue();
                 des = description.getText();
@@ -86,7 +86,7 @@ public class DefectManageController {
                 alert.showAndWait();
                 Stage stage = (Stage) update.getScene().getWindow();
                 stage.close();
-            }else{
+            } else {
                 Alert a = new Alert(Alert.AlertType.INFORMATION);
                 a.setContentText("Please Select One Defect!!!");
                 a.showAndWait();
@@ -95,7 +95,7 @@ public class DefectManageController {
         });
 
         delete.setOnAction(event -> {
-            if(!select.getSelectionModel().isEmpty()){
+            if (!select.getSelectionModel().isEmpty()) {
                 Alert alert = new Alert(Alert.AlertType.CONFIRMATION,
                         "Are you sure you want to delete the select Log? THIS ACTION CANNOT BE RESTORE!",
                         ButtonType.YES, ButtonType.NO);
@@ -109,18 +109,17 @@ public class DefectManageController {
                     Stage stage = (Stage) update.getScene().getWindow();
                     stage.close();
                 }
-            }else{
+            } else {
                 Alert a = new Alert(Alert.AlertType.INFORMATION);
                 a.setContentText("Please Select One Defect!!!");
                 a.showAndWait();
             }
         });
 
-
-
-
     }
 
-
+    public String getDefectID() {
+        return selectedDefect.getDefectID();
+    }
 
 }

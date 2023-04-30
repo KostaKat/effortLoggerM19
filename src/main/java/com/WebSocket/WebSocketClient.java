@@ -9,6 +9,7 @@ import java.util.Arrays;
 
 import javax.json.Json;
 import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.json.JsonReader;
@@ -56,41 +57,47 @@ public class WebSocketClient {
 
     @OnMessage
     public void onMessage(String message) {
+        System.out.println("WebSocket message received: \n" + message);
         Gson gson = new GsonBuilder().create();
         try (JsonReader reader = Json.createReader(new StringReader(message))) {
             JsonValue jsonValue = reader.readValue();
+
             if (jsonValue.getValueType() == JsonValue.ValueType.ARRAY) {
+
                 // Parse the JSON array string as a JsonArray using the javax.json library
                 JsonReader jsonReader = Json.createReader(new StringReader(message));
                 JsonArray jsonArray = jsonReader.readArray();
 
-                // Iterate over the JSON array to find the object with an "action" attribute
-                JsonObject objectToRemove = null;
+                JsonArrayBuilder jsonArrayBuilder = Json.createArrayBuilder();
+                String actionValue = null;
+
                 for (JsonValue value : jsonArray) {
                     if (value.getValueType() == JsonValue.ValueType.OBJECT) {
                         JsonObject object = (JsonObject) value;
-                        if (object.containsKey("action") && object.getString("action").equals("message")) {
-                            objectToRemove = object;
-                            break;
+                        if (object.containsKey("action")) {
+                            actionValue = object.getString("action");
+                        } else {
+                            jsonArrayBuilder.add(object);
                         }
+                    } else {
+                        jsonArrayBuilder.add(value);
                     }
                 }
-                String messageObj = "default";
-                // If an object with an "action" attribute was found, extract its "message"
-                // attribute and remove the object from the JSON array
-                if (objectToRemove != null) {
-                    messageObj = objectToRemove.getString("message");
-                    jsonArray.remove(objectToRemove);
-                }
 
-                if (messageObj.compareTo("getLogs") == 0) {
+                JsonArray newJsonArray = jsonArrayBuilder.build();
+                System.out.println("Action value: " + actionValue);
+                System.out.println("New JsonArray: " + newJsonArray);
+
+                if (actionValue.compareTo("getLogs") == 0) {
                     Log[] logArray = gson.fromJson(message, Log[].class);
                     ArrayList<Log> receivedLogs = new ArrayList<>(Arrays.asList(logArray));
                     logs.addAll(receivedLogs);
-                } else if (messageObj.compareTo("getDefects") == 0) {
+                    System.out.println(receivedLogs);
+                } else if (actionValue.compareTo("getDefects") == 0) {
                     Defect[] defectArray = gson.fromJson(message, Defect[].class);
                     ArrayList<Defect> receivedDefects = new ArrayList<>(Arrays.asList(defectArray));
                     defects.addAll(receivedDefects);
+                    System.out.println(receivedDefects);
                 }
 
             } else if (jsonValue.getValueType() == JsonValue.ValueType.OBJECT) {
@@ -162,13 +169,15 @@ public class WebSocketClient {
                         break;
 
                     case "editDefect":
-                        Defect defectEdit = gson.fromJson(newJsonObject.toString(), Defect.class);
-                        System.out.println(defectEdit.toString());
+                        String defectIDEdit = newJsonObject.getString("defectID");
+                        String fixStatus = newJsonObject.getString("fixStatus");
+                        String description = newJsonObject.getString("description");
                         for (int i = 0; i < defects.size(); i++) {
-                            Defect defectEdit2 = defects.get(i);
-                            if (defectEdit2.getDefectID().equals(defectEdit.getDefectID())) {
+                            Defect currentDefect = defects.get(i);
+                            if (currentDefect.getDefectID().compareTo(defectIDEdit) == 0) {
                                 System.out.println("Log found");
-                                defects.set(i, defectEdit);
+                                currentDefect.setFixStatus(fixStatus);
+                                currentDefect.setDescription(description);
                                 break;
                             }
                         }
