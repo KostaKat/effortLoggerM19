@@ -11,17 +11,17 @@ module org.openjfx.hellofx {
 	requires jakarta.websocket;
 	requires jakarta.websocket.client;
 	requires org.glassfish.tyrus.server;
+	requires Java.WebSocket;
 	requires com.google.gson;
 	requires java.json;
 
 	exports com.WebSocket to org.glassfish.tyrus.core;
 
-	opens com.Frontend to javafx.fxml,com.google.gson;
+	opens com.Frontend to javafx.fxml;
 
 	exports com.Frontend;
 
 	opens com.Frontend.Controllers to javafx.fxml;
-	
 
 	exports com.Frontend.Controllers;
 

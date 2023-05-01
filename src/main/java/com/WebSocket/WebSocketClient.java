@@ -7,18 +7,15 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
-import javax.json.JsonReader;
-import javax.json.JsonValue;
+
 
 import com.Frontend.Defect;
 import com.Frontend.Log;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import jakarta.websocket.ClientEndpoint;
 import jakarta.websocket.CloseReason;
@@ -31,6 +28,7 @@ import jakarta.websocket.OnOpen;
 import jakarta.websocket.Session;
 import jakarta.websocket.WebSocketContainer;
 import javafx.collections.ObservableList;
+import javafx.application.Platform;
 
 @ClientEndpoint
 public class WebSocketClient {
@@ -53,142 +51,164 @@ public class WebSocketClient {
 
     @OnMessage
     public void onMessage(String message) {
-        System.out.println("WebSocket message received: \n" + message);
-        Gson gson = new GsonBuilder().create();
-        try (JsonReader reader = Json.createReader(new StringReader(message))) {
-            JsonValue jsonValue = reader.readValue();
+        
+    	 Gson gson = new GsonBuilder().create();
 
-            if (jsonValue.getValueType() == JsonValue.ValueType.ARRAY) {
+    	    // Parse the JSON message as a JsonElement using the com.google.gson library
+    	    JsonElement jsonElement = gson.fromJson(message, JsonElement.class);
 
-                // Parse the JSON array string as a JsonArray using the javax.json library
-                JsonReader jsonReader = Json.createReader(new StringReader(message));
-                JsonArray jsonArray = jsonReader.readArray();
+    	    if (jsonElement.isJsonArray()) {
+    	        System.out.println("WebSocket message received: \n" + message);
+    	        JsonArray jsonArray = jsonElement.getAsJsonArray();
 
-                JsonArrayBuilder jsonArrayBuilder = Json.createArrayBuilder();
-                String actionValue = null;
+    	        String actionValue = null;
+    	       
+    	        JsonArray newJsonArray = new JsonArray();
+    	        for (JsonElement element : jsonArray) {
+    	            if (element.isJsonObject()) {
+    	                JsonObject object = element.getAsJsonObject();
+    	                if (object.has("action")) {
+    	                    actionValue = object.get("action").getAsString();
+    	                } else {
+    	                    newJsonArray.add(element);
+    	                }
+    	            } else {
+    	                newJsonArray.add(element);
+    	            }
+    	        }
 
-                for (JsonValue value : jsonArray) {
-                    if (value.getValueType() == JsonValue.ValueType.OBJECT) {
-                        JsonObject object = (JsonObject) value;
-                        if (object.containsKey("action")) {
-                            actionValue = object.getString("action");
-                        } else {
-                            jsonArrayBuilder.add(object);
-                        }
-                    } else {
-                        jsonArrayBuilder.add(value);
-                    }
-                }
+    	        System.out.println("Action value: " + actionValue);
 
-                JsonArray newJsonArray = jsonArrayBuilder.build();
-                System.out.println("Action value: " + actionValue);
-                System.out.println("New JsonArray: " + newJsonArray);
+    	        if (actionValue.compareTo("getLogs") == 0) {
+    	            System.out.println("In getLogs");
+    	            Log[] logArray = gson.fromJson(newJsonArray.toString(), Log[].class);
+    	            ArrayList<Log> receivedLogs = new ArrayList<>(Arrays.asList(logArray));
+    	            System.out.println("ArrayList" + receivedLogs);
+    	            logs.removeIf(log -> log.getProject() == null);
 
-                if (actionValue.compareTo("getLogs") == 0) {
-                    Log[] logArray = gson.fromJson(message, Log[].class);
-                    ArrayList<Log> receivedLogs = new ArrayList<>(Arrays.asList(logArray));
-                    logs.addAll(receivedLogs);
-                    System.out.println(receivedLogs);
-                } else if (actionValue.compareTo("getDefects") == 0) {
-                    Defect[] defectArray = gson.fromJson(message, Defect[].class);
-                    ArrayList<Defect> receivedDefects = new ArrayList<>(Arrays.asList(defectArray));
-                    receivedDefects.removeIf(defect -> defect.getName() == null);
+    	            Platform.runLater(() -> {
+    	                logs.addAll(receivedLogs);
+    	                System.out.println(logs);
+    	            });
 
-                    defects.addAll(receivedDefects);
-                    System.out.println(receivedDefects);
-                }
+    	            System.out.println(receivedLogs);
+    	        } else if (actionValue.compareTo("getDefects") == 0) {
+    	            Defect[] defectArray = gson.fromJson(newJsonArray.toString(), Defect[].class);
+    	            ArrayList<Defect> receivedDefects = new ArrayList<>(Arrays.asList(defectArray));
+    	            receivedDefects.removeIf(defect -> defect.getName() == null);
 
-            } else if (jsonValue.getValueType() == JsonValue.ValueType.OBJECT) {
-                // Received message is a JSON object
-                JsonObject jsonObject = jsonValue.asJsonObject();
+    	            Platform.runLater(() -> {
+    	                defects.addAll(receivedDefects);
+    	                System.out.println(defects);
+    	            });
 
-                String action = jsonObject.getString("action");
-                System.out.println(action);
-                JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
-                for (String key : jsonObject.keySet()) {
-                    if (!key.equals("action")) {
-                        jsonObjectBuilder.add(key, jsonObject.get(key));
-                    }
-                }
-                JsonObject newJsonObject = jsonObjectBuilder.build();
+    	            System.out.println(receivedDefects);
+    	        }
+    	    }else if (jsonElement.isJsonObject()) {
+    	        // Received message is a JSON object
+    	        JsonObject jsonObject = jsonElement.getAsJsonObject();
 
-                switch (action) {
-                    case "addLog":
-                        Log log = gson.fromJson(newJsonObject.toString(), Log.class);
-                        logs.add(log);
-                        System.out.println(log.toString());
-                        break;
+    	        String action = jsonObject.get("action").getAsString();
+    	        System.out.println(action);
 
-                    case "deleteLog":
-                        String logID = newJsonObject.getString("logID");
-                        System.out.println(logID);
-                        for (int i = 0; i < logs.size(); i++) {
-                            Log logDelete = logs.get(i);
-                            if (logDelete.getLogID().equals(logID)) {
-                                System.out.println(logDelete);
-                                logs.remove(i);
-                                System.out.println(logs);
-                                break;
-                            }
-                        }
-                        break;
+    	        JsonObject newJsonObject = jsonObject.entrySet().stream()
+    	                .filter(entry -> !entry.getKey().equals("action"))
+    	                .collect(JsonObject::new, (jObj, entry) -> jObj.add(entry.getKey(), entry.getValue()),
+    	                        (jObj1, jObj2) -> {});
 
-                    case "editLog":
-                        Log logEdit = gson.fromJson(newJsonObject.toString(), Log.class);
-                        System.out.println(logEdit.toString());
-                        for (int i = 0; i < logs.size(); i++) {
-                            Log logEdit2 = logs.get(i);
-                            if (logEdit2.getLogID().equals(logEdit.getLogID())) {
-                                System.out.println("Log found");
-                                logs.set(i, logEdit);
-                                System.out.println(logs);
-                                break;
-                            }
-                        }
-                        break;
-                    case "addDefect":
-                        Defect defect = gson.fromJson(newJsonObject.toString(), Defect.class);
-                        defects.add(defect);
+    	        switch (action) {
+    	            case "addLog":
+    	                Log log = gson.fromJson(newJsonObject, Log.class);
+    	                Platform.runLater(() -> {
+    	                	logs.add(log);
+        	                
+        	            });
+    	                
+    	                System.out.println(log.toString());
+    	                break;
 
-                        break;
+    	            case "deleteLog":
+    	                String logID = newJsonObject.get("logID").getAsString();
+    	                System.out.println(logID);
+    	                for (int i = 0; i < logs.size(); i++) {
+    	                    Log logDelete = logs.get(i);
+    	                    if (logDelete.getLogID().equals(logID)) {
+    	                        System.out.println(logDelete);
+    	                        final int indexToRemove = i;  
+    	                        Platform.runLater(() -> {
+    	                        	logs.remove(indexToRemove);
+    	        	                
+    	        	            });
+    	    	                
+    	                        
+    	                        System.out.println(logs);
+    	                        break;
+    	                    }
+    	                }
+    	                break;
 
-                    case "deleteDefect":
-                        String defectID = newJsonObject.getString("defectID");
+    	            case "editLog":
+    	                Log logEdit = gson.fromJson(newJsonObject, Log.class);
+    	                System.out.println(logEdit.toString());
+    	                for (int i = 0; i < logs.size(); i++) {
+    	                    Log logEdit2 = logs.get(i);
+    	                    if (logEdit2.getLogID().equals(logEdit.getLogID())) {
+    	                        System.out.println("Log found");
+    	                        final int indexToRemove = i;  
+    	                        Platform.runLater(() -> {
+    	                        	logs.set(indexToRemove, logEdit);
+    	        	                
+    	        	            });
+    	                        
+    	                        System.out.println(logs);
+    	                        break;
+    	                    }
+    	                }
+    	                break;
+    	            case "addDefect":
+    	                Defect defect = gson.fromJson(newJsonObject, Defect.class);
+    	                Platform.runLater(() -> {
+    	                	defects.add(defect);
+        	                
+        	            });
+    	                break;
 
-                        for (int i = 0; i < defects.size(); i++) {
-                            Defect defectDelete = defects.get(i);
-                            if (defectDelete.getDefectID().equals(defectID)) {
+    	            case "deleteDefect":
+    	                String defectID = newJsonObject.get("defectID").getAsString();
 
-                                defects.remove(i);
+    	                for (int i = 0; i < defects.size(); i++) {
+    	                    Defect defectDelete = defects.get(i);
+    	                    if (defectDelete.getDefectID().equals(defectID)) {
+    	                    	final int indexToRemove = i;  
+    	                        Platform.runLater(() -> {
+    	                        	defects.remove(indexToRemove);
+    	        	                
+    	        	            });
+    	                        break;
+    	                    }
+    	                }
+    	                break;
 
-                                break;
-                            }
-                        }
-                        break;
+    	            case "editDefect":
+    	                String defectIDEdit = newJsonObject.get("defectID").getAsString();
+    	                String fixStatus = newJsonObject.get("fixStatus").getAsString();
+    	                String description = newJsonObject.get("description").getAsString();
+    	                for (int i = 0; i < defects.size(); i++) {
+    	                    Defect currentDefect = defects.get(i);
+    	                    if (currentDefect.getDefectID().compareTo(defectIDEdit) == 0) {
+    	                        System.out.println("Log found");
+    	                        currentDefect.setFixStatus(fixStatus);
+    	                        currentDefect.setDescription(description);
+    	                        break;
+    	                    }
+    	                }
+    	                break;
+    	        }
+    	    } else {
+    	        // Received message is neither a JSON array nor a JSON object
+    	        // Handle the error as needed
+    	    }
 
-                    case "editDefect":
-                        String defectIDEdit = newJsonObject.getString("defectID");
-                        String fixStatus = newJsonObject.getString("fixStatus");
-                        String description = newJsonObject.getString("description");
-                        for (int i = 0; i < defects.size(); i++) {
-                            Defect currentDefect = defects.get(i);
-                            if (currentDefect.getDefectID().compareTo(defectIDEdit) == 0) {
-                                System.out.println("Log found");
-                                currentDefect.setFixStatus(fixStatus);
-                                currentDefect.setDescription(description);
-                                break;
-                            }
-                        }
-                        break;
-
-                }
-            } else {
-                // Received message is neither a JSON array nor a JSON object
-                // Handle the error as needed
-            }
-        } catch (Exception e) {
-            // Handle the exception as needed
-        }
     }
 
     @OnClose
